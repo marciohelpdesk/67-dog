@@ -1,0 +1,407 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .glass-card {
+    background: rgba(18, 18, 24, 0.78);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7),
+                0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  }
+
+  .glass-button {
+    background: rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+  }
+
+  .glass-button:hover, .glass-button:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 159, 28, 0.5);
+  }
+
+  .glass-pill {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .glow-pulse {
+    animation: glowPulse 2.4s infinite ease-in-out;
+  }
+
+  .glow-pulse-green {
+    animation: glowPulseGreen 2.2s infinite ease-in-out;
+  }
+
+  .floating-food {
+    animation: floatGentle 4s ease-in-out infinite;
+  }
+
+  .food-title-chalk {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.8),
+                 0 0 30px rgba(255, 159, 28, 0.45);
+  }
+
+  .animated-letter {
+    display: inline-block;
+    animation: letterBounce 2.8s ease-in-out infinite;
+    transform-origin: center bottom;
+    transition: transform 0.2s ease;
+  }
+
+  .animated-letter:hover {
+    transform: translateY(-10px) scale(1.15) rotate(-3deg);
+    color: #ffd166;
+  }
+
+  .animated-logo-hero {
+    display: block;
+    animation: logoHeroBounce 2.8s ease-in-out infinite;
+    transform-origin: center bottom;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+  }
+
+  .animated-logo-hero:hover {
+    transform: translateY(-8px) scale(1.08) rotate(-1.5deg);
+    filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 35px rgba(255, 209, 102, 0.95)) drop-shadow(0 0 16px rgba(239, 68, 68, 0.65));
+  }
+
+  .auto-degrade-shift {
+    background: linear-gradient(
+      120deg,
+      rgba(245, 158, 11, 0.22) 0%,
+      rgba(217, 119, 6, 0.28) 30%,
+      rgba(251, 191, 36, 0.22) 60%,
+      rgba(180, 83, 9, 0.28) 100%
+    );
+    background-size: 250% 250%;
+    animation: autoColorShift 9s ease-in-out infinite;
+  }
+
+  .hero-bg-breathe {
+    animation: heroZoomBreathe 8s ease-in-out infinite alternate;
+  }
+
+  /* Smooth feathered blur transition from hero image to surrounding shapes */
+  .hero-feathered-image {
+    -webkit-mask-image: radial-gradient(ellipse 95% 85% at 50% 48%, #000 45%, rgba(0, 0, 0, 0.85) 70%, rgba(0, 0, 0, 0.3) 90%, transparent 100%),
+                        linear-gradient(to bottom, #000 0%, #000 60%, rgba(0, 0, 0, 0.5) 85%, transparent 100%);
+    mask-image: radial-gradient(ellipse 95% 85% at 50% 48%, #000 45%, rgba(0, 0, 0, 0.85) 70%, rgba(0, 0, 0, 0.3) 90%, transparent 100%),
+                linear-gradient(to bottom, #000 0%, #000 60%, rgba(0, 0, 0, 0.5) 85%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+
+  .progressive-blur-bottom {
+    position: absolute;
+    inset-x: 0;
+    bottom: -10px;
+    height: 120px;
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(20, 8, 3, 0.2) 30%,
+      rgba(20, 8, 3, 0.75) 75%,
+      rgba(20, 8, 3, 0.98) 100%
+    );
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .progressive-blur-top {
+    position: absolute;
+    inset-x: 0;
+    top: 0;
+    height: 65px;
+    background: linear-gradient(
+      to top,
+      transparent 0%,
+      rgba(20, 9, 3, 0.35) 50%,
+      rgba(20, 9, 3, 0.85) 100%
+    );
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .progressive-blur-sides {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 88% 78% at 50% 48%, transparent 62%, rgba(20, 9, 3, 0.25) 85%, rgba(20, 9, 3, 0.65) 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .liquid-cheddar-shader {
+    /* 3D Realistic Cheddar Drop Shadow: deep ambient shadow + warm molten golden halo */
+    filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.75)) drop-shadow(0 4px 8px rgba(217, 119, 6, 0.35));
+    position: relative;
+    z-index: 30;
+  }
+
+  .liquid-cheddar-shader svg {
+    display: block;
+    width: 100%;
+    animation: liquidMeltPulse 6s ease-in-out infinite alternate;
+    transform-origin: 50% 0%;
+  }
+
+  @keyframes liquidMeltPulse {
+    0% {
+      transform: scaleY(1);
+    }
+    50% {
+      transform: scaleY(1.035) translateY(1px);
+    }
+    100% {
+      transform: scaleY(0.99);
+    }
+  }
+
+  /* Progressive Blur-Up Lazy Loading for fast 3G/4G network rendering */
+  .img-blur-loading {
+    filter: blur(14px) scale(1.05);
+    opacity: 0.15;
+    transition: filter 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .img-blur-loaded {
+    filter: blur(0px) scale(1);
+    opacity: 1;
+    transition: filter 0.65s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .lazy-shimmer-placeholder {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.02) 0%,
+      rgba(245, 158, 11, 0.12) 50%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    background-size: 200% 100%;
+    animation: lazyShimmer 1.8s infinite ease-in-out;
+  }
+
+  @keyframes lazyShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .traditional-action-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .traditional-action-btn:hover, .traditional-action-btn:focus-visible {
+    transform: translateY(-2px) scale(1.08);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.65);
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+
+  .traditional-action-btn:active {
+    transform: translateY(0) scale(0.96);
+  }
+
+  /* Traditional brand color fills (standard customer service icons) */
+  .btn-trad-whatsapp {
+    background: #25D366;
+  }
+  .btn-trad-whatsapp:hover {
+    background: #20bd5a;
+  }
+
+  .btn-trad-location {
+    background: #EA4335;
+  }
+  .btn-trad-location:hover {
+    background: #d9382b;
+  }
+
+  .btn-trad-menu {
+    background: #F59E0B;
+  }
+  .btn-trad-menu:hover {
+    background: #d97706;
+  }
+
+  .btn-trad-hours {
+    background: #0284C7;
+  }
+  .btn-trad-hours:hover {
+    background: #0369a1;
+  }
+
+  .btn-trad-instagram {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
+  }
+  .btn-trad-instagram:hover {
+    filter: brightness(1.08);
+  }
+
+  .btn-trad-pix {
+    background: #32BCAD;
+  }
+  .btn-trad-pix:hover {
+    background: #2aa89b;
+  }
+
+  .tactile-circle-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .tactile-circle-btn:hover, .tactile-circle-btn:focus-visible {
+    transform: translateY(-2px) scale(1.08);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.65);
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+
+  .shimmer-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-effect::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -100%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      60deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.18) 50%,
+      transparent 70%
+    );
+    animation: shimmer 3.5s infinite;
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.6);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes glowPulseGreen {
+  0%, 100% {
+    box-shadow: 0 4px 14px rgba(37, 211, 102, 0.35);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 6px 20px rgba(37, 211, 102, 0.55);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0.8deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes letterBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 159, 28, 0.5);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.08);
+    text-shadow: 0 8px 24px rgba(0, 0, 0, 0.9), 0 0 35px rgba(255, 209, 102, 0.9), 0 0 16px rgba(239, 68, 68, 0.6);
+  }
+}
+
+@keyframes logoHeroBounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 20px rgba(255, 159, 28, 0.5));
+  }
+  50% {
+    transform: translateY(-8px) scale(1.06);
+    filter: drop-shadow(0 8px 26px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 32px rgba(255, 209, 102, 0.85)) drop-shadow(0 0 16px rgba(239, 68, 68, 0.55));
+  }
+}
+
+@keyframes autoColorShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes heroZoomBreathe {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.05);
+  }
+}
+
+/* Custom scrollbar for mobile drawers and menu */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 159, 28, 0.4);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 159, 28, 0.7);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}

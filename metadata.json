@@ -1,0 +1,6 @@
+{
+  "name": "67 DOG - Six Seven Hot Dog & Pastéis",
+  "description": "Cartão de Visita Digital interativo e Bio Link com efeito Glassmorphism para o 67 DOG (Six Seven Hot Dog).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

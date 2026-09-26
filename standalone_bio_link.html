@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>67 DOG | Six Seven Hot Dog & Pastéis Crocantes</title>
+  <meta name="description" content="Cartão de Visita Digital e Cardápio Interativo do 67 DOG." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      background: #0f0602;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px 12px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .bg-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at top center, rgba(217, 119, 6, 0.25) 0%, rgba(15, 6, 2, 0.98) 75%),
+                  url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+      z-index: 0;
+    }
+
+    .card-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(180deg, #2a1307 0%, #200e05 40%, #120602 100%);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 36px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85);
+      animation: fadeIn 0.8s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hero Section */
+    .hero-section {
+      background: linear-gradient(180deg, #d97706 0%, #c25e00 60%, #b45309 100%);
+      padding: 24px 20px 16px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      min-height: 350px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .hero-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.95;
+      filter: contrast(105%) brightness(100%);
+      z-index: 0;
+      pointer-events: none;
+      animation: heroZoomBreathe 8s ease-in-out infinite alternate;
+      -webkit-mask-image: radial-gradient(ellipse 95% 85% at 50% 48%, #000 40%, rgba(0, 0, 0, 0.8) 65%, rgba(0, 0, 0, 0.25) 85%, transparent 100%),
+                          linear-gradient(to bottom, #000 0%, #000 50%, rgba(0, 0, 0, 0.4) 75%, transparent 100%);
+      mask-image: radial-gradient(ellipse 95% 85% at 50% 48%, #000 40%, rgba(0, 0, 0, 0.8) 65%, rgba(0, 0, 0, 0.25) 85%, transparent 100%),
+                  linear-gradient(to bottom, #000 0%, #000 50%, rgba(0, 0, 0, 0.4) 75%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask-composite: intersect;
+    }
+
+    .progressive-blur-bottom {
+      position: absolute;
+      inset-inline: 0;
+      bottom: 0;
+      height: 120px;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(180, 83, 9, 0.15) 20%,
+        rgba(180, 83, 9, 0.55) 55%,
+        rgba(180, 83, 9, 0.85) 85%,
+        #b45309 100%
+      );
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .progressive-blur-top {
+      position: absolute;
+      inset-inline: 0;
+      top: 0;
+      height: 65px;
+      background: linear-gradient(
+        to top,
+        transparent 0%,
+        rgba(180, 83, 9, 0.35) 50%,
+        rgba(180, 83, 9, 0.8) 100%
+      );
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-bg-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        120deg,
+        rgba(245, 158, 11, 0.22) 0%,
+        rgba(217, 119, 6, 0.28) 30%,
+        rgba(251, 191, 36, 0.22) 60%,
+        rgba(180, 83, 9, 0.28) 100%
+      );
+      background-size: 250% 250%;
+      animation: autoColorShift 9s ease-in-out infinite;
+      mix-blend-mode: soft-light;
+      opacity: 0.5;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .hero-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.55) 95%),
+                  linear-gradient(180deg, rgba(0,0,0,0.35) 0%, transparent 40%, rgba(154, 52, 18, 0.85) 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .animated-letter {
+      display: inline-block;
+      animation: letterBounce 2.8s ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+
+    @keyframes letterBounce {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        text-shadow: 0 4px 18px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 159, 28, 0.5);
+      }
+      50% {
+        transform: translateY(-8px) scale(1.08);
+        text-shadow: 0 8px 24px rgba(0, 0, 0, 0.9), 0 0 35px rgba(255, 209, 102, 0.9), 0 0 16px rgba(239, 68, 68, 0.6);
+      }
+    }
+
+    @keyframes autoColorShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes heroZoomBreathe {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.05); }
+    }
+
+    .hero-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .logo-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 11px;
+      font-weight: 800;
+      color: #ffd166;
+    }
+
+    .whats-delivery-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #22c55e;
+      color: #ffffff;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+      text-decoration: none;
+    }
+
+    .animated-logo-hero {
+      display: block;
+      animation: logoHeroBounce 2.8s ease-in-out infinite;
+      transform-origin: center bottom;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+      cursor: pointer;
+    }
+
+    .animated-logo-hero:hover {
+      transform: translateY(-8px) scale(1.08) rotate(-1.5deg);
+      filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 35px rgba(255, 209, 102, 0.95)) drop-shadow(0 0 16px rgba(239, 68, 68, 0.65));
+    }
+
+    @keyframes logoHeroBounce {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 20px rgba(255, 159, 28, 0.5));
+      }
+      50% {
+        transform: translateY(-8px) scale(1.06);
+        filter: drop-shadow(0 8px 26px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 32px rgba(255, 209, 102, 0.85)) drop-shadow(0 0 16px rgba(239, 68, 68, 0.55));
+      }
+    }
+
+    .title-chalk {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 54px;
+      letter-spacing: 4px;
+      line-height: 0.9;
+      color: #ffffff;
+      text-shadow: 0 4px 14px rgba(0,0,0,0.8), 0 0 25px rgba(255, 159, 28, 0.4);
+    }
+
+    .hero-food-wrapper {
+      position: relative;
+      margin: -10px auto;
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-food-img {
+      max-height: 140px;
+      width: auto;
+      object-fit: contain;
+      filter: drop-shadow(0 15px 18px rgba(0,0,0,0.7));
+      animation: floatDog 4s ease-in-out infinite;
+    }
+
+    @keyframes floatDog {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .hero-subtitle {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ffd166;
+      margin-top: 4px;
+    }
+
+    .btn-peca-agora {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+      color: #ffffff;
+      padding: 13px 32px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 900;
+      text-decoration: none;
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.6);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      margin: 14px 0 6px;
+      transition: transform 0.2s;
+    }
+
+    .btn-peca-agora:active {
+      transform: scale(0.96);
+    }
+
+    /* Melted Cheese Waves & Liquid Cheddar Shader */
+    .wave-container {
+      width: 100%;
+      overflow: visible;
+      line-height: 0;
+      position: relative;
+      z-index: 20;
+      margin-top: -10px;
+      margin-bottom: -6px;
+      filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.8)) drop-shadow(0 4px 8px rgba(217, 119, 6, 0.35));
+    }
+
+    .cheddar-shader-svg {
+      width: 100%;
+      height: 60px;
+      display: block;
+    }
+
+    /* Tactile Buttons on Continuous Seamless Base */
+    .tactile-bar {
+      padding: 10px 16px 16px;
+      text-align: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .tactile-row {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 6px 0 10px;
+      flex-wrap: wrap;
+    }
+
+    .tactile-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+      color: #d4d4d8;
+      font-size: 10px;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+
+    .tactile-item:hover {
+      color: #ffffff;
+    }
+
+    .tactile-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+      border: 1.5px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 18px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+    }
+
+    .tactile-btn:hover {
+      transform: translateY(-2px) scale(1.08);
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.65);
+      border-color: rgba(255, 255, 255, 0.45);
+    }
+
+    .tactile-btn:active {
+      transform: translateY(0) scale(0.96);
+    }
+
+    .btn-trad-wa { background: #25D366; }
+    .btn-trad-loc { background: #EA4335; }
+    .btn-trad-menu { background: #F59E0B; }
+    .btn-trad-hours { background: #0284C7; }
+    .btn-trad-insta { background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%); }
+    .btn-trad-pix { background: #32BCAD; }
+
+    .btn-peca-agora {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: #25D366;
+      color: #ffffff;
+      padding: 13px 32px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+      border: 1.5px solid rgba(255, 255, 255, 0.25);
+      margin: 14px 0 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-peca-agora:hover {
+      background: #20bd5a;
+      transform: translateY(-1px) scale(1.02);
+    }
+
+    .btn-peca-agora:active {
+      transform: scale(0.96);
+    }
+
+    .interact-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 158, 11, 0.12);
+      color: #fde047;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      animation: bounce 2.5s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    /* Menu & Highlights Body */
+    .menu-body {
+      background: linear-gradient(180deg, #b45309 0%, #240e04 35%, #140702 100%);
+      padding: 16px;
+    }
+
+    .highlights-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 18px;
+      padding: 12px;
+      margin-bottom: 14px;
+    }
+
+    .highlights-header {
+      font-size: 12px;
+      font-weight: 700;
+      color: #f59e0b;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .highlights-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .food-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .food-card img {
+      width: 100%;
+      height: 85px;
+      object-fit: cover;
+    }
+
+    .food-card-content {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .food-card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .food-card-price {
+      font-size: 11px;
+      font-weight: 800;
+      color: #f59e0b;
+      margin: 4px 0 6px;
+    }
+
+    .food-card-btn {
+      background: #e63946;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      border: none;
+      padding: 6px;
+      border-radius: 6px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .delivery-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(90deg, #e63946 0%, #d97706 100%);
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 8px 20px rgba(230, 57, 70, 0.4);
+      margin-bottom: 12px;
+    }
+
+    .footer {
+      text-align: center;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 10px;
+      color: #9ca3af;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-overlay"></div>
+
+  <main class="card-container">
+    
+    <!-- Hero Upper Zone -->
+    <div class="hero-section">
+      <img 
+        src="https://i.ibb.co/WpgBGQj0/Gemini-Generated-Image-ugx8ydugx8ydugx8.jpg" 
+        alt="Cachorro Quente 67 Dog" 
+        class="hero-bg-img"
+      />
+      <div class="hero-bg-overlay"></div>
+      <div class="progressive-blur-top"></div>
+      <div class="progressive-blur-bottom"></div>
+      <div class="hero-vignette"></div>
+
+      <div style="position: relative; z-index: 2; margin: auto 0; padding: 6px 0; display: flex; flex-direction: column; align-items: center;">
+        <div style="display: flex; justify-content: center; align-items: center; margin: 4px 0;">
+          <img 
+            src="https://i.ibb.co/jP8pLkHd/Design-sem-nome-1.png" 
+            alt="67 Dog Logotipo Oficial" 
+            class="animated-logo-hero"
+            style="width: 220px; max-width: 85%; height: auto; object-fit: contain;"
+            referrerpolicy="no-referrer"
+          />
+        </div>
+        <div class="hero-subtitle">Six Seven Hot Dog & Pastéis Crocantes</div>
+      </div>
+
+      <div style="position: relative; z-index: 2;">
+        <a href="https://wa.me/19417207983?text=Ol%C3%A1!%20Quero%20fazer%20meu%20pedido%20no%2067%20Dog!" target="_blank" class="btn-peca-agora">
+          <span>Peça agora</span>
+          <i class="fa-brands fa-whatsapp"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- Organic Cheddar Melt Shader Wave -->
+    <div class="wave-container">
+      <svg viewBox="0 0 1200 125" class="cheddar-shader-svg" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="cheddarMainStatic" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0" />
+            <stop offset="25%" stopColor="#d97706" stopOpacity="0.75" />
+            <stop offset="50%" stopColor="#f59e0b" stopOpacity="0.98" />
+            <stop offset="75%" stopColor="#fbbf24" stopOpacity="1" />
+            <stop offset="100%" stopColor="#fef08a" stopOpacity="1" />
+          </linearGradient>
+          <linearGradient id="cheddarDepthStatic" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#92400e" stopOpacity="0" />
+            <stop offset="30%" stopColor="#b45309" stopOpacity="0.8" />
+            <stop offset="85%" stopColor="#d97706" stopOpacity="0.95" />
+            <stop offset="100%" stopColor="#f59e0b" stopOpacity="1" />
+          </linearGradient>
+          <linearGradient id="cheddarGlossStatic" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgba(255,255,255,0)" />
+            <stop offset="15%" stopColor="rgba(255,255,255,0.95)" />
+            <stop offset="35%" stopColor="rgba(254,240,138,0.7)" />
+            <stop offset="58%" stopColor="rgba(255,255,255,0.95)" />
+            <stop offset="80%" stopColor="rgba(254,240,138,0.6)" />
+            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+          </linearGradient>
+        </defs>
+        <!-- Depth Layer -->
+        <path
+          d="M 0,0 L 1200,0 L 1200,24 C 1140,24 1100,54 1050,54 C 990,54 970,22 920,22 C 870,22 850,88 810,88 C 775,88 760,30 710,30 C 660,30 640,68 590,68 C 540,68 520,24 460,24 C 400,24 380,100 330,100 C 285,100 270,34 210,34 C 160,34 140,74 90,74 C 50,74 30,26 0,26 Z"
+          fill="url(#cheddarDepthStatic)"
+        />
+        <!-- Front Cheddar Drip Layer -->
+        <path
+          d="M 0,0 L 1200,0 L 1200,20 C 1140,20 1100,48 1050,48 C 990,48 970,18 920,18 C 870,18 850,82 810,82 C 775,82 760,26 710,26 C 660,26 640,62 590,62 C 540,62 520,20 460,20 C 400,20 380,94 330,94 C 285,94 270,30 210,30 C 160,30 140,68 90,68 C 50,68 30,22 0,22 Z"
+          fill="url(#cheddarMainStatic)"
+        />
+        <!-- Specular Highlight -->
+        <path
+          d="M 10,24 C 40,24 60,70 90,70 C 140,70 160,32 210,32 C 270,32 285,96 330,96 C 380,96 400,22 460,22 C 520,22 540,64 590,64 C 640,64 660,28 710,28 C 760,28 775,84 810,84 C 850,84 870,20 920,20 C 970,20 990,50 1050,50 C 1100,50 1140,22 1190,22"
+          fill="none"
+          stroke="url(#cheddarGlossStatic)"
+          stroke-width="2.8"
+          stroke-linecap="round"
+          opacity="0.95"
+        />
+        <!-- Suspended Drops -->
+        <circle cx="330" cy="108" r="5" fill="#f59e0b" />
+        <circle cx="328.5" cy="106" r="1.6" fill="#ffffff" opacity="0.95" />
+        <circle cx="810" cy="98" r="4.5" fill="#f59e0b" />
+        <circle cx="808.5" cy="96.3" r="1.4" fill="#ffffff" opacity="0.95" />
+        <circle cx="90" cy="82" r="3.5" fill="#f59e0b" />
+        <circle cx="88.8" cy="80.8" r="1.1" fill="#ffffff" opacity="0.95" />
+      </svg>
+    </div>
+
+    <!-- Traditional Customer Service Action Bar -->
+    <div class="tactile-bar">
+      <div class="tactile-row">
+        <a href="https://wa.me/19417207983?text=Ol%C3%A1!%20Gostaria%20de%20fazer%20um%20pedido%20no%2067%20Dog." target="_blank" class="tactile-item" title="WhatsApp">
+          <div class="tactile-btn btn-trad-wa">
+            <i class="fa-brands fa-whatsapp text-white"></i>
+          </div>
+          <span>WhatsApp</span>
+        </a>
+        <a href="https://maps.google.com/?q=Av.+das+Nações+Unidas,+1250" target="_blank" class="tactile-item" title="Como Chegar">
+          <div class="tactile-btn btn-trad-loc">
+            <i class="fa-solid fa-location-dot text-white"></i>
+          </div>
+          <span>Local</span>
+        </a>
+        <a href="https://wa.me/19417207983?text=Cardapio" target="_blank" class="tactile-item" title="Cardápio">
+          <div class="tactile-btn btn-trad-menu">
+            <i class="fa-solid fa-utensils text-white"></i>
+          </div>
+          <span>Cardápio</span>
+        </a>
+        <a href="https://instagram.com" target="_blank" class="tactile-item" title="Instagram">
+          <div class="tactile-btn btn-trad-insta">
+            <i class="fa-brands fa-instagram text-white"></i>
+          </div>
+          <span>Instagram</span>
+        </a>
+        <a href="https://wa.me/19417207983?text=Pix" target="_blank" class="tactile-item" title="Pix">
+          <div class="tactile-btn btn-trad-pix">
+            <i class="fa-brands fa-pix text-white"></i>
+          </div>
+          <span>Pix</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Menu & Highlights -->
+    <div class="menu-body">
+      <div class="highlights-box">
+        <div class="highlights-header">
+          <i class="fa-solid fa-fire text-red-500"></i>
+          <span>Destaques da Casa</span>
+        </div>
+        <div class="highlights-grid">
+          <div class="food-card">
+            <img src="https://i.ibb.co/WpgBGQj0/Gemini-Generated-Image-ugx8ydugx8ydugx8.jpg" alt="Hot Dog Cheddar Bacon" loading="lazy" decoding="async" />
+            <div class="food-card-content">
+              <div class="food-card-title">Monster Cheddar</div>
+              <div class="food-card-price">R$ 26,90</div>
+              <a href="https://wa.me/19417207983?text=Quero%20o%20Monster%20Cheddar" target="_blank" class="food-card-btn">Pedir</a>
+            </div>
+          </div>
+          <div class="food-card">
+            <img src="https://images.unsplash.com/photo-1628294895950-9805252327bc?auto=format&fit=crop&w=300&q=80" alt="Pastel de Frango com Catupiry" loading="lazy" decoding="async" />
+            <div class="food-card-content">
+              <div class="food-card-title">Pastel Especial</div>
+              <div class="food-card-price">R$ 21,90</div>
+              <a href="https://wa.me/19417207983?text=Quero%20o%20Pastel%20Especial" target="_blank" class="food-card-btn">Pedir</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <a href="https://wa.me/19417207983?text=Ol%C3%A1!%20Quero%20fazer%20meu%20pedido%20delivery" target="_blank" class="delivery-btn">
+        <i class="fa-solid fa-motorcycle"></i>
+        <span>Fazer Pedido Agora (Delivery)</span>
+      </a>
+
+      <div class="footer">
+        <p>📍 Av. das Nações Unidas, 1250 - Vila Gourmet</p>
+        <p style="margin-top: 4px;">© 2026 67 DOG. Todos os direitos reservados.</p>
+      </div>
+    </div>
+
+  </main>
+
+</body>
+</html>
