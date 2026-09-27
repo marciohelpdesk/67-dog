@@ -48,29 +48,40 @@ export const DestaqueImageSkeleton: React.FC<DestaqueImageSkeletonProps> = ({
   );
 };
 
-export const DestaqueCardSkeleton: React.FC = () => {
+interface DestaqueCardSkeletonProps {
+  icon?: string;
+  badgeText?: string;
+}
+
+export const DestaqueCardSkeleton: React.FC<DestaqueCardSkeletonProps> = ({
+  icon = 'fa-solid fa-hotdog',
+  badgeText = '🔥 Top 1',
+}) => {
   return (
     <article 
-      className="glass-card rounded-xl overflow-hidden flex flex-col justify-between border border-white/10 select-none pointer-events-none"
+      className="glass-card rounded-xl overflow-hidden flex flex-col justify-between border border-white/10 select-none pointer-events-none min-h-[212px]"
       aria-hidden="true"
     >
       {/* Image Skeleton Box */}
-      <div className="relative h-24 w-full overflow-hidden bg-neutral-900 destaque-skeleton-shimmer">
-        <DestaqueImageSkeleton />
+      <div className="relative h-24 w-full overflow-hidden bg-neutral-900/90 destaque-skeleton-shimmer">
+        <DestaqueImageSkeleton icon={icon} badgeText={badgeText} />
       </div>
 
       {/* Card Content Skeleton */}
-      <div className="p-2.5 flex flex-col flex-1 justify-between gap-2 bg-[#1c0c04]">
-        <div className="space-y-1.5">
+      <div className="p-2.5 flex flex-col flex-1 justify-between gap-1.5 bg-[#180a03]/90">
+        <div>
           {/* Title line skeleton */}
-          <div className="h-3 w-4/5 rounded bg-amber-500/20 destaque-soft-pulse" />
+          <div className="h-3.5 w-4/5 rounded bg-amber-500/25 destaque-soft-pulse mb-1.5" />
           {/* Subtitle line skeleton */}
-          <div className="h-2.5 w-3/5 rounded bg-white/10 destaque-soft-pulse" />
+          <div className="h-2.5 w-3/5 rounded bg-white/10 destaque-soft-pulse mb-1.5" />
           {/* Price pill skeleton */}
-          <div className="h-3.5 w-14 rounded bg-amber-400/30 mt-1 destaque-soft-pulse" />
+          <div className="h-3 w-12 rounded bg-amber-400/30 destaque-soft-pulse mt-1" />
         </div>
         {/* Button skeleton */}
-        <div className="h-7 w-full rounded-lg bg-red-600/30 border border-red-500/20 destaque-soft-pulse" />
+        <div className="h-[27px] w-full rounded-lg bg-red-600/30 border border-red-500/20 destaque-soft-pulse flex items-center justify-center gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-white/20"></span>
+          <span className="w-8 h-2 rounded bg-white/20"></span>
+        </div>
       </div>
     </article>
   );

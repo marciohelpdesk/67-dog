@@ -482,7 +482,7 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
 
       <!-- Botão 3: Como Chegar / Localização -->
       <a 
-        href="https://maps.google.com/?q=Av.+das+Nações+Unidas,+1250" 
+        href="https://maps.google.com/?q=Av.+Estados+Unidos,+389+-+Nações,+Fazenda+Rio+Grande+-+PR,+83823-114" 
         target="_blank" 
         class="grid-btn"
       >
@@ -574,7 +574,7 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
       </div>
 
       <p class="footer-address">
-        Av. das Nações Unidas, 1250 - Vila Gourmet, SP
+        Av. Estados Unidos, 389 - Nações, Fazenda Rio Grande - PR, 83823-114
       </p>
       <p class="footer-copy">
         © 2026 Six Seven Dog. Todos os direitos reservados.

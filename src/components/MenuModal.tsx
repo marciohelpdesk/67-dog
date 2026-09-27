@@ -698,7 +698,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({
                   return (
                     <article 
                       key={item.id}
-                      className={`p-3.5 rounded-2xl border transition-all duration-200 ${
+                      className={`p-3 sm:p-3.5 rounded-2xl border transition-all duration-200 overflow-hidden ${
                         isExpanded
                           ? 'bg-neutral-900/90 border-amber-500/50 shadow-lg shadow-black/60'
                           : 'bg-white/5 hover:bg-white/10 border-white/10'
@@ -747,52 +747,52 @@ export const MenuModal: React.FC<MenuModalProps> = ({
                           <p className="text-[11px] text-neutral-300 leading-relaxed mt-1 line-clamp-2">
                             {item.description}
                           </p>
+                        </div>
+                      </div>
 
-                          {/* Base Price & Quick Action */}
-                          <div className="mt-2.5 flex items-center justify-between gap-2">
-                            <div>
-                              <span className="text-[10px] text-neutral-400 block">Preço Base</span>
-                              <span className="text-sm font-black text-amber-400">
-                                R$ {item.price.toFixed(2).replace('.', ',')}
-                              </span>
-                            </div>
+                      {/* Bottom Action Bar: Full width, clean alignment, guaranteed no overflow */}
+                      <div className="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
+                        <div className="shrink-0">
+                          <span className="text-[10px] text-neutral-400 block leading-tight mb-0.5">Preço Base</span>
+                          <span className="text-sm sm:text-base font-black text-amber-400 leading-none">
+                            R$ {item.price.toFixed(2).replace('.', ',')}
+                          </span>
+                        </div>
 
-                            {/* Action Buttons */}
-                            <div className="flex items-center gap-1.5">
-                              {/* Interactive modification toggle (food items) */}
-                              {isFood ? (
-                                <button
-                                  type="button"
-                                  onClick={() => toggleExpanded(item.id)}
-                                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                                    isExpanded
-                                      ? 'bg-amber-500 text-black shadow-md'
-                                      : hasCustomizations
-                                      ? 'bg-amber-500/25 text-amber-300 border border-amber-400'
-                                      : 'bg-white/10 hover:bg-white/20 text-neutral-200 border border-white/15'
-                                  }`}
-                                  title="Personalizar adicionais e ingredientes"
-                                >
-                                  <i className="fa-solid fa-sliders text-[11px]"></i>
-                                  <span>{isExpanded ? 'Fechar' : 'Personalizar'}</span>
-                                  {hasCustomizations && !isExpanded && (
-                                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                                  )}
-                                </button>
-                              ) : null}
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {/* Interactive modification toggle (food items) */}
+                          {isFood ? (
+                            <button
+                              type="button"
+                              onClick={() => toggleExpanded(item.id)}
+                              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                                isExpanded
+                                  ? 'bg-amber-500 text-black shadow-md'
+                                  : hasCustomizations
+                                  ? 'bg-amber-500/25 text-amber-300 border border-amber-400'
+                                  : 'bg-white/10 hover:bg-white/20 text-neutral-200 border border-white/15'
+                              }`}
+                              title="Personalizar adicionais e ingredientes"
+                            >
+                              <i className="fa-solid fa-sliders text-[11px]"></i>
+                              <span>{isExpanded ? 'Fechar' : 'Personalizar'}</span>
+                              {hasCustomizations && !isExpanded && (
+                                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                              )}
+                            </button>
+                          ) : null}
 
-                              {/* Quick Add with Standard Recipe */}
-                              <button
-                                type="button"
-                                onClick={() => handleAddToCart(item, false)}
-                                className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-red-950/40 active:scale-95 transition-all cursor-pointer"
-                                title="Adicionar receita padrão sem extras"
-                              >
-                                <i className="fa-solid fa-plus text-[10px]"></i>
-                                <span>{inCartCount > 0 ? `+ (${inCartCount})` : 'Adicionar'}</span>
-                              </button>
-                            </div>
-                          </div>
+                          {/* Quick Add with Standard Recipe */}
+                          <button
+                            type="button"
+                            onClick={() => handleAddToCart(item, false)}
+                            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-red-950/40 active:scale-95 transition-all cursor-pointer"
+                            title="Adicionar receita padrão sem extras"
+                          >
+                            <i className="fa-solid fa-plus text-[10px]"></i>
+                            <span>{inCartCount > 0 ? `+ (${inCartCount})` : 'Adicionar'}</span>
+                          </button>
                         </div>
                       </div>
 
@@ -887,7 +887,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({
                           </div>
 
                           {/* 4. DYNAMIC PRICE & CONFIRM ADDITION BUTTON */}
-                          <div className="p-2.5 rounded-xl bg-neutral-950/80 border border-amber-500/40 flex items-center justify-between gap-2">
+                          <div className="p-2.5 rounded-xl bg-neutral-950/80 border border-amber-500/40 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2.5">
                             <div>
                               <span className="text-[10px] text-neutral-400 block uppercase font-medium">Preço deste lanche</span>
                               <span className="text-base font-black text-amber-400">
@@ -901,7 +901,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({
                                 handleAddToCart(item, true);
                                 toggleExpanded(item.id);
                               }}
-                              className="py-2 px-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-xs flex items-center gap-1.5 shadow-md shadow-amber-950/50 active:scale-95 transition-all cursor-pointer"
+                              className="w-full sm:w-auto py-2 px-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-amber-950/50 active:scale-95 transition-all cursor-pointer"
                             >
                               <i className="fa-solid fa-check"></i>
                               <span>Adicionar Personalizado</span>

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ASSETS } from './assets/images';
 import { ESTABLISHMENT_INFO } from './data/menuData';
 import { HoursModal } from './components/HoursModal';
@@ -12,6 +12,35 @@ import { MenuModal } from './components/MenuModal';
 import { DeliveryModal } from './components/DeliveryModal';
 import { SharePixModal } from './components/SharePixModal';
 import { LazyImage } from './components/LazyImage';
+import { CustomerTestimonials } from './components/CustomerTestimonials';
+import { DestaqueCardSkeleton, DestaqueImageSkeleton } from './components/DestaqueSkeleton';
+
+interface HeroSparkleItem {
+  id: string;
+  top: string;
+  left: string;
+  size?: string;
+  bg?: string;
+  duration: string;
+  delay: string;
+  isStar?: boolean;
+  color?: string;
+}
+
+const HERO_SPARKLES: HeroSparkleItem[] = [
+  { id: 'sp-1', top: '16%', left: '12%', size: 'w-2 h-2', bg: 'bg-amber-400 shadow-[0_0_8px_#f59e0b]', duration: '4.2s', delay: '-0.8s' },
+  { id: 'sp-2', top: '22%', left: '84%', size: 'w-1.5 h-1.5', bg: 'bg-amber-300 shadow-[0_0_6px_#fbbf24]', duration: '3.8s', delay: '-2.1s' },
+  { id: 'sp-3', top: '56%', left: '10%', size: 'w-2.5 h-2.5', bg: 'bg-orange-500 shadow-[0_0_10px_#ea580c]', duration: '5.0s', delay: '-1.4s' },
+  { id: 'sp-4', top: '62%', left: '84%', size: 'w-2 h-2', bg: 'bg-yellow-400 shadow-[0_0_8px_#facc15]', duration: '4.5s', delay: '-3.3s' },
+  { id: 'sp-5', top: '36%', left: '7%', size: 'w-1.5 h-1.5', bg: 'bg-amber-500 shadow-[0_0_6px_#d97706]', duration: '3.6s', delay: '-2.7s' },
+  { id: 'sp-6', top: '26%', left: '90%', size: 'w-2 h-2', bg: 'bg-orange-400 shadow-[0_0_8px_#f97316]', duration: '4.8s', delay: '-0.4s' },
+  { id: 'sp-7', top: '76%', left: '24%', size: 'w-1.5 h-1.5', bg: 'bg-yellow-300 shadow-[0_0_6px_#fde047]', duration: '4.0s', delay: '-1.9s' },
+  { id: 'sp-8', top: '80%', left: '74%', size: 'w-2 h-2', bg: 'bg-red-500 shadow-[0_0_9px_#ef4444]', duration: '5.2s', delay: '-1.1s' },
+  { id: 'sp-9', top: '20%', left: '24%', isStar: true, color: 'text-amber-300 text-xs', duration: '2.8s', delay: '-1.5s' },
+  { id: 'sp-10', top: '15%', left: '74%', isStar: true, color: 'text-yellow-200 text-sm', duration: '3.2s', delay: '-0.6s' },
+  { id: 'sp-11', top: '64%', left: '72%', isStar: true, color: 'text-amber-400 text-xs', duration: '3.5s', delay: '-2.4s' },
+  { id: 'sp-12', top: '48%', left: '88%', isStar: true, color: 'text-amber-200 text-[10px]', duration: '3.0s', delay: '-1.8s' },
+];
 
 export default function App() {
   const [isHoursOpen, setIsHoursOpen] = useState(false);
@@ -21,7 +50,62 @@ export default function App() {
   const [isPixOpen, setIsPixOpen] = useState(false);
   const [isBgLoaded, setIsBgLoaded] = useState(false);
   const [isHeroLoaded, setIsHeroLoaded] = useState(false);
+  const [isHotdogLoaded, setIsHotdogLoaded] = useState(false);
+  const [isPastelLoaded, setIsPastelLoaded] = useState(false);
   const [initialMenuCategory, setInitialMenuCategory] = useState<'all' | 'hotdogs' | 'pasteis' | 'combos' | 'bebidas'>('all');
+
+  // Pre-load destaques images to smoothly transition from skeleton to card without layout shift
+  useEffect(() => {
+    let isMounted = true;
+
+    const img1 = new Image();
+    img1.src = ASSETS.hotdog;
+    if (img1.complete && img1.naturalWidth > 0) {
+      setIsHotdogLoaded(true);
+    } else {
+      img1.onload = () => { if (isMounted) setIsHotdogLoaded(true); };
+      img1.onerror = () => { if (isMounted) setIsHotdogLoaded(true); };
+    }
+
+    const img2 = new Image();
+    img2.src = ASSETS.pastel;
+    if (img2.complete && img2.naturalWidth > 0) {
+      setIsPastelLoaded(true);
+    } else {
+      img2.onload = () => { if (isMounted) setIsPastelLoaded(true); };
+      img2.onerror = () => { if (isMounted) setIsPastelLoaded(true); };
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+  
+  // Thin subtle progress bar tracking scroll position at the very top of the card
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const doc = document.documentElement;
+      const totalHeight = doc.scrollHeight - window.innerHeight;
+      if (totalHeight <= 0) {
+        setScrollProgress(0);
+        return;
+      }
+      const currentScroll = window.scrollY || doc.scrollTop || 0;
+      const progress = Math.min(100, Math.max(0, (currentScroll / totalHeight) * 100));
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
 
   const openCategory = (cat: 'all' | 'hotdogs' | 'pasteis' | 'combos' | 'bebidas') => {
     setInitialMenuCategory(cat);
@@ -58,8 +142,23 @@ export default function App() {
       {/* 2. MAIN CARD CONTAINER (STRUCTURED LIKE THE DELICIOUS REFERENCE MOBILE MOCKUP) */}
       <main className="relative z-10 w-full max-w-[430px] rounded-[36px] overflow-hidden text-white shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] border border-amber-500/25 animate-in fade-in slide-in-from-bottom-4 duration-700 bg-gradient-to-b from-[#180a03] via-[#120501] to-[#0a0301]">
         
+        {/* SUBTLE AMBER-500 SCROLL PROGRESS BAR AT THE VERY TOP OF THE CARD */}
+        <div 
+          className="sticky top-0 left-0 right-0 z-50 w-full h-[3px] bg-black/40 backdrop-blur-xs pointer-events-none overflow-hidden"
+          role="progressbar"
+          aria-valuenow={Math.round(scrollProgress)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Progresso de rolagem"
+        >
+          <div 
+            className="h-full bg-amber-500 shadow-[0_0_8px_#f59e0b] transition-[width] duration-75 ease-out rounded-r-full"
+            style={{ width: `${scrollProgress}%` }}
+          />
+        </div>
+
         {/* UPPER HERO SECTION (CONTINUOUS GASTRO PALETTE WITH HERO HOT DOG & CHALK TYPOGRAPHY) */}
-        <div className="relative pt-6 px-5 pb-3 text-center flex flex-col justify-between">
+        <div className="relative pt-10 sm:pt-12 px-5 pb-8 sm:pb-9 text-center flex flex-col items-center justify-center min-h-[300px] sm:min-h-[335px]">
           
           {/* HOT DOG IMAGE BEHIND WITH PROGRESSIVE BLUR-UP & SUCCULENT TONES */}
           <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
@@ -72,15 +171,15 @@ export default function App() {
                 decoding="async"
                 fetchPriority="high"
                 onLoad={() => setIsHeroLoaded(true)}
-                className={`w-full h-full object-cover object-center hero-bg-breathe contrast-105 brightness-100 transition-all duration-700 ease-out ${
-                  isHeroLoaded ? 'opacity-95 blur-0 scale-100' : 'opacity-20 blur-md scale-105'
+                className={`w-full h-full object-cover object-center hero-bg-breathe contrast-[1.10] brightness-[1.05] saturate-[1.15] transition-all duration-700 ease-out ${
+                  isHeroLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-20 blur-md scale-105'
                 }`}
                 referrerPolicy="no-referrer"
               />
             </div>
             
             {/* Subtle warm golden amber ambient spotlight */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(245,158,11,0.25)_0%,_transparent_75%)] pointer-events-none"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(245,158,11,0.18)_0%,_transparent_75%)] pointer-events-none"></div>
             
             {/* Progressive feathered blur layers on all edges so image dissolves smoothly into surrounding shapes */}
             <div className="progressive-blur-top"></div>
@@ -88,15 +187,46 @@ export default function App() {
             <div className="progressive-blur-sides"></div>
           </div>
 
+          {/* SUBTLE GOURMET FIRE EMBERS & GOLDEN SPARKLES */}
+          <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden select-none" aria-hidden="true">
+            {HERO_SPARKLES.map((sparkle) => (
+              sparkle.isStar ? (
+                <span
+                  key={sparkle.id}
+                  className={`hero-star-sparkle ${sparkle.color || 'text-amber-300'}`}
+                  style={{
+                    top: sparkle.top,
+                    left: sparkle.left,
+                    '--duration': sparkle.duration,
+                    '--delay': sparkle.delay,
+                  } as React.CSSProperties}
+                >
+                  ✦
+                </span>
+              ) : (
+                <div
+                  key={sparkle.id}
+                  className={`hero-sparkle rounded-full ${sparkle.size || 'w-1.5 h-1.5'} ${sparkle.bg || 'bg-amber-400'}`}
+                  style={{
+                    top: sparkle.top,
+                    left: sparkle.left,
+                    '--duration': sparkle.duration,
+                    '--delay': sparkle.delay,
+                  } as React.CSSProperties}
+                />
+              )
+            ))}
+          </div>
+
           {/* HERO BRAND LOGO WITH ANIMATED BOUNCE & GLOW EFFECTS */}
-          <div className="relative z-10 my-auto py-2 flex flex-col items-center">
+          <div className="relative z-10 my-auto flex flex-col items-center justify-center">
             
             {/* Animated Logo in place of letters with the same bouncing & glowing effects */}
-            <div className="flex items-center justify-center my-1 select-none">
+            <div className="flex items-center justify-center select-none py-0.5">
               <img 
                 src={ASSETS.heroTypographyLogo} 
                 alt="67 Dog Logotipo Oficial" 
-                className="w-48 sm:w-56 max-w-[230px] sm:max-w-[260px] h-auto object-contain animated-logo-hero cursor-pointer"
+                className="w-32 sm:w-36 max-w-[135px] sm:max-w-[150px] h-auto object-contain animated-logo-hero cursor-pointer"
                 referrerPolicy="no-referrer"
                 onError={(e) => {
                   (e.currentTarget as HTMLImageElement).src = ASSETS.heroTypographyLogoRemote;
@@ -104,28 +234,15 @@ export default function App() {
               />
             </div>
 
-            <p className="mt-2 text-xs font-black text-amber-100 tracking-wider uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] bg-black/35 backdrop-blur-xs px-3 py-0.5 rounded-full border border-white/10">
+            <p className="mt-2.5 text-[10px] sm:text-[11px] font-black text-amber-100 tracking-wider uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)] bg-black/45 backdrop-blur-xs px-3 py-0.5 rounded-full border border-white/10 shadow-md">
               Six Seven Hot Dog &amp; Pastéis Crocantes
             </p>
-          </div>
-
-          {/* PRIMARY "PEÇA AGORA" CTA BUTTON (Traditional WhatsApp Action Button) */}
-          <div className="relative z-10 mt-3 mb-1 flex justify-center">
-            <a
-              href={`https://wa.me/${ESTABLISHMENT_INFO.phone}?text=Ol%C3%A1!%20Vim%20pelo%20Bio%20Link%20e%20gostaria%20de%20fazer%20meu%20pedido%20no%2067%20Dog!`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold text-sm tracking-wide shadow-lg shadow-black/40 border border-white/20 transition-all duration-200 active:scale-95 hover:scale-[1.02]"
-            >
-              <span>Peça agora</span>
-              <i className="fa-brands fa-whatsapp text-xl text-white"></i>
-            </a>
           </div>
 
         </div>
 
         {/* SIGNATURE FLUID MOLTEN CHEDDAR DRIP TRANSITION (NO STRAIGHT BAND, ORGANIC LIQUID SHADER) */}
-        <div className="relative w-full z-20 -mt-2.5 -mb-2 overflow-visible pointer-events-none liquid-cheddar-shader">
+        <div className="relative w-full z-20 -mt-2 -mb-2 overflow-visible pointer-events-none liquid-cheddar-shader">
           <svg 
             viewBox="0 0 1200 125" 
             className="w-full h-16 sm:h-20 block"
@@ -335,7 +452,7 @@ export default function App() {
           </div>
 
           {/* DESTAQUES DO DIA (Mouthwatering Cards com foto, preço e pedir) */}
-          <section className="p-3.5 rounded-2xl bg-white/[0.05] border border-white/10 shadow-lg">
+          <section className="floating-food p-3.5 rounded-2xl bg-white/[0.05] border border-white/10 shadow-lg">
             <div className="flex items-center justify-between mb-3 px-1">
               <div className="flex items-center gap-1.5 text-xs font-bold text-amber-400">
                 <i className="fa-solid fa-fire-flame-curved text-red-500"></i>
@@ -351,77 +468,89 @@ export default function App() {
             </div>
 
             {/* 2 Mini Cards Lado a Lado com Foto e Ação de Pedido */}
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2.5 min-h-[212px]">
               
               {/* Card 1: Hot Dog Monster Cheddar Bacon */}
-              <article className="glass-card rounded-xl overflow-hidden flex flex-col justify-between border border-white/10 hover:border-amber-500/40 transition-all duration-200 group">
-                <div className="relative h-24 w-full overflow-hidden bg-neutral-900">
-                  <LazyImage 
-                    src={ASSETS.hotdog} 
-                    alt="Monster Cheddar Bacon" 
-                    containerClassName="w-full h-full"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <span className="absolute top-1.5 left-1.5 z-10 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
-                    🔥 Top 1
-                  </span>
-                </div>
-                <div className="p-2.5 flex flex-col flex-1 justify-between gap-1.5">
-                  <div>
-                    <h3 className="font-bold text-xs text-neutral-100 leading-snug line-clamp-1">
-                      Monster Cheddar
-                    </h3>
-                    <p className="text-[10px] text-neutral-300 line-clamp-1">
-                      Duplo artesanal + cheddar
-                    </p>
-                    <p className="text-xs font-black text-amber-400 mt-0.5">
-                      R$ 26,90
-                    </p>
+              {!isHotdogLoaded ? (
+                <DestaqueCardSkeleton badgeText="🔥 Top 1" icon="fa-solid fa-hotdog" />
+              ) : (
+                <article className="glass-card rounded-xl overflow-hidden flex flex-col justify-between border border-white/10 hover:border-amber-500/50 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-xl hover:shadow-black/60 transition-all duration-300 ease-out group cursor-pointer animate-in fade-in duration-300">
+                  <div className="relative h-24 w-full overflow-hidden bg-neutral-900">
+                    <LazyImage 
+                      src={ASSETS.hotdog} 
+                      alt="Monster Cheddar Bacon" 
+                      containerClassName="w-full h-full"
+                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+                      customSkeleton={<DestaqueImageSkeleton badgeText="🔥 Top 1" icon="fa-solid fa-hotdog" />}
+                      onLoad={() => setIsHotdogLoaded(true)}
+                    />
+                    <span className="absolute top-1.5 left-1.5 z-10 bg-red-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
+                      🔥 Top 1
+                    </span>
                   </div>
-                  <button
-                    onClick={() => handleQuickOrder('Monster Cheddar Bacon', 'R$ 26,90')}
-                    className="w-full py-1.5 px-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors shadow-md active:scale-95"
-                  >
-                    <i className="fa-solid fa-bag-shopping text-[10px]"></i>
-                    <span>Pedir</span>
-                  </button>
-                </div>
-              </article>
+                  <div className="p-2.5 flex flex-col flex-1 justify-between gap-1.5">
+                    <div>
+                      <h3 className="font-bold text-xs text-neutral-100 leading-snug line-clamp-1 group-hover:text-amber-300 transition-colors">
+                        Monster Cheddar
+                      </h3>
+                      <p className="text-[10px] text-neutral-300 line-clamp-1">
+                        Duplo artesanal + cheddar
+                      </p>
+                      <p className="text-xs font-black text-amber-400 mt-0.5">
+                        R$ 26,90
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleQuickOrder('Monster Cheddar Bacon', 'R$ 26,90')}
+                      className="w-full py-1.5 px-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors shadow-md active:scale-95 cursor-pointer"
+                    >
+                      <i className="fa-solid fa-bag-shopping text-[10px]"></i>
+                      <span>Pedir</span>
+                    </button>
+                  </div>
+                </article>
+              )}
 
               {/* Card 2: Pastel Especial Frango Catupiry */}
-              <article className="glass-card rounded-xl overflow-hidden flex flex-col justify-between border border-white/10 hover:border-amber-500/40 transition-all duration-200 group">
-                <div className="relative h-24 w-full overflow-hidden bg-neutral-900">
-                  <LazyImage 
-                    src={ASSETS.pastel} 
-                    alt="Pastel Especial Frango Catupiry" 
-                    containerClassName="w-full h-full"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <span className="absolute top-1.5 left-1.5 z-10 bg-amber-500 text-black text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
-                    ⭐ Crocante
-                  </span>
-                </div>
-                <div className="p-2.5 flex flex-col flex-1 justify-between gap-1.5">
-                  <div>
-                    <h3 className="font-bold text-xs text-neutral-100 leading-snug line-clamp-1">
-                      Pastel Especial
-                    </h3>
-                    <p className="text-[10px] text-neutral-300 line-clamp-1">
-                      Frango &amp; Catupiry 25cm
-                    </p>
-                    <p className="text-xs font-black text-amber-400 mt-0.5">
-                      R$ 21,90
-                    </p>
+              {!isPastelLoaded ? (
+                <DestaqueCardSkeleton badgeText="⭐ Crocante" icon="fa-solid fa-utensils" />
+              ) : (
+                <article className="glass-card rounded-xl overflow-hidden flex flex-col justify-between border border-white/10 hover:border-amber-500/50 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-xl hover:shadow-black/60 transition-all duration-300 ease-out group cursor-pointer animate-in fade-in duration-300">
+                  <div className="relative h-24 w-full overflow-hidden bg-neutral-900">
+                    <LazyImage 
+                      src={ASSETS.pastel} 
+                      alt="Pastel Especial Frango Catupiry" 
+                      containerClassName="w-full h-full"
+                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
+                      customSkeleton={<DestaqueImageSkeleton badgeText="⭐ Crocante" icon="fa-solid fa-utensils" />}
+                      onLoad={() => setIsPastelLoaded(true)}
+                    />
+                    <span className="absolute top-1.5 left-1.5 z-10 bg-amber-500 text-black text-[9px] font-bold px-1.5 py-0.5 rounded shadow">
+                      ⭐ Crocante
+                    </span>
                   </div>
-                  <button
-                    onClick={() => handleQuickOrder('Pastel Especial da Casa (Frango & Catupiry)', 'R$ 21,90')}
-                    className="w-full py-1.5 px-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors shadow-md active:scale-95"
-                  >
-                    <i className="fa-solid fa-bag-shopping text-[10px]"></i>
-                    <span>Pedir</span>
-                  </button>
-                </div>
-              </article>
+                  <div className="p-2.5 flex flex-col flex-1 justify-between gap-1.5">
+                    <div>
+                      <h3 className="font-bold text-xs text-neutral-100 leading-snug line-clamp-1 group-hover:text-amber-300 transition-colors">
+                        Pastel Especial
+                      </h3>
+                      <p className="text-[10px] text-neutral-300 line-clamp-1">
+                        Frango &amp; Catupiry 25cm
+                      </p>
+                      <p className="text-xs font-black text-amber-400 mt-0.5">
+                        R$ 21,90
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleQuickOrder('Pastel Especial da Casa (Frango & Catupiry)', 'R$ 21,90')}
+                      className="w-full py-1.5 px-2 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-[11px] flex items-center justify-center gap-1.5 transition-colors shadow-md active:scale-95 cursor-pointer"
+                    >
+                      <i className="fa-solid fa-bag-shopping text-[10px]"></i>
+                      <span>Pedir</span>
+                    </button>
+                  </div>
+                </article>
+              )}
 
             </div>
           </section>
@@ -438,11 +567,14 @@ export default function App() {
           {/* CARDÁPIO COMPLETO BUTTON */}
           <button
             onClick={() => setIsMenuOpen(true)}
-            className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-neutral-100 font-bold text-xs flex items-center justify-center gap-2 border border-white/15 active:scale-98 transition-all"
+            className="w-full py-3 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-neutral-100 font-bold text-xs flex items-center justify-center gap-2 border border-white/15 active:scale-98 transition-all cursor-pointer"
           >
             <i className="fa-solid fa-book-open text-amber-400"></i>
             <span>Abrir Cardápio Completo &amp; Comanda</span>
           </button>
+
+          {/* DEPOIMENTOS DE CLIENTES (GLASSMORPHISM CARD WITH HORIZONTAL FADE) */}
+          <CustomerTestimonials />
 
           {/* FOOTER */}
           <footer className="pt-2 border-t border-white/10 text-center">
