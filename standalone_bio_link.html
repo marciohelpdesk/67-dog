@@ -77,27 +77,33 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: center 28%;
       opacity: 1;
       filter: contrast(110%) brightness(105%) saturate(115%);
       z-index: 0;
       pointer-events: none;
       animation: heroZoomBreathe 8s ease-in-out infinite alternate;
-      -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 88%, rgba(0, 0, 0, 0.4) 96%, transparent 100%);
-      mask-image: linear-gradient(to bottom, #000 0%, #000 88%, rgba(0, 0, 0, 0.4) 96%, transparent 100%);
+      -webkit-mask-image: radial-gradient(ellipse 98% 95% at 50% 50%, #000 68%, rgba(0, 0, 0, 0.9) 85%, transparent 100%),
+                          linear-gradient(to bottom, #000 0%, #000 78%, rgba(0, 0, 0, 0.65) 92%, transparent 100%);
+      mask-image: radial-gradient(ellipse 98% 95% at 50% 50%, #000 68%, rgba(0, 0, 0, 0.9) 85%, transparent 100%),
+                  linear-gradient(to bottom, #000 0%, #000 78%, rgba(0, 0, 0, 0.65) 92%, transparent 100%);
+      -webkit-mask-composite: source-in;
+      mask-composite: intersect;
     }
 
     .progressive-blur-bottom {
       position: absolute;
       inset-inline: 0;
       bottom: 0;
-      height: 36px;
+      height: 65px;
       background: linear-gradient(
         to bottom,
         transparent 0%,
-        rgba(24, 10, 3, 0.35) 50%,
-        rgba(20, 8, 3, 0.88) 100%
+        rgba(180, 83, 9, 0.15) 30%,
+        rgba(180, 83, 9, 0.65) 75%,
+        #b45309 100%
       );
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
       pointer-events: none;
       z-index: 1;
     }
@@ -111,21 +117,25 @@
       inset: 0;
       background: linear-gradient(
         120deg,
-        rgba(245, 158, 11, 0.15) 0%,
-        rgba(217, 119, 6, 0.2) 30%,
-        rgba(251, 191, 36, 0.15) 60%,
-        rgba(180, 83, 9, 0.2) 100%
+        rgba(245, 158, 11, 0.22) 0%,
+        rgba(217, 119, 6, 0.28) 30%,
+        rgba(251, 191, 36, 0.22) 60%,
+        rgba(180, 83, 9, 0.28) 100%
       );
       background-size: 250% 250%;
       animation: autoColorShift 9s ease-in-out infinite;
       mix-blend-mode: soft-light;
-      opacity: 0.4;
+      opacity: 0.5;
       z-index: 1;
       pointer-events: none;
     }
 
     .hero-vignette {
-      display: none;
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 60%, rgba(154, 52, 18, 0.85) 100%);
+      z-index: 1;
+      pointer-events: none;
     }
 
     .animated-letter {
@@ -851,9 +861,10 @@
     <!-- Hero Upper Zone -->
     <div class="hero-section">
       <img 
-        src="https://i.ibb.co/WpgBGQj0/Gemini-Generated-Image-ugx8ydugx8ydugx8.jpg" 
-        alt="Cachorro Quente 67 Dog" 
+        src="https://i.ibb.co/LXjLWP20/Gemini-Generated-Image-j48xfaj48xfaj48x.jpg" 
+        alt="Cachorro Quente e Pastéis 67 Dog" 
         class="hero-bg-img"
+        referrerpolicy="no-referrer"
       />
       <div class="hero-bg-overlay"></div>
       <div class="progressive-blur-bottom"></div>
@@ -875,7 +886,7 @@
     <!-- Traditional Customer Service Action Bar -->
     <div class="tactile-bar" style="padding-top: 24px; padding-bottom: 12px;">
       <div class="tactile-row">
-        <a href="https://wa.me/19417207983?text=Ol%C3%A1!%20Gostaria%20de%20fazer%20um%20pedido%20no%2067%20Dog." target="_blank" class="tactile-item" data-tooltip="Pedir no WhatsApp" data-icon="fa-brands fa-whatsapp" data-color="#25D366" title="WhatsApp">
+        <a href="https://wa.me/5541997719054?text=Ol%C3%A1!%20Gostaria%20de%20fazer%20um%20pedido%20no%2067%20Dog." target="_blank" class="tactile-item" data-tooltip="Pedir no WhatsApp" data-icon="fa-brands fa-whatsapp" data-color="#25D366" title="WhatsApp">
           <div class="tactile-btn btn-trad-wa">
             <i class="fa-brands fa-whatsapp text-white"></i>
           </div>
@@ -887,7 +898,7 @@
           </div>
           <span>Local</span>
         </a>
-        <a href="https://wa.me/19417207983?text=Cardapio" target="_blank" class="tactile-item" data-tooltip="Cardápio & preços" data-icon="fa-solid fa-utensils" data-color="#F59E0B" title="Cardápio">
+        <a href="https://wa.me/5541997719054?text=Cardapio" target="_blank" class="tactile-item" data-tooltip="Cardápio & preços" data-icon="fa-solid fa-utensils" data-color="#F59E0B" title="Cardápio">
           <div class="tactile-btn btn-trad-menu">
             <i class="fa-solid fa-utensils text-white"></i>
           </div>
@@ -907,7 +918,7 @@
           </div>
           <span>Instagram</span>
         </a>
-        <a href="https://wa.me/19417207983?text=Pix" target="_blank" class="tactile-item" data-tooltip="Copiar chave Pix" data-icon="fa-brands fa-pix" data-color="#32BCAD" title="Pix">
+        <a href="https://wa.me/5541997719054?text=Pix" target="_blank" class="tactile-item" data-tooltip="Copiar chave Pix" data-icon="fa-brands fa-pix" data-color="#32BCAD" title="Pix">
           <div class="tactile-btn btn-trad-pix">
             <i class="fa-brands fa-pix text-white"></i>
           </div>
@@ -929,7 +940,7 @@
             <div class="food-card-content">
               <div class="food-card-title">Monster Cheddar</div>
               <div class="food-card-price">R$ 26,90</div>
-              <a href="https://wa.me/19417207983?text=Quero%20o%20Monster%20Cheddar" target="_blank" class="food-card-btn">Pedir</a>
+              <a href="https://wa.me/5541997719054?text=Quero%20o%20Monster%20Cheddar" target="_blank" class="food-card-btn">Pedir</a>
             </div>
           </div>
           <div class="food-card">
@@ -937,19 +948,19 @@
             <div class="food-card-content">
               <div class="food-card-title">Pastel Especial</div>
               <div class="food-card-price">R$ 21,90</div>
-              <a href="https://wa.me/19417207983?text=Quero%20o%20Pastel%20Especial" target="_blank" class="food-card-btn">Pedir</a>
+              <a href="https://wa.me/5541997719054?text=Quero%20o%20Pastel%20Especial" target="_blank" class="food-card-btn">Pedir</a>
             </div>
           </div>
         </div>
       </div>
 
-      <a href="https://wa.me/19417207983?text=Ol%C3%A1!%20Quero%20fazer%20meu%20pedido%20delivery" target="_blank" class="delivery-btn">
-        <i class="fa-solid fa-motorcycle"></i>
-        <span>Fazer Pedido Agora (Delivery)</span>
+      <a href="https://wa.me/5541997719054?text=Ol%C3%A1!%20Quero%20fazer%20meu%20pedido%20para%20retirada%20no%20balc%C3%A3o" target="_blank" class="delivery-btn">
+        <i class="fa-solid fa-bag-shopping"></i>
+        <span>Fazer Pedido (Retirada no Balcão)</span>
       </a>
 
       <!-- Cardápio Completo Button -->
-      <a href="https://wa.me/19417207983?text=Ol%C3%A1!%20Gostaria%20de%20ver%20o%20Card%C3%A1pio%20Completo" target="_blank" class="full-menu-btn">
+      <a href="https://wa.me/5541997719054?text=Ol%C3%A1!%20Gostaria%20de%20ver%20o%20Card%C3%A1pio%20Completo" target="_blank" class="full-menu-btn">
         <i class="fa-solid fa-book-open" style="color: #fbbf24;"></i>
         <span>Abrir Cardápio Completo &amp; Comanda</span>
       </a>

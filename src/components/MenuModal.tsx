@@ -535,7 +535,7 @@ export const MenuModal: React.FC<MenuModalProps> = ({
                   {/* Pix Key Display & Copy Action */}
                   <div className="p-3 rounded-2xl bg-white/5 border border-white/15 space-y-2">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-neutral-400 text-[11px]">Chave Pix (Telefone):</span>
+                      <span className="text-neutral-400 text-[11px]">Chave Pix (CNPJ):</span>
                       <span className="text-neutral-400 text-[11px]">Favorecido: {ESTABLISHMENT_INFO.pixBeneficiary}</span>
                     </div>
 
