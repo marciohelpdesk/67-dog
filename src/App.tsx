@@ -324,6 +324,9 @@ export default function App() {
         <section className="relative overflow-hidden rounded-3xl border border-primary/30">
           <img
             src={ASSETS.heroBg}
+            onError={(e) => {
+              e.currentTarget.src = ASSETS.heroDogRemote;
+            }}
             alt="67 Dog - hot dog, hambúrguer e pastel"
             width={1024}
             height={1024}
