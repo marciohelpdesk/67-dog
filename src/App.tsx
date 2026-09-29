@@ -569,8 +569,10 @@ export default function App() {
 
         {/* FOOTER */}
         <footer className="mt-10 border-t border-border pt-6 text-center text-xs text-muted-foreground">
-          <p>📍 {ESTABLISHMENT_INFO.address}</p>
-          <p className="mt-2">© 2026 {ESTABLISHMENT_INFO.name}. Sabor e crocância inigualáveis.</p>
+          <p className="text-[10px] sm:text-xs tracking-tight text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
+            📍 {ESTABLISHMENT_INFO.address}
+          </p>
+          <p className="mt-1.5 text-[11px] sm:text-xs">© 2026 {ESTABLISHMENT_INFO.name}. Sabor e crocância inigualáveis.</p>
         </footer>
 
       </div>
@@ -732,22 +734,29 @@ export default function App() {
                                 </div>
                               )}
 
-                              <div className="mt-3.5 flex items-center justify-end">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    openCustomization(item);
-                                  }}
-                                  className="rounded-xl bg-gradient-to-r from-flame to-accent px-4 py-2 text-xs font-black text-flame-foreground shadow-sm hover:brightness-110 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
-                                >
-                                  <span>Pedir Combo</span>
-                                  <Plus className="h-4 w-4 stroke-[3]" />
-                                </button>
-                              </div>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openCustomization(item);
+                                }}
+                                className="mt-3.5 flex w-full items-center justify-between rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-300 transition-all hover:bg-flame hover:text-flame-foreground hover:border-flame active:scale-[0.98] cursor-pointer shadow-xs group/btn"
+                                aria-label={`Pedir combo ${item.name}`}
+                              >
+                                <span className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground/90 group-hover/btn:text-flame-foreground transition-colors">
+                                  <span>✨</span>
+                                  <span>Clique aqui para pedir o combo</span>
+                                </span>
+                                <span className="flex items-center gap-1 rounded-lg bg-flame px-2.5 py-1 text-xs font-black text-flame-foreground shadow-xs group-hover/btn:bg-white group-hover/btn:text-flame transition-colors shrink-0">
+                                  <Plus className="h-3.5 w-3.5 stroke-[3]" />
+                                  <span>Pedir</span>
+                                </span>
+                              </button>
                             </article>
                           );
                         }
+
+                        const isBebida = item.category === 'bebidas';
 
                         return (
                           <article
@@ -767,7 +776,7 @@ export default function App() {
                                     </span>
                                   )}
                                 </div>
-                                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                                   {item.description}
                                 </p>
                               </div>
@@ -777,37 +786,25 @@ export default function App() {
                               </span>
                             </div>
 
-                            {/* INGREDIENT PILLS */}
-                            {item.ingredients && (
-                              <div className="flex flex-wrap gap-1 pt-1 border-t border-border/40">
-                                {item.ingredients.map((ing) => (
-                                  <span
-                                    key={ing}
-                                    className="rounded-md bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-foreground/80 border border-border/50"
-                                  >
-                                    {ing}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-
-                            <div className="flex items-center justify-between pt-1">
-                              <span className="text-[10px] text-muted-foreground">
-                                Toque para personalizar adicionais
+                            {/* BOTÃO ÚNICO DE AÇÃO E CHAMARIZ */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openCustomization(item);
+                              }}
+                              className="mt-1 flex w-full items-center justify-between rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary transition-all hover:bg-flame hover:text-flame-foreground hover:border-flame active:scale-[0.98] cursor-pointer shadow-xs group/btn"
+                              aria-label={isBebida ? `Adicionar ${item.name}` : `Clique para adicionar ou remover itens no ${item.name}`}
+                            >
+                              <span className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground/90 group-hover/btn:text-flame-foreground transition-colors">
+                                <span>✨</span>
+                                <span>{isBebida ? 'Clique aqui para adicionar bebida' : 'Clique aqui para adicionar ou remover itens'}</span>
                               </span>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openCustomization(item);
-                                }}
-                                className="flex h-8 items-center gap-1 px-3 rounded-xl bg-flame text-xs font-bold text-flame-foreground transition-transform active:scale-90 cursor-pointer hover:brightness-110 shadow-xs"
-                                aria-label={`Personalizar e Adicionar ${item.name}`}
-                              >
-                                <Plus className="h-4 w-4" />
+                              <span className="flex items-center gap-1 rounded-lg bg-flame px-2.5 py-1 text-xs font-black text-flame-foreground shadow-xs group-hover/btn:bg-white group-hover/btn:text-flame transition-colors shrink-0">
+                                <Plus className="h-3.5 w-3.5 stroke-[3]" />
                                 <span>Pedir</span>
-                              </button>
-                            </div>
+                              </span>
+                            </button>
                           </article>
                         );
                       })}
