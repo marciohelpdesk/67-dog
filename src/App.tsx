@@ -136,12 +136,22 @@ export default function App() {
   const totalPrice = cartItems.reduce((acc, curr) => acc + curr.unitPrice * curr.qty, 0);
 
   const highlights = useMemo(() => {
-    const dogDuplo = MENU_CATEGORIES[0]?.items.find((i) => i.id === 'dog-duplo');
-    const pastelFrango = MENU_CATEGORIES[1]?.items.find((i) => i.id === 'pastel-frango');
-    if (!dogDuplo || !pastelFrango) return [];
+    const dogSixSeven = MENU_CATEGORIES[0]?.items.find((i) => i.id === 'dog-six-seven');
+    const dogCostelaco = MENU_CATEGORIES[0]?.items.find((i) => i.id === 'dog-costelaco');
+    if (!dogSixSeven || !dogCostelaco) return [];
     return [
-      { item: dogDuplo, badge: 'Top 1', img: ASSETS.heroHotdog },
-      { item: pastelFrango, badge: 'Crocante', img: ASSETS.pastelDestaque },
+      {
+        item: dogSixSeven,
+        badge: 'Top 1 • 2 Vinas',
+        subtitle: 'Frango, calabresa, bacon e purê',
+        img: ASSETS.heroHotdog,
+      },
+      {
+        item: dogCostelaco,
+        badge: 'Costelaço',
+        subtitle: 'Costela desfiada e purê especial',
+        img: ASSETS.pastelDestaque,
+      },
     ];
   }, []);
 
@@ -452,18 +462,20 @@ export default function App() {
           </div>
 
           <div className="mt-3 grid grid-cols-2 gap-3">
-            {highlights.map(({ item, badge, img }) => (
+            {highlights.map(({ item, badge, subtitle, img }) => (
               <article key={item.id} className="overflow-hidden rounded-2xl border border-border bg-secondary flex flex-col justify-between">
                 <div>
                   <div className="relative">
                     <img src={img} alt={item.name} loading="lazy" className="h-28 w-full object-cover" />
-                    <span className="absolute left-2 top-2 rounded-md bg-flame px-2 py-0.5 text-[10px] font-black text-flame-foreground">
-                      {badge === 'Top 1' ? '🔥' : '★'} {badge}
+                    <span className="absolute left-2 top-2 rounded-md bg-flame px-2 py-0.5 text-[10px] font-black text-flame-foreground shadow-sm">
+                      {badge}
                     </span>
                   </div>
                   <div className="p-3 pb-0">
-                    <h3 className="truncate text-sm font-bold">{item.name}</h3>
-                    <p className="truncate text-[11px] text-muted-foreground">{item.description}</p>
+                    <h3 className="truncate text-sm font-black tracking-wide">{item.name}</h3>
+                    <p className="line-clamp-2 text-[11px] text-muted-foreground leading-tight mt-0.5">
+                      {subtitle || item.description}
+                    </p>
                     <p className="mt-1 font-display text-sm font-extrabold text-primary">
                       {formatCurrency(item.price)}
                     </p>
@@ -479,6 +491,35 @@ export default function App() {
                 </div>
               </article>
             ))}
+          </div>
+
+          {/* TEASER DOS COMBOS 67 */}
+          <div
+            onClick={() => openMenu('combos')}
+            className="mt-3.5 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-secondary to-secondary p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-amber-400/50 transition-all active:scale-[0.99] group shadow-xs"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 text-lg group-hover:scale-105 transition-transform">
+                🔥
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display text-xs font-black uppercase text-amber-400 tracking-wide truncate">
+                    COMBOS 67
+                  </span>
+                  <span className="rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">
+                    Com Refri
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground truncate">
+                  Duplinha (R$ 49,90), Galera (R$ 74,90) e Na Medida (R$ 29,90)
+                </p>
+              </div>
+            </div>
+            <div className="shrink-0 flex items-center gap-1 text-xs font-bold text-primary group-hover:translate-x-0.5 transition-transform">
+              <span>Ver</span>
+              <span>›</span>
+            </div>
           </div>
         </section>
 
@@ -642,44 +683,134 @@ export default function App() {
                     </h3>
 
                     <div className="space-y-2.5">
-                      {cat.items.map((item) => (
-                        <article
-                          key={item.id}
-                          onClick={() => openCustomization(item)}
-                          className="group flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-3.5 transition-all hover:border-primary/50 cursor-pointer active:scale-[0.99]"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2">
-                              <h4 className="text-sm font-bold group-hover:text-primary transition-colors">
-                                {item.name}
-                              </h4>
-                              {item.tag && (
-                                <span className="rounded-full bg-flame px-2 py-0.5 text-[9px] font-black uppercase text-flame-foreground">
-                                  {item.tag}
-                                </span>
-                              )}
-                            </div>
-                            <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground line-clamp-2">
-                              {item.description}
-                            </p>
-                            <p className="mt-1.5 font-display text-sm font-extrabold text-primary">
-                              {formatCurrency(item.price)}
-                            </p>
-                          </div>
+                      {cat.items.map((item) => {
+                        const isCombo = item.category === 'combos';
 
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openCustomization(item);
-                            }}
-                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-flame text-xl font-bold text-flame-foreground transition-transform active:scale-90 cursor-pointer hover:brightness-110 shadow-sm"
-                            aria-label={`Personalizar e Adicionar ${item.name}`}
+                        if (isCombo) {
+                          return (
+                            <article
+                              key={item.id}
+                              onClick={() => openCustomization(item)}
+                              className="group relative overflow-hidden rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-950/30 via-card to-card p-4 transition-all hover:border-amber-400/70 cursor-pointer active:scale-[0.99] shadow-md"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-base">🔥</span>
+                                    <h4 className="font-display text-sm font-black tracking-wide text-foreground group-hover:text-amber-400 transition-colors">
+                                      {item.name}
+                                    </h4>
+                                  </div>
+                                  {item.tag && (
+                                    <span className="mt-1 inline-block rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
+                                      {item.tag}
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="font-display text-base font-black text-amber-400">
+                                  {formatCurrency(item.price)}
+                                </span>
+                              </div>
+
+                              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
+                                {item.description}
+                              </p>
+
+                              {item.comboItems && (
+                                <div className="mt-3 rounded-xl bg-black/40 p-2.5 border border-amber-500/20 space-y-1">
+                                  <p className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">
+                                    Itens inclusos neste combo:
+                                  </p>
+                                  <div className="space-y-1 mt-1">
+                                    {item.comboItems.map((ci) => (
+                                      <p key={ci} className="text-xs text-foreground/90 flex items-center gap-1.5 font-medium">
+                                        <span className="text-emerald-400 font-bold">✓</span>
+                                        <span>{ci}</span>
+                                      </p>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="mt-3.5 flex items-center justify-end">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    openCustomization(item);
+                                  }}
+                                  className="rounded-xl bg-gradient-to-r from-flame to-accent px-4 py-2 text-xs font-black text-flame-foreground shadow-sm hover:brightness-110 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+                                >
+                                  <span>Pedir Combo</span>
+                                  <Plus className="h-4 w-4 stroke-[3]" />
+                                </button>
+                              </div>
+                            </article>
+                          );
+                        }
+
+                        return (
+                          <article
+                            key={item.id}
+                            onClick={() => openCustomization(item)}
+                            className="group flex flex-col justify-between gap-2.5 rounded-2xl border border-border bg-card p-3.5 transition-all hover:border-primary/50 cursor-pointer active:scale-[0.99]"
                           >
-                            <Plus className="h-5 w-5" />
-                          </button>
-                        </article>
-                      ))}
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <h4 className="text-sm font-bold group-hover:text-primary transition-colors">
+                                    {item.name}
+                                  </h4>
+                                  {item.tag && (
+                                    <span className="rounded-full bg-flame px-2 py-0.5 text-[9px] font-black uppercase text-flame-foreground">
+                                      {item.tag}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                                  {item.description}
+                                </p>
+                              </div>
+
+                              <span className="font-display text-sm font-extrabold text-primary shrink-0">
+                                {formatCurrency(item.price)}
+                              </span>
+                            </div>
+
+                            {/* INGREDIENT PILLS */}
+                            {item.ingredients && (
+                              <div className="flex flex-wrap gap-1 pt-1 border-t border-border/40">
+                                {item.ingredients.map((ing) => (
+                                  <span
+                                    key={ing}
+                                    className="rounded-md bg-secondary px-1.5 py-0.5 text-[10px] font-medium text-foreground/80 border border-border/50"
+                                  >
+                                    {ing}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between pt-1">
+                              <span className="text-[10px] text-muted-foreground">
+                                Toque para personalizar adicionais
+                              </span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openCustomization(item);
+                                }}
+                                className="flex h-8 items-center gap-1 px-3 rounded-xl bg-flame text-xs font-bold text-flame-foreground transition-transform active:scale-90 cursor-pointer hover:brightness-110 shadow-xs"
+                                aria-label={`Personalizar e Adicionar ${item.name}`}
+                              >
+                                <Plus className="h-4 w-4" />
+                                <span>Pedir</span>
+                              </button>
+                            </div>
+                          </article>
+                        );
+                      })}
                     </div>
                   </section>
                 ))
