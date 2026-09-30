@@ -17,6 +17,8 @@ import {
   Trash2,
   CheckCircle2,
   Timer,
+  RefreshCw,
+  Lock,
 } from 'lucide-react';
 
 interface KitchenDisplayProps {
@@ -39,8 +41,29 @@ export function KitchenDisplay({ onClose }: KitchenDisplayProps) {
   >('all');
   const [isMuted, setIsMuted] = useState(audioAlert.getMuted());
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   // Store custom prep times chosen for specific orders before starting prep
   const [prepTimeChoice, setPrepTimeChoice] = useState<Record<string, number>>({});
+
+  async function handleManualRefresh() {
+    setIsRefreshing(true);
+    try {
+      const data = await orderService.forceRefresh();
+      setOrders(data);
+    } catch (err) {
+      console.error('Refresh error:', err);
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 500);
+    }
+  }
+
+  function handleCopyKitchenLink() {
+    const directUrl = `${window.location.origin}${window.location.pathname}?cozinha=1`;
+    navigator.clipboard.writeText(directUrl);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2500);
+  }
 
   // Clock tick every 15s to update elapsed minutes
   useEffect(() => {
@@ -134,15 +157,34 @@ export function KitchenDisplay({ onClose }: KitchenDisplayProps) {
           </div>
         </div>
 
-        {/* Audio controls & time */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Audio controls & actions */}
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          <button
+            type="button"
+            onClick={handleManualRefresh}
+            className="flex items-center gap-1.5 rounded-xl border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-300 hover:bg-neutral-700 hover:text-white transition-all cursor-pointer"
+            title="Atualizar pedidos agora"
+          >
+            <RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin text-amber-400' : ''}`} />
+            <span className="hidden sm:inline">Atualizar</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCopyKitchenLink}
+            className="flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-300 hover:bg-amber-500/20 transition-all cursor-pointer"
+            title="Copiar link direto para celular da equipe"
+          >
+            <span>{copiedLink ? '✓ Link Copiado!' : '📲 Link Direto'}</span>
+          </button>
+
           <button
             type="button"
             onClick={handleTestSound}
-            className="hidden sm:flex items-center gap-1.5 rounded-xl border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-300 hover:bg-neutral-700 transition-all cursor-pointer"
+            className="hidden lg:flex items-center gap-1.5 rounded-xl border border-neutral-700 bg-neutral-800 px-3 py-1.5 text-xs font-bold text-neutral-300 hover:bg-neutral-700 transition-all cursor-pointer"
             title="Testar sinal sonoro de novos pedidos"
           >
-            <span>🔔 Testar Som</span>
+            <span>🔔 Som</span>
           </button>
 
           <button
@@ -155,7 +197,7 @@ export function KitchenDisplay({ onClose }: KitchenDisplayProps) {
             }`}
           >
             {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-            <span>{isMuted ? 'Mudo' : 'Som Ativo'}</span>
+            <span className="hidden sm:inline">{isMuted ? 'Mudo' : 'Som Ativo'}</span>
           </button>
 
           <div className="hidden md:block rounded-xl bg-neutral-800 px-3 py-1.5 font-mono text-xs font-bold text-amber-400 border border-neutral-700">
@@ -164,9 +206,23 @@ export function KitchenDisplay({ onClose }: KitchenDisplayProps) {
 
           <button
             type="button"
+            onClick={() => {
+              try {
+                localStorage.removeItem('kds_authorized');
+              } catch {}
+              onClose();
+            }}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white transition-all cursor-pointer"
+            title="Bloquear e fechar painel"
+          >
+            <Lock className="h-4 w-4" />
+          </button>
+
+          <button
+            type="button"
             onClick={onClose}
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-neutral-800 hover:bg-neutral-700 text-white transition-all cursor-pointer"
-            title="Sair do Painel da Cozinha"
+            title="Fechar painel"
           >
             <X className="h-5 w-5" />
           </button>

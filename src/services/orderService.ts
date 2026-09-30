@@ -88,17 +88,21 @@ class OrderService {
 
   private startPolling() {
     if (this.pollTimer) clearInterval(this.pollTimer);
+    // Continuous fail-safe poll every 3 seconds so mobile 4G/5G devices ALWAYS sync
     this.pollTimer = setInterval(async () => {
-      // If WebSocket is not open, refresh via HTTP
-      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-        try {
-          const orders = await this.fetchAllOrders();
-          this.notifyListeners({ type: 'init', orders });
-        } catch {
-          // silent error
-        }
+      try {
+        const orders = await this.fetchAllOrders();
+        this.notifyListeners({ type: 'init', orders });
+      } catch {
+        // silent error
       }
-    }, 4500);
+    }, 3000);
+  }
+
+  public async forceRefresh(): Promise<Order[]> {
+    const orders = await this.fetchAllOrders();
+    this.notifyListeners({ type: 'init', orders });
+    return orders;
   }
 
   public subscribe(callback: OrderEventCallback): () => void {

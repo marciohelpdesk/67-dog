@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   MessageCircle,
   MapPin,
@@ -184,13 +184,28 @@ export default function App() {
 
   function handleOpenKitchen() {
     try {
-      if (sessionStorage.getItem('kds_authorized') === 'true') {
+      if (localStorage.getItem('kds_authorized') === 'true') {
         setIsKitchenOpen(true);
         return;
       }
     } catch {}
     setIsPinModalOpen(true);
   }
+
+  // Detect URL query parameter ?cozinha, ?kds, ?equipe or ?painel on load
+  useEffect(() => {
+    try {
+      const search = window.location.search;
+      if (
+        search.includes('cozinha') ||
+        search.includes('kds') ||
+        search.includes('equipe') ||
+        search.includes('painel')
+      ) {
+        handleOpenKitchen();
+      }
+    } catch {}
+  }, []);
 
   // Item customization modal state
   const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null);
@@ -489,11 +504,12 @@ export default function App() {
             <button
               type="button"
               onClick={handleOpenKitchen}
-              className="flex items-center gap-1.5 rounded-full border border-neutral-700/60 bg-neutral-900/60 px-2.5 py-1 text-[10px] font-bold text-neutral-400 hover:text-white hover:border-neutral-500 hover:bg-neutral-800 transition-all cursor-pointer shadow-xs"
-              title="Acesso exclusivo da equipe da cozinha (Requer PIN)"
+              className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-neutral-900/90 px-3 py-1.5 text-xs font-bold text-amber-300 hover:border-amber-400 hover:bg-neutral-800 transition-all cursor-pointer shadow-sm active:scale-95"
+              title="Acesso da equipe à cozinha (KDS)"
             >
-              <Lock className="h-3 w-3 text-amber-400" />
-              <span>Equipe 67 🔒</span>
+              <ChefHat className="h-3.5 w-3.5 text-amber-400" />
+              <span>Cozinha / Equipe</span>
+              <Lock className="h-3 w-3 text-neutral-400" />
             </button>
           </div>
         </div>
@@ -822,7 +838,7 @@ export default function App() {
         </section>
 
         {/* FOOTER */}
-        <footer className="mt-10 border-t border-border pt-6 text-center text-xs text-muted-foreground">
+        <footer className="mt-10 border-t border-border pt-6 pb-2 text-center text-xs text-muted-foreground space-y-3">
           <button
             type="button"
             onClick={() => {
@@ -833,7 +849,24 @@ export default function App() {
           >
             📍 {ESTABLISHMENT_INFO.address} (Toque para ver rotas)
           </button>
-          <p className="mt-1.5 text-[11px] sm:text-xs">© 2026 {ESTABLISHMENT_INFO.name}. Sabor e crocância inigualáveis.</p>
+
+          {/* DEDICATED TEAM ACCESS BUTTON IN FOOTER */}
+          <div className="pt-2">
+            <button
+              type="button"
+              onClick={handleOpenKitchen}
+              className="inline-flex items-center gap-2 rounded-2xl bg-neutral-900 border border-neutral-700/80 px-4 py-2.5 text-xs font-bold text-neutral-300 hover:text-white hover:border-amber-400/60 hover:bg-neutral-800 transition-all cursor-pointer shadow-sm active:scale-95"
+            >
+              <ChefHat className="h-4 w-4 text-amber-400" />
+              <span>Acesso da Equipe (Painel da Cozinha KDS)</span>
+              <Lock className="h-3.5 w-3.5 text-neutral-400" />
+            </button>
+            <p className="mt-1.5 text-[10px] text-neutral-500">
+              Uso da lanchonete • PIN padrão: <strong className="text-amber-400/80">6767</strong> • Ou adicione <strong className="text-neutral-400">?cozinha</strong> no link
+            </p>
+          </div>
+
+          <p className="text-[11px] sm:text-xs pt-1">© 2026 {ESTABLISHMENT_INFO.name}. Sabor e crocância inigualáveis.</p>
         </footer>
 
       </div>

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Lock, X, AlertTriangle, ChefHat, Check, Delete } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Lock, X, AlertTriangle, Delete, Check } from 'lucide-react';
 
 interface KitchenPinModalProps {
   onSuccess: () => void;
@@ -11,6 +11,11 @@ const DEFAULT_PIN = '6767';
 export function KitchenPinModal({ onSuccess, onClose }: KitchenPinModalProps) {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   function handleKeyPress(digit: string) {
     setError(false);
@@ -31,14 +36,24 @@ export function KitchenPinModal({ onSuccess, onClose }: KitchenPinModalProps) {
   function verifyPin(inputPin: string) {
     if (inputPin === DEFAULT_PIN) {
       try {
-        sessionStorage.setItem('kds_authorized', 'true');
+        localStorage.setItem('kds_authorized', 'true');
       } catch {}
       onSuccess();
     } else {
       setError(true);
       setTimeout(() => {
         setPin('');
+        inputRef.current?.focus();
       }, 700);
+    }
+  }
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+    setError(false);
+    setPin(val);
+    if (val.length === 4) {
+      verifyPin(val);
     }
   }
 
@@ -62,11 +77,27 @@ export function KitchenPinModal({ onSuccess, onClose }: KitchenPinModalProps) {
 
         <h3 className="font-display text-lg font-black text-white">Acesso da Equipe (KDS)</h3>
         <p className="mt-1 text-xs text-muted-foreground px-2">
-          Uso restrito da cozinha do <strong>67 DOG</strong>. Digite o PIN de 4 dígitos da equipe para gerenciar pedidos:
+          Uso restrito da cozinha do <strong>67 DOG</strong>. Digite o PIN de 4 dígitos da equipe:
         </p>
 
-        {/* PIN Dots */}
-        <div className="my-5 flex justify-center gap-3">
+        {/* Hidden or real input for native mobile keyboard */}
+        <input
+          ref={inputRef}
+          type="password"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={4}
+          value={pin}
+          onChange={handleInputChange}
+          className="sr-only"
+          autoComplete="off"
+        />
+
+        {/* PIN Dots (Clicking focuses input) */}
+        <div
+          onClick={() => inputRef.current?.focus()}
+          className="my-5 flex justify-center gap-3 cursor-pointer p-2 rounded-2xl hover:bg-white/5 transition-colors"
+        >
           {[0, 1, 2, 3].map((idx) => {
             const isFilled = pin.length > idx;
             return (
@@ -109,6 +140,7 @@ export function KitchenPinModal({ onSuccess, onClose }: KitchenPinModalProps) {
             onClick={() => {
               setPin('');
               setError(false);
+              inputRef.current?.focus();
             }}
             className="flex h-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-xs font-bold text-neutral-400 hover:bg-white/15 active:scale-95 transition-all cursor-pointer"
           >
@@ -132,9 +164,9 @@ export function KitchenPinModal({ onSuccess, onClose }: KitchenPinModalProps) {
           </button>
         </div>
 
-        <p className="mt-4 text-[10px] text-neutral-500">
-          * Clientes comuns não possuem autorização de acesso ao painel de produção.
-        </p>
+        <div className="mt-4 rounded-xl bg-amber-500/10 border border-amber-500/20 p-2 text-[11px] text-amber-200">
+          🔑 <strong>PIN Padrão da Equipe:</strong> <span className="font-mono font-black text-amber-400">6767</span>
+        </div>
       </div>
     </div>
   );
