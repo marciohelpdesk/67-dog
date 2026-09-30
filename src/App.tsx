@@ -474,11 +474,11 @@ export default function App() {
           <div className="flex items-center justify-center gap-2 mb-3 text-center">
             <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
             <p className="text-[11px] font-bold tracking-wide uppercase text-amber-300 drop-shadow">
-              Toque abaixo para falar, ver cardápio ou endereço:
+              Toque abaixo para falar, salvar contato ou ver rotas:
             </p>
           </div>
 
-          {/* Linha 1: Os dois principais (WhatsApp Oficial e Cardápio Completo) */}
+          {/* Linha 1: Os dois principais (WhatsApp Oficial e Salvar Contato Principal) */}
           <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
             {/* 1. WHATSAPP (ÍCONE ORIGINAL WHATSAPP) */}
             <a
@@ -503,31 +503,46 @@ export default function App() {
               </div>
             </a>
 
-            {/* 2. CARDÁPIO (ÍCONE CULINÁRIA & LANCHES) */}
+            {/* 2. CONTATO PRINCIPAL NA AGENDA (SUBSTITUINDO O CARDÁPIO) */}
             <button
               type="button"
-              onClick={() => openMenu('all')}
-              className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-950/80 via-black/75 to-flame/20 p-3 sm:p-3.5 backdrop-blur-xl shadow-lg shadow-black/50 transition-all hover:scale-[1.02] hover:border-amber-400 hover:bg-amber-950/90 active:scale-95 cursor-pointer"
+              onClick={handleSaveContact}
+              className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-3 sm:p-3.5 backdrop-blur-xl shadow-lg shadow-black/50 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer ${
+                contactSaved
+                  ? 'border-emerald-400 bg-emerald-950/90 shadow-[0_4px_20px_rgba(16,185,129,0.35)]'
+                  : 'border-amber-500/40 bg-gradient-to-br from-amber-950/80 via-black/75 to-flame/20 hover:border-amber-400 hover:bg-amber-950/90'
+              }`}
+              title="Salvar contato oficial do 67 Dog na agenda do seu celular"
             >
-              <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 via-flame to-red-600 text-white shadow-[0_4px_14px_rgba(245,158,11,0.45)] group-hover:scale-110 group-hover:brightness-110 transition-all">
-                <Utensils className="h-6 w-6 sm:h-7 sm:w-7 text-white stroke-[2.5]" />
+              <div
+                className={`flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-[0_4px_14px_rgba(245,158,11,0.45)] group-hover:scale-110 group-hover:brightness-110 transition-all ${
+                  contactSaved
+                    ? 'bg-emerald-500 shadow-[0_4px_14px_rgba(16,185,129,0.5)]'
+                    : 'bg-gradient-to-br from-amber-500 via-flame to-red-600'
+                }`}
+              >
+                {contactSaved ? (
+                  <Check className="h-6 w-6 sm:h-7 sm:w-7 text-white stroke-[3] animate-bounce" />
+                ) : (
+                  <UserPlus className="h-6 w-6 sm:h-7 sm:w-7 text-white stroke-[2.4]" />
+                )}
               </div>
               <div className="min-w-0 text-left">
-                <div className="flex items-center gap-1">
-                  <span className="font-display text-sm font-black text-white group-hover:text-amber-300 transition-colors">
-                    Cardápio
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display text-sm font-black text-white group-hover:text-amber-300 transition-colors truncate">
+                    {contactSaved ? 'Salvo!' : 'Contato'}
                   </span>
-                  <span className="text-xs">🌭</span>
+                  <span className={`h-2 w-2 rounded-full ${contactSaved ? 'bg-emerald-400' : 'bg-amber-400'} animate-pulse`} />
                 </div>
                 <p className="text-[11px] font-medium text-amber-200/80 truncate">
-                  Ver lanches e preços
+                  {contactSaved ? 'Adicionado na agenda ✓' : 'Salvar na agenda'}
                 </p>
               </div>
             </button>
           </div>
 
-          {/* Linha 2: 4 Cartões Informativos (Endereço Google Maps, Horários, Salvar Contato na Agenda, Instagram Oficial) */}
-          <div className="mt-2.5 grid grid-cols-4 gap-1.5 sm:gap-2">
+          {/* Linha 2: 3 Cartões Informativos (Endereço Google Maps, Horários, Instagram Oficial) */}
+          <div className="mt-2.5 grid grid-cols-3 gap-2">
             {/* 3. ENDEREÇO & COMO CHEGAR (ÍCONE ORIGINAL GOOGLE MAPS PIN) */}
             <button
               type="button"
@@ -535,15 +550,15 @@ export default function App() {
                 setInfoModalTab('address');
                 setIsInfoModalOpen(true);
               }}
-              className="group flex flex-col items-center justify-center rounded-2xl border border-rose-500/35 bg-gradient-to-b from-rose-950/60 via-black/70 to-rose-950/30 p-2 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-rose-400 hover:bg-rose-900/40 active:scale-95 cursor-pointer"
+              className="group flex flex-col items-center justify-center rounded-2xl border border-rose-500/35 bg-gradient-to-b from-rose-950/60 via-black/70 to-rose-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-rose-400 hover:bg-rose-900/40 active:scale-95 cursor-pointer"
             >
-              <div className="mb-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-white/10 p-1 border border-white/20 shadow-[0_2px_8px_rgba(234,67,53,0.35)] group-hover:scale-110 transition-transform">
-                <OfficialGoogleMapsPinIcon className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
+              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 p-1 border border-white/20 shadow-[0_2px_8px_rgba(234,67,53,0.35)] group-hover:scale-110 transition-transform">
+                <OfficialGoogleMapsPinIcon className="h-5 w-5" />
               </div>
-              <span className="font-display text-[11px] sm:text-xs font-bold text-white group-hover:text-rose-300">
+              <span className="font-display text-xs font-bold text-white group-hover:text-rose-300">
                 Endereço
               </span>
-              <span className="text-[9px] sm:text-[9.5px] font-medium text-rose-200/80 truncate w-full">
+              <span className="text-[9.5px] font-medium text-rose-200/80 truncate w-full">
                 Como Chegar
               </span>
             </button>
@@ -555,65 +570,33 @@ export default function App() {
                 setInfoModalTab('hours');
                 setIsInfoModalOpen(true);
               }}
-              className="group flex flex-col items-center justify-center rounded-2xl border border-sky-500/35 bg-gradient-to-b from-sky-950/60 via-black/70 to-sky-950/30 p-2 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-sky-400 hover:bg-sky-900/40 active:scale-95 cursor-pointer"
+              className="group flex flex-col items-center justify-center rounded-2xl border border-sky-500/35 bg-gradient-to-b from-sky-950/60 via-black/70 to-sky-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-sky-400 hover:bg-sky-900/40 active:scale-95 cursor-pointer"
             >
-              <div className="mb-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-[0_2px_8px_rgba(14,165,233,0.4)] group-hover:scale-110 transition-transform">
-                <Clock3 className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white" strokeWidth={2.4} />
+              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-[0_2px_8px_rgba(14,165,233,0.4)] group-hover:scale-110 transition-transform">
+                <Clock3 className="h-4.5 w-4.5 text-white" strokeWidth={2.4} />
               </div>
-              <span className="font-display text-[11px] sm:text-xs font-bold text-white group-hover:text-sky-300">
+              <span className="font-display text-xs font-bold text-white group-hover:text-sky-300">
                 Horários
               </span>
-              <span className="text-[9px] sm:text-[9.5px] font-medium text-sky-200/80 truncate w-full">
+              <span className="text-[9.5px] font-medium text-sky-200/80 truncate w-full">
                 18h às 23h
               </span>
             </button>
 
-            {/* 5. SALVAR CONTATO NA AGENDA (vCard com Fone, WhatsApp e Link do Cardápio) */}
-            <button
-              type="button"
-              onClick={handleSaveContact}
-              className={`group flex flex-col items-center justify-center rounded-2xl border p-2 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] active:scale-95 cursor-pointer ${
-                contactSaved
-                  ? 'border-emerald-400 bg-emerald-950/80 shadow-[0_0_15px_rgba(16,185,129,0.4)]'
-                  : 'border-violet-500/35 bg-gradient-to-b from-violet-950/60 via-black/70 to-violet-950/30 hover:border-violet-400 hover:bg-violet-900/40'
-              }`}
-              title="Salvar contato do 67 Dog na agenda com número, WhatsApp e link do cardápio"
-            >
-              <div
-                className={`mb-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl text-white shadow-md group-hover:scale-110 transition-transform ${
-                  contactSaved
-                    ? 'bg-emerald-500 shadow-[0_2px_10px_rgba(16,185,129,0.5)]'
-                    : 'bg-gradient-to-br from-violet-500 to-indigo-600 shadow-[0_2px_8px_rgba(139,92,246,0.4)]'
-                }`}
-              >
-                {contactSaved ? (
-                  <Check className="h-4.5 w-4.5 text-white stroke-[3] animate-bounce" />
-                ) : (
-                  <UserPlus className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white stroke-[2.4]" />
-                )}
-              </div>
-              <span className="font-display text-[11px] sm:text-xs font-bold text-white group-hover:text-violet-300">
-                {contactSaved ? 'Salvo!' : 'Contato'}
-              </span>
-              <span className="text-[9px] sm:text-[9.5px] font-medium text-violet-200/80 truncate w-full">
-                {contactSaved ? 'Na Agenda ✓' : 'Salvar Agenda'}
-              </span>
-            </button>
-
-            {/* 6. INSTAGRAM (ÍCONE ORIGINAL GRADIENTE DO INSTAGRAM) */}
+            {/* 5. INSTAGRAM (ÍCONE ORIGINAL GRADIENTE DO INSTAGRAM) */}
             <a
               href={ESTABLISHMENT_INFO.instagram}
               target="_blank"
               rel="noreferrer"
-              className="group flex flex-col items-center justify-center rounded-2xl border border-pink-500/35 bg-gradient-to-b from-pink-950/60 via-black/70 to-pink-950/30 p-2 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-pink-400 hover:bg-pink-900/40 active:scale-95 cursor-pointer"
+              className="group flex flex-col items-center justify-center rounded-2xl border border-pink-500/35 bg-gradient-to-b from-pink-950/60 via-black/70 to-pink-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-pink-400 hover:bg-pink-900/40 active:scale-95 cursor-pointer"
             >
-              <div className="mb-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-[0_2px_10px_rgba(220,39,67,0.45)] group-hover:scale-110 transition-transform">
-                <OfficialInstagramIcon className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white" />
+              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-[0_2px_10px_rgba(220,39,67,0.45)] group-hover:scale-110 transition-transform">
+                <OfficialInstagramIcon className="h-4.5 w-4.5 text-white" />
               </div>
-              <span className="font-display text-[11px] sm:text-xs font-bold text-white group-hover:text-pink-300">
+              <span className="font-display text-xs font-bold text-white group-hover:text-pink-300">
                 Instagram
               </span>
-              <span className="text-[9px] sm:text-[9.5px] font-medium text-pink-200/80 truncate w-full">
+              <span className="text-[9.5px] font-medium text-pink-200/80 truncate w-full">
                 Novidades
               </span>
             </a>
@@ -1626,10 +1609,6 @@ export default function App() {
                     {ESTABLISHMENT_INFO.address}
                   </p>
 
-                  <p className="mt-2 text-xs text-rose-200/80">
-                    📍 Bairro Nações — Fazenda Rio Grande / PR. Fácil acesso e parada rápida para retirada no balcão.
-                  </p>
-
                   {/* Botões de Ação para Rotas */}
                   <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <a
@@ -1714,22 +1693,17 @@ export default function App() {
 
               {/* SEÇÃO SALVAR NA AGENDA */}
               <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-950/40 via-neutral-900/60 to-black/60 p-4 backdrop-blur-xl">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 text-violet-400 font-display font-bold text-xs uppercase tracking-wider">
-                    <UserPlus className="h-4 w-4" />
-                    <span>Salvar Contato no Celular</span>
-                  </div>
-                  <span className="text-[10px] font-bold text-violet-300">
-                    {ESTABLISHMENT_INFO.phoneDisplay}
-                  </span>
+                <div className="flex items-center gap-2 text-violet-400 font-display font-bold text-xs uppercase tracking-wider mb-2">
+                  <UserPlus className="h-4 w-4" />
+                  <span>Salvar Contato no Celular</span>
                 </div>
                 <p className="text-xs text-violet-200/80 leading-relaxed mb-3">
-                  Adicione o 67 Dog na sua agenda com 1 toque! O contato já vem com telefone, WhatsApp oficial e link direto do cardápio para pedir sempre que quiser.
+                  Adicione o 67 Dog na sua agenda com 1 toque!
                 </p>
                 <button
                   type="button"
                   onClick={handleSaveContact}
-                  className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer ${
+                  className={`w-full flex items-center justify-center gap-2 rounded-xl py-3 px-4 text-xs font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer ${
                     contactSaved
                       ? 'bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.5)]'
                       : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 shadow-violet-950/50'
@@ -1737,13 +1711,13 @@ export default function App() {
                 >
                   {contactSaved ? (
                     <>
-                      <Check className="h-4 w-4 text-white" />
+                      <Check className="h-4.5 w-4.5 text-white" />
                       <span>✓ Contato Salvo na Agenda!</span>
                     </>
                   ) : (
                     <>
-                      <UserPlus className="h-4 w-4 text-white" />
-                      <span>📲 Baixar &amp; Salvar Contato (.vcf)</span>
+                      <UserPlus className="h-4.5 w-4.5 text-white" />
+                      <span>Salvar Contato</span>
                     </>
                   )}
                 </button>
@@ -1775,30 +1749,30 @@ export default function App() {
                   </div>
                 </div>
               )}
-            </div>
 
-            {/* Rodapé do Modal */}
-            <div className="mt-4 pt-3 border-t border-white/10 flex gap-2">
-              <a
-                href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#1EBE5D] py-3 text-xs font-black uppercase text-white shadow-lg shadow-emerald-950/50 hover:brightness-110 active:scale-95 transition-all"
-              >
-                <OfficialWhatsAppIcon className="h-4.5 w-4.5 text-white" />
-                <span>Chamar no WhatsApp</span>
-              </a>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsInfoModalOpen(false);
-                  openMenu('all');
-                }}
-                className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/20 py-3 text-xs font-black uppercase text-amber-300 hover:bg-amber-500/30 active:scale-95 transition-all cursor-pointer"
-              >
-                <Utensils className="h-4 w-4" />
-                <span>Ver Cardápio</span>
-              </button>
+              {/* Ações Finais ao Fim da Leitura (Aparecem após a rolagem completa de Endereço, Horários ou Tudo) */}
+              <div className="pt-3 border-t border-white/10 flex flex-col gap-2 pb-1">
+                <a
+                  href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#1EBE5D] py-3.5 px-4 text-xs sm:text-sm font-black uppercase text-white shadow-lg shadow-emerald-950/50 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                >
+                  <OfficialWhatsAppIcon className="h-5 w-5 text-white shrink-0" />
+                  <span>Chamar no WhatsApp</span>
+                </a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsInfoModalOpen(false);
+                    openMenu('all');
+                  }}
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/15 py-2.5 px-4 text-xs font-bold text-amber-300 hover:bg-amber-500/25 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Utensils className="h-4 w-4 shrink-0" />
+                  <span>Ver Cardápio Completo</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
