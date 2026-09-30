@@ -25,8 +25,14 @@ import {
   ExternalLink,
   CreditCard,
   Sparkles,
+  ChefHat,
+  Lock,
 } from 'lucide-react';
 import { ASSETS } from './assets/images';
+import { KitchenDisplay } from './components/KitchenDisplay';
+import { KitchenPinModal } from './components/KitchenPinModal';
+import { CustomerOrderTracker } from './components/CustomerOrderTracker';
+import { orderService } from './services/orderService';
 import {
   MENU_CATEGORIES,
   ESTABLISHMENT_INFO,
@@ -153,6 +159,7 @@ export default function App() {
   const [cart, setCart] = useState<Record<string, CartItemState>>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
   const [copiedPix, setCopiedPix] = useState(false);
   const [pixConfirmed, setPixConfirmed] = useState(false);
@@ -162,6 +169,28 @@ export default function App() {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [infoModalTab, setInfoModalTab] = useState<'all' | 'address' | 'hours'>('all');
   const [copiedAddress, setCopiedAddress] = useState(false);
+
+  // Kitchen KDS & Real-Time Order Tracking (Protected by Staff PIN)
+  const [isKitchenOpen, setIsKitchenOpen] = useState(false);
+  const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+  const [activeCustomerOrderId, setActiveCustomerOrderId] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('active_customer_order_id');
+    } catch {
+      return null;
+    }
+  });
+  const [showCustomerTracker, setShowCustomerTracker] = useState(false);
+
+  function handleOpenKitchen() {
+    try {
+      if (sessionStorage.getItem('kds_authorized') === 'true') {
+        setIsKitchenOpen(true);
+        return;
+      }
+    } catch {}
+    setIsPinModalOpen(true);
+  }
 
   // Item customization modal state
   const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null);
@@ -320,8 +349,41 @@ export default function App() {
     });
   }
 
-  function sendWhatsAppOrder() {
+  async function sendWhatsAppOrder() {
     if (cartItems.length === 0 || !customerName.trim() || !pixConfirmed) return;
+
+    // Structured items for Kitchen Display System (KDS)
+    const orderItems = cartItems.map((c) => ({
+      id: c.item.id,
+      name: c.item.name,
+      qty: c.qty,
+      unitPrice: c.unitPrice,
+      extras: c.selectedExtras.map((e) => e.name),
+      removals: c.selectedRemovals.map((r) => r.name),
+      notes: c.notes,
+    }));
+
+    let orderCode = '';
+    try {
+      const created = await orderService.createOrder({
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim() ? customerPhone.trim() : undefined,
+        items: orderItems,
+        totalPrice,
+        notes: orderNotes ? orderNotes.trim() : undefined,
+        pixConfirmed: true,
+        pixPayerName: pixPayerName ? pixPayerName.trim() : undefined,
+      });
+
+      orderCode = created.code;
+      setActiveCustomerOrderId(created.id);
+      setShowCustomerTracker(true);
+      try {
+        localStorage.setItem('active_customer_order_id', created.id);
+      } catch {}
+    } catch (err) {
+      console.error('Failed to create order on server:', err);
+    }
 
     const formattedItems = cartItems.map((c) => {
       let text = `• *${c.qty}x ${c.item.name}* — ${formatCurrency(c.unitPrice * c.qty)}`;
@@ -338,7 +400,7 @@ export default function App() {
     });
 
     const lines = [
-      `🌭 *NOVO PEDIDO — SIX SEVEN HOT DOG*`,
+      `🌭 *NOVO PEDIDO ${orderCode ? `${orderCode} ` : ''}— SIX SEVEN HOT DOG*`,
       ``,
       `📋 *ITENS DO PEDIDO:*`,
       ...formattedItems,
@@ -348,6 +410,7 @@ export default function App() {
       `🏃 *TIPO DE ATENDIMENTO:* Retirada no balcão`,
       `📍 *LOCAL DE RETIRADA:* ${ESTABLISHMENT_INFO.address}`,
       `👤 *NOME DO CLIENTE:* ${customerName.trim()}`,
+      customerPhone.trim() ? `📱 *WHATSAPP DO CLIENTE:* ${customerPhone.trim()}` : null,
       orderNotes ? `📝 *OBSERVAÇÕES GERAIS:* ${orderNotes.trim()}` : null,
       ``,
       `💳 *STATUS DO PAGAMENTO VIA PIX:*`,
@@ -362,6 +425,10 @@ export default function App() {
       `https://wa.me/${ESTABLISHMENT_INFO.phone}?text=${encodeURIComponent(message)}`,
       '_blank'
     );
+
+    // Reset cart and close cart drawer
+    setCart({});
+    setIsCartOpen(false);
   }
 
   // Filtered menu categories for the Menu Modal
@@ -396,8 +463,41 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background pb-28 text-foreground selection:bg-primary selection:text-primary-foreground font-sans">
-      <div className="mx-auto max-w-md px-3 pt-3">
-        
+      <div className="mx-auto max-w-md px-3 pt-2">
+        {/* TOP UTILITIES BAR (STATUS ABERTO, KDS COZINHA E ACOMPANHAMENTO) */}
+        <div className="mb-2.5 flex items-center justify-between gap-2 px-1">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[11px] font-bold text-neutral-300">
+              Aberto hoje das 18h às 23h
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {activeCustomerOrderId && (
+              <button
+                type="button"
+                onClick={() => setShowCustomerTracker(true)}
+                className="flex items-center gap-1.5 rounded-full border border-amber-500/40 bg-amber-500/20 px-2.5 py-1 text-[11px] font-extrabold text-amber-300 hover:bg-amber-500/30 transition-all cursor-pointer animate-pulse"
+                title="Acompanhar meu pedido ao vivo"
+              >
+                <span>📦</span>
+                <span>Meu Pedido</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={handleOpenKitchen}
+              className="flex items-center gap-1.5 rounded-full border border-neutral-700/60 bg-neutral-900/60 px-2.5 py-1 text-[10px] font-bold text-neutral-400 hover:text-white hover:border-neutral-500 hover:bg-neutral-800 transition-all cursor-pointer shadow-xs"
+              title="Acesso exclusivo da equipe da cozinha (Requer PIN)"
+            >
+              <Lock className="h-3 w-3 text-amber-400" />
+              <span>Equipe 67 🔒</span>
+            </button>
+          </div>
+        </div>
+
         {/* HERO BANNER SECTION (HERO FOOD BACKGROUND + FLOATING 67 DOG LOGO + CURVED WAVE) */}
         <section className="relative overflow-hidden rounded-3xl border border-primary/30">
           <img
@@ -1338,6 +1438,13 @@ export default function App() {
                     }`}
                   />
                   <input
+                    value={customerPhone}
+                    onChange={(e) => setCustomerPhone(e.target.value)}
+                    placeholder="Seu WhatsApp (Ex: 41 99999-9999) - para avisarmos quando ficar pronto"
+                    type="tel"
+                    className="w-full rounded-xl border border-input bg-secondary px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+                  />
+                  <input
                     value={orderNotes}
                     onChange={(e) => setOrderNotes(e.target.value)}
                     placeholder="Observações gerais para a cozinha (opcional)"
@@ -1726,6 +1833,37 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODAL DE PIN DE SEGURANÇA PARA A EQUIPE DA COZINHA */}
+      {isPinModalOpen && (
+        <KitchenPinModal
+          onSuccess={() => {
+            setIsPinModalOpen(false);
+            setIsKitchenOpen(true);
+          }}
+          onClose={() => setIsPinModalOpen(false)}
+        />
+      )}
+
+      {/* PAINEL DA COZINHA (KDS - KITCHEN DISPLAY SYSTEM EM TEMPO REAL) */}
+      {isKitchenOpen && (
+        <KitchenDisplay onClose={() => setIsKitchenOpen(false)} />
+      )}
+
+      {/* TELA DE ACOMPANHAMENTO DO CLIENTE (STATUS EM TEMPO REAL) */}
+      {activeCustomerOrderId && showCustomerTracker && (
+        <CustomerOrderTracker
+          orderId={activeCustomerOrderId}
+          onClose={() => setShowCustomerTracker(false)}
+        />
+      )}
+
+      {/* FLOATING TRACKER PILL (QUANDO O CLIENTE MINIMIZA MAS TEM PEDIDO ATIVO) */}
+      {activeCustomerOrderId && !showCustomerTracker && !isCartOpen && !isKitchenOpen && (
+        <CustomerOrderTracker
+          orderId={activeCustomerOrderId}
+        />
       )}
     </div>
   );
