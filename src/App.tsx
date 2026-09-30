@@ -444,7 +444,20 @@ export default function App() {
             loading="eager"
             className="absolute inset-0 h-full w-full object-cover object-[50%_62%]"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-background" />
+          {/* DEGRADÊ UNIVERSAL MULTI-STOP OTIMIZADO PARA CELULARES (IOS/ANDROID) E COMPUTADOR */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.15) 28%, rgba(23,21,19,0.45) 55%, rgba(23,21,19,0.88) 82%, #171513 100%)'
+            }}
+          />
+          {/* TRANSIÇÃO SUAVE DE REFORÇO NO FINAL DO BANNER (FADE VELUDO PARA O PRETO NO MOBILE) */}
+          <div 
+            className="absolute inset-x-0 bottom-0 h-36 pointer-events-none"
+            style={{
+              background: 'linear-gradient(180deg, transparent 0%, rgba(23,21,19,0.45) 35%, rgba(23,21,19,0.85) 70%, #171513 100%)'
+            }}
+          />
 
           <div className="relative flex flex-col items-center px-6 pb-24 pt-16 text-center">
             <img
@@ -456,11 +469,11 @@ export default function App() {
             />
           </div>
 
-          {/* ICONIC BOTTOM WAVY DIVIDER */}
+          {/* ICONIC BOTTOM WAVY DIVIDER COM COR HEX EXATA DO FUNDO */}
           <svg
             viewBox="0 0 400 40"
             preserveAspectRatio="none"
-            className="absolute bottom-0 left-0 h-10 w-full text-background"
+            className="absolute bottom-0 left-0 h-8 sm:h-10 w-full text-[#171513]"
             fill="currentColor"
             aria-hidden="true"
           >
