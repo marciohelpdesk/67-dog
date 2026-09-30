@@ -25,6 +25,7 @@ import {
   ExternalLink,
   CreditCard,
   Sparkles,
+  UserPlus,
 } from 'lucide-react';
 import { ASSETS } from './assets/images';
 import {
@@ -162,6 +163,7 @@ export default function App() {
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [infoModalTab, setInfoModalTab] = useState<'all' | 'address' | 'hours'>('all');
   const [copiedAddress, setCopiedAddress] = useState(false);
+  const [contactSaved, setContactSaved] = useState(false);
 
   // Item customization modal state
   const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null);
@@ -193,7 +195,7 @@ export default function App() {
     if (burgerCostelaco) {
       list.push({
         item: burgerCostelaco,
-        badge: '🍔 Novo Burger',
+        badge: '🍔 Burger Artesanal',
         subtitle: 'Brioche, blend 150g e costela BBQ',
         img: ASSETS.burger,
       });
@@ -201,7 +203,7 @@ export default function App() {
     if (pastelCostela) {
       list.push({
         item: pastelCostela,
-        badge: '🥟 Novo Pastel',
+        badge: '🥟 Pastel Especial',
         subtitle: 'Costela desfiada e muçarela',
         img: ASSETS.pastelDestaque,
       });
@@ -227,6 +229,36 @@ export default function App() {
     navigator.clipboard.writeText(ESTABLISHMENT_INFO.address);
     setCopiedAddress(true);
     setTimeout(() => setCopiedAddress(false), 2500);
+  }
+
+  function handleSaveContact() {
+    const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://67dog.com.br';
+    const vcard = [
+      'BEGIN:VCARD',
+      'VERSION:3.0',
+      'FN:67 Dog • Six Seven Hot Dog',
+      'N:Dog;67;;;',
+      'ORG:67 Dog - Hot Dog, Burger e Pastel',
+      'TITLE:Cardápio Digital & Pedidos',
+      `TEL;TYPE=CELL,VOICE,WHATSAPP:+${ESTABLISHMENT_INFO.phone}`,
+      `URL:${currentUrl}`,
+      `ADR;TYPE=WORK:;;${ESTABLISHMENT_INFO.address};Fazenda Rio Grande;PR;83823-114;Brasil`,
+      'NOTE:O autêntico Hot Dog com Vina, Hambúrgueres artesanais e Pastéis crocantes! Acesse nosso cardápio no link deste contato para fazer seu pedido.',
+      'END:VCARD',
+    ].join('\r\n');
+
+    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', '67_Dog_Contato.vcf');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    setContactSaved(true);
+    setTimeout(() => setContactSaved(false), 3000);
   }
 
   function openMenu(categoryId: string = 'all') {
@@ -494,8 +526,8 @@ export default function App() {
             </button>
           </div>
 
-          {/* Linha 2: 3 Cartões Informativos (Endereço Google Maps, Horários, Instagram Oficial) */}
-          <div className="mt-2.5 grid grid-cols-3 gap-2">
+          {/* Linha 2: 4 Cartões Informativos (Endereço Google Maps, Horários, Salvar Contato na Agenda, Instagram Oficial) */}
+          <div className="mt-2.5 grid grid-cols-4 gap-1.5 sm:gap-2">
             {/* 3. ENDEREÇO & COMO CHEGAR (ÍCONE ORIGINAL GOOGLE MAPS PIN) */}
             <button
               type="button"
@@ -503,15 +535,15 @@ export default function App() {
                 setInfoModalTab('address');
                 setIsInfoModalOpen(true);
               }}
-              className="group flex flex-col items-center justify-center rounded-2xl border border-rose-500/35 bg-gradient-to-b from-rose-950/60 via-black/70 to-rose-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-rose-400 hover:bg-rose-900/40 active:scale-95 cursor-pointer"
+              className="group flex flex-col items-center justify-center rounded-2xl border border-rose-500/35 bg-gradient-to-b from-rose-950/60 via-black/70 to-rose-950/30 p-2 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-rose-400 hover:bg-rose-900/40 active:scale-95 cursor-pointer"
             >
-              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 p-1 border border-white/20 shadow-[0_2px_8px_rgba(234,67,53,0.35)] group-hover:scale-110 transition-transform">
-                <OfficialGoogleMapsPinIcon className="h-5 w-5" />
+              <div className="mb-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-white/10 p-1 border border-white/20 shadow-[0_2px_8px_rgba(234,67,53,0.35)] group-hover:scale-110 transition-transform">
+                <OfficialGoogleMapsPinIcon className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
               </div>
-              <span className="font-display text-xs font-bold text-white group-hover:text-rose-300">
+              <span className="font-display text-[11px] sm:text-xs font-bold text-white group-hover:text-rose-300">
                 Endereço
               </span>
-              <span className="text-[9.5px] font-medium text-rose-200/80 truncate w-full">
+              <span className="text-[9px] sm:text-[9.5px] font-medium text-rose-200/80 truncate w-full">
                 Como Chegar
               </span>
             </button>
@@ -523,64 +555,123 @@ export default function App() {
                 setInfoModalTab('hours');
                 setIsInfoModalOpen(true);
               }}
-              className="group flex flex-col items-center justify-center rounded-2xl border border-sky-500/35 bg-gradient-to-b from-sky-950/60 via-black/70 to-sky-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-sky-400 hover:bg-sky-900/40 active:scale-95 cursor-pointer"
+              className="group flex flex-col items-center justify-center rounded-2xl border border-sky-500/35 bg-gradient-to-b from-sky-950/60 via-black/70 to-sky-950/30 p-2 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-sky-400 hover:bg-sky-900/40 active:scale-95 cursor-pointer"
             >
-              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-[0_2px_8px_rgba(14,165,233,0.4)] group-hover:scale-110 transition-transform">
-                <Clock3 className="h-4.5 w-4.5 text-white" strokeWidth={2.4} />
+              <div className="mb-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-[0_2px_8px_rgba(14,165,233,0.4)] group-hover:scale-110 transition-transform">
+                <Clock3 className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white" strokeWidth={2.4} />
               </div>
-              <span className="font-display text-xs font-bold text-white group-hover:text-sky-300">
+              <span className="font-display text-[11px] sm:text-xs font-bold text-white group-hover:text-sky-300">
                 Horários
               </span>
-              <span className="text-[9.5px] font-medium text-sky-200/80 truncate w-full">
+              <span className="text-[9px] sm:text-[9.5px] font-medium text-sky-200/80 truncate w-full">
                 18h às 23h
               </span>
             </button>
 
-            {/* 5. INSTAGRAM (ÍCONE ORIGINAL GRADIENTE DO INSTAGRAM) */}
+            {/* 5. SALVAR CONTATO NA AGENDA (vCard com Fone, WhatsApp e Link do Cardápio) */}
+            <button
+              type="button"
+              onClick={handleSaveContact}
+              className={`group flex flex-col items-center justify-center rounded-2xl border p-2 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] active:scale-95 cursor-pointer ${
+                contactSaved
+                  ? 'border-emerald-400 bg-emerald-950/80 shadow-[0_0_15px_rgba(16,185,129,0.4)]'
+                  : 'border-violet-500/35 bg-gradient-to-b from-violet-950/60 via-black/70 to-violet-950/30 hover:border-violet-400 hover:bg-violet-900/40'
+              }`}
+              title="Salvar contato do 67 Dog na agenda com número, WhatsApp e link do cardápio"
+            >
+              <div
+                className={`mb-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl text-white shadow-md group-hover:scale-110 transition-transform ${
+                  contactSaved
+                    ? 'bg-emerald-500 shadow-[0_2px_10px_rgba(16,185,129,0.5)]'
+                    : 'bg-gradient-to-br from-violet-500 to-indigo-600 shadow-[0_2px_8px_rgba(139,92,246,0.4)]'
+                }`}
+              >
+                {contactSaved ? (
+                  <Check className="h-4.5 w-4.5 text-white stroke-[3] animate-bounce" />
+                ) : (
+                  <UserPlus className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white stroke-[2.4]" />
+                )}
+              </div>
+              <span className="font-display text-[11px] sm:text-xs font-bold text-white group-hover:text-violet-300">
+                {contactSaved ? 'Salvo!' : 'Contato'}
+              </span>
+              <span className="text-[9px] sm:text-[9.5px] font-medium text-violet-200/80 truncate w-full">
+                {contactSaved ? 'Na Agenda ✓' : 'Salvar Agenda'}
+              </span>
+            </button>
+
+            {/* 6. INSTAGRAM (ÍCONE ORIGINAL GRADIENTE DO INSTAGRAM) */}
             <a
               href={ESTABLISHMENT_INFO.instagram}
               target="_blank"
               rel="noreferrer"
-              className="group flex flex-col items-center justify-center rounded-2xl border border-pink-500/35 bg-gradient-to-b from-pink-950/60 via-black/70 to-pink-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-pink-400 hover:bg-pink-900/40 active:scale-95 cursor-pointer"
+              className="group flex flex-col items-center justify-center rounded-2xl border border-pink-500/35 bg-gradient-to-b from-pink-950/60 via-black/70 to-pink-950/30 p-2 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-pink-400 hover:bg-pink-900/40 active:scale-95 cursor-pointer"
             >
-              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-[0_2px_10px_rgba(220,39,67,0.45)] group-hover:scale-110 transition-transform">
-                <OfficialInstagramIcon className="h-4.5 w-4.5 text-white" />
+              <div className="mb-1 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-[0_2px_10px_rgba(220,39,67,0.45)] group-hover:scale-110 transition-transform">
+                <OfficialInstagramIcon className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white" />
               </div>
-              <span className="font-display text-xs font-bold text-white group-hover:text-pink-300">
+              <span className="font-display text-[11px] sm:text-xs font-bold text-white group-hover:text-pink-300">
                 Instagram
               </span>
-              <span className="text-[9.5px] font-medium text-pink-200/80 truncate w-full">
+              <span className="text-[9px] sm:text-[9.5px] font-medium text-pink-200/80 truncate w-full">
                 Novidades
               </span>
             </a>
           </div>
         </section>
 
-        {/* CATEGORY SHORTCUT PILLS (CLIQUE ABRE O CARDÁPIO NA CATEGORIA ESCOLHIDA) */}
-        <nav className="mt-6 flex flex-wrap justify-center items-center gap-2 sm:gap-2.5 px-2">
-          {MENU_CATEGORIES.map((cat) => {
-            const isNew = cat.id === 'hamburgueres' || cat.id === 'pasteis';
-            return (
+        {/* QUADRO DE CATEGORIAS UNIFORME & ORGÂNICO */}
+        <nav
+          aria-label="Categorias do Cardápio"
+          className="mt-6 relative overflow-hidden rounded-3xl border border-amber-500/25 bg-gradient-to-b from-neutral-900/90 via-card to-card/95 p-3 sm:p-3.5 shadow-xl shadow-black/40 backdrop-blur-2xl"
+        >
+          {/* Linha de brilho orgânico no topo */}
+          <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
+          <div className="pointer-events-none absolute -top-10 left-1/2 -translate-x-1/2 h-16 w-40 rounded-full bg-amber-500/10 blur-xl" />
+
+          {/* Cabeçalho do Quadro */}
+          <div className="relative mb-2.5 flex items-center justify-between px-1">
+            <div className="flex items-center gap-2">
+              <span className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-500/20 text-xs">
+                ✨
+              </span>
+              <span className="font-display text-xs font-black uppercase tracking-wider text-primary">
+                Cardápio por Categoria
+              </span>
+            </div>
+            <span className="text-[10px] font-bold text-amber-300/90">
+              Toque para abrir ›
+            </span>
+          </div>
+
+          {/* Grade uniforme com todas as 5 categorias em formato padronizado */}
+          <div className="relative grid grid-cols-5 gap-1.5 sm:gap-2">
+            {MENU_CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 type="button"
                 onClick={() => openMenu(cat.id)}
-                className="group relative flex items-center gap-2 rounded-2xl border border-white/15 bg-neutral-900/80 px-3.5 py-2 text-xs font-bold text-white shadow-lg backdrop-blur-xl transition-all hover:scale-105 hover:border-amber-400/60 hover:bg-neutral-800 active:scale-95 cursor-pointer"
+                className="group relative flex flex-col items-center justify-between rounded-2xl border border-white/10 bg-neutral-900/70 p-1.5 sm:p-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/60 hover:bg-neutral-800 hover:shadow-[0_6px_20px_rgba(245,158,11,0.2)] active:scale-95 cursor-pointer text-center h-[82px] sm:h-[88px]"
               >
-                <span className="text-base transition-transform group-hover:scale-110">
-                  {cat.emoji}
-                </span>
-                <span className="group-hover:text-amber-300 transition-colors">
-                  {cat.label}
-                </span>
-                {isNew && (
-                  <span className="rounded-full bg-gradient-to-r from-flame to-amber-500 px-1.5 py-0.5 text-[9px] font-black uppercase text-black tracking-wider shadow-xs animate-pulse">
-                    Novo
+                {/* Ícone com container orgânico uniforme */}
+                <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-gradient-to-b from-white/10 to-white/[0.03] border border-white/10 shadow-inner group-hover:scale-110 group-hover:border-amber-400/50 group-hover:from-amber-500/20 transition-all duration-200">
+                  <span className="text-xl sm:text-2xl drop-shadow-xs">
+                    {cat.emoji}
                   </span>
-                )}
+                </div>
+
+                {/* Nome uniforme e quantidade de opções */}
+                <div className="w-full mt-1 flex flex-col items-center justify-center">
+                  <span className="block w-full font-display text-[10px] sm:text-xs font-extrabold text-foreground group-hover:text-amber-300 transition-colors leading-tight text-center truncate tracking-tight">
+                    {cat.label}
+                  </span>
+                  <span className="block text-[9px] font-medium text-muted-foreground group-hover:text-amber-200/80 transition-colors">
+                    {cat.items.length} itens
+                  </span>
+                </div>
               </button>
-            );
-          })}
+            ))}
+          </div>
         </nav>
 
         {/* HIGHLIGHTS SECTION: DESTAQUES MAIS PEDIDOS */}
@@ -660,7 +751,7 @@ export default function App() {
           </div>
         </section>
 
-        {/* PRIMARY CALL TO ACTION BUTTONS (ABREM O CARDÁPIO COMPLETO) */}
+        {/* PRIMARY CALL TO ACTION BUTTON (ABRE O CARDÁPIO COMPLETO) */}
         <button
           type="button"
           onClick={() => openMenu('all')}
@@ -668,58 +759,6 @@ export default function App() {
         >
           <span>🏃 FAZER PEDIDO (RETIRADA NO BALCÃO)</span>
         </button>
-
-        <button
-          type="button"
-          onClick={() => openMenu('all')}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-border bg-card py-4 text-sm font-bold transition-colors hover:border-primary active:scale-[0.99] cursor-pointer"
-        >
-          📖 Abrir Cardápio Completo &amp; Comanda
-        </button>
-
-        {/* INFO CARDS (RETIRADA / HORÁRIO / PIX CNPJ) */}
-        <section id="info" className="mt-8 grid grid-cols-3 gap-2 scroll-mt-6">
-          <button
-            type="button"
-            onClick={() => {
-              setInfoModalTab('address');
-              setIsInfoModalOpen(true);
-            }}
-            className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-3 text-center cursor-pointer hover:border-amber-500/50 hover:bg-white/[0.08] transition-all active:scale-95 group shadow-sm"
-          >
-            <span className="text-xl">🏃</span>
-            <p className="mt-1 text-xs font-bold group-hover:text-amber-300">Retirada</p>
-            <p className="text-[10px] text-muted-foreground">Balcão (Grátis)</p>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-              setInfoModalTab('hours');
-              setIsInfoModalOpen(true);
-            }}
-            className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-3 text-center cursor-pointer hover:border-amber-500/50 hover:bg-white/[0.08] transition-all active:scale-95 group shadow-sm"
-          >
-            <span className="text-xl">⏰</span>
-            <p className="mt-1 text-xs font-bold group-hover:text-amber-300">Horário</p>
-            <p className="text-[10px] text-muted-foreground">{ESTABLISHMENT_INFO.hoursDisplay}</p>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCopyPix}
-            className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-3 text-center cursor-pointer hover:border-amber-500/50 hover:bg-white/[0.08] transition-all active:scale-95 group shadow-sm"
-            title="Clique para copiar a Chave Pix (CNPJ)"
-          >
-            <span className="text-xl">💳</span>
-            <p className="mt-1 text-xs font-bold text-primary group-hover:underline">
-              {copiedPix ? '✓ Copiado!' : 'Pix (CNPJ)'}
-            </p>
-            <p className="text-[10px] text-muted-foreground truncate font-mono">
-              {copiedPix ? 'Copiado!' : ESTABLISHMENT_INFO.pixKeyDisplay}
-            </p>
-          </button>
-        </section>
 
         {/* FOOTER */}
         <footer className="mt-10 border-t border-border pt-6 text-center text-xs text-muted-foreground">
@@ -1672,6 +1711,43 @@ export default function App() {
                   </p>
                 </div>
               )}
+
+              {/* SEÇÃO SALVAR NA AGENDA */}
+              <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-950/40 via-neutral-900/60 to-black/60 p-4 backdrop-blur-xl">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2 text-violet-400 font-display font-bold text-xs uppercase tracking-wider">
+                    <UserPlus className="h-4 w-4" />
+                    <span>Salvar Contato no Celular</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-violet-300">
+                    {ESTABLISHMENT_INFO.phoneDisplay}
+                  </span>
+                </div>
+                <p className="text-xs text-violet-200/80 leading-relaxed mb-3">
+                  Adicione o 67 Dog na sua agenda com 1 toque! O contato já vem com telefone, WhatsApp oficial e link direto do cardápio para pedir sempre que quiser.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleSaveContact}
+                  className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 px-3 text-xs font-bold text-white transition-all shadow-md active:scale-95 cursor-pointer ${
+                    contactSaved
+                      ? 'bg-emerald-600 text-white shadow-[0_0_12px_rgba(16,185,129,0.5)]'
+                      : 'bg-gradient-to-r from-violet-600 to-indigo-600 hover:brightness-110 shadow-violet-950/50'
+                  }`}
+                >
+                  {contactSaved ? (
+                    <>
+                      <Check className="h-4 w-4 text-white" />
+                      <span>✓ Contato Salvo na Agenda!</span>
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="h-4 w-4 text-white" />
+                      <span>📲 Baixar &amp; Salvar Contato (.vcf)</span>
+                    </>
+                  )}
+                </button>
+              </div>
 
               {/* FORMAS DE PAGAMENTO */}
               {infoModalTab === 'all' && (
