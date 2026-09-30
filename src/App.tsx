@@ -431,7 +431,7 @@ export default function App() {
       <div className="mx-auto max-w-md px-3 pt-3">
         
         {/* HERO BANNER SECTION (HERO FOOD BACKGROUND + FLOATING 67 DOG LOGO + CURVED WAVE) */}
-        <section className="relative overflow-hidden rounded-3xl border border-primary/30">
+        <section className="relative overflow-hidden rounded-3xl">
           <img
             src={ASSETS.heroBg}
             onError={(e) => {
