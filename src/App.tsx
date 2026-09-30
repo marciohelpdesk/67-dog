@@ -26,6 +26,7 @@ import {
   CreditCard,
   Sparkles,
   UserPlus,
+  PhoneCall,
 } from 'lucide-react';
 import { ASSETS } from './assets/images';
 import {
@@ -165,6 +166,10 @@ export default function App() {
   const [copiedAddress, setCopiedAddress] = useState(false);
   const [contactSaved, setContactSaved] = useState(false);
 
+  // Dedicated Contact Session Modal
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [copiedPhone, setCopiedPhone] = useState(false);
+
   // Item customization modal state
   const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null);
   const [modalQty, setModalQty] = useState(1);
@@ -232,27 +237,10 @@ export default function App() {
   }
 
   function handleSaveContact() {
-    setContactSaved(true);
-    setTimeout(() => setContactSaved(false), 3500);
+    setIsContactModalOpen(true);
+  }
 
-    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent || '' : '';
-    const isAndroid = /Android/i.test(userAgent);
-    const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
-
-    if (isAndroid) {
-      // Dispara o Intent oficial do Android para abrir diretamente o aplicativo de Contatos
-      // (Google Contatos / Samsung Contatos) na tela de criar contato com Nome e Telefone preenchidos,
-      // sem solicitar download de arquivo antes.
-      const androidIntent = `intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;S.name=67%20Dog%20Hot%20Dog;S.phone=${encodeURIComponent(ESTABLISHMENT_INFO.phoneDisplay)};S.company=67%20Dog;end;`;
-      
-      const link = document.createElement('a');
-      link.href = androidIntent;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      return;
-    }
-
+  function handleDownloadVCard() {
     const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://67dog.com.br';
     const vcard = [
       'BEGIN:VCARD',
@@ -268,15 +256,6 @@ export default function App() {
       'END:VCARD',
     ].join('\r\n');
 
-    if (isIOS) {
-      // No iOS (Safari), abrir diretamente data:text/vcard sem atributo download ativa
-      // a tela nativa do iPhone "Adicionar aos Contatos" / "Criar Novo Contato".
-      const dataUri = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
-      window.location.href = dataUri;
-      return;
-    }
-
-    // Fallback para computadores / Desktop
     const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -285,7 +264,10 @@ export default function App() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+
+    setContactSaved(true);
+    setTimeout(() => setContactSaved(false), 3500);
   }
 
   function openMenu(categoryId: string = 'all') {
@@ -1800,6 +1782,139 @@ export default function App() {
                   <span>Ver Cardápio Completo</span>
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE SESSÃO PARA SALVAR CONTATO DIRETAMENTE NO CELULAR (ANDROID / IPHONE) */}
+      {isContactModalOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md"
+          onClick={() => setIsContactModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-md overflow-hidden rounded-3xl border border-amber-500/30 bg-neutral-950/95 p-5 text-foreground shadow-2xl backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-flame text-white shadow-md">
+                  <UserPlus className="h-6 w-6 stroke-[2.4]" />
+                </div>
+                <div>
+                  <h3 className="font-display text-base font-extrabold text-white">
+                    Salvar 67 Dog na Agenda
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Escolha a melhor forma para o seu celular:
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsContactModalOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer"
+                title="Fechar"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Número e Botão de Copiar */}
+            <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3.5 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                  Telefone Oficial
+                </span>
+                <span className="text-base font-black text-white block mt-0.5">
+                  {ESTABLISHMENT_INFO.phoneDisplay}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(ESTABLISHMENT_INFO.phoneDisplay);
+                  setCopiedPhone(true);
+                  setTimeout(() => setCopiedPhone(false), 2500);
+                }}
+                className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-bold text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+              >
+                {copiedPhone ? (
+                  <>
+                    <Check className="h-3.5 w-3.5 text-emerald-400" />
+                    <span className="text-emerald-400">Copiado!</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy className="h-3.5 w-3.5 text-amber-400" />
+                    <span>Copiar</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Opções de Ação Direta */}
+            <div className="mt-3.5 space-y-2.5">
+              {/* Opção 1: Abrir no Discador do Celular (Abre diretamente o app Telefone com '+ Criar Contato' - Sem baixar arquivo!) */}
+              <a
+                href={`tel:${ESTABLISHMENT_INFO.phone}`}
+                className="group flex items-center gap-3.5 rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/70 via-black/60 to-emerald-950/40 p-3.5 hover:border-emerald-400 hover:bg-emerald-950/90 active:scale-95 transition-all cursor-pointer"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md group-hover:scale-105 transition-transform">
+                  <PhoneCall className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1 text-left">
+                  <span className="font-display text-sm font-black text-white group-hover:text-emerald-300 block">
+                    Adicionar pelo Discador do Celular
+                  </span>
+                  <span className="text-[11px] text-emerald-200/80 block leading-tight mt-0.5">
+                    Abre o app Telefone no Android ou iPhone para tocar em &quot;+ Criar novo contato&quot;
+                  </span>
+                </div>
+              </a>
+
+              {/* Opção 2: Baixar Cartão Completo (.vcf) */}
+              <button
+                type="button"
+                onClick={handleDownloadVCard}
+                className="w-full group flex items-center gap-3.5 rounded-2xl border border-violet-500/40 bg-gradient-to-r from-violet-950/70 via-black/60 to-violet-950/40 p-3.5 hover:border-violet-400 hover:bg-violet-900/90 active:scale-95 transition-all cursor-pointer"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-md group-hover:scale-105 transition-transform">
+                  <UserPlus className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1 text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="font-display text-sm font-black text-white group-hover:text-violet-300">
+                      {contactSaved ? '✓ Arquivo Gerado!' : 'Baixar Cartão de Contato (.vcf)'}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-violet-200/80 block leading-tight mt-0.5">
+                    Importa automaticamente na sua agenda nome, endereço e link do cardápio
+                  </span>
+                </div>
+              </button>
+
+              {/* Opção 3: Falar no WhatsApp */}
+              <a
+                href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
+                target="_blank"
+                rel="noreferrer"
+                className="group flex items-center gap-3.5 rounded-2xl border border-[#25D366]/40 bg-gradient-to-r from-emerald-950/50 via-black/60 to-[#25D366]/20 p-3.5 hover:border-[#25D366] hover:bg-emerald-950/80 active:scale-95 transition-all cursor-pointer"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-[0_4px_12px_rgba(37,211,102,0.35)] group-hover:scale-105 transition-transform">
+                  <OfficialWhatsAppIcon className="h-6 w-6 text-white" />
+                </div>
+                <div className="min-w-0 flex-1 text-left">
+                  <span className="font-display text-sm font-black text-white group-hover:text-[#25D366] block">
+                    Salvar e Chamar no WhatsApp
+                  </span>
+                  <span className="text-[11px] text-emerald-200/80 block leading-tight mt-0.5">
+                    Inicia conversa no WhatsApp para salvar o contato na hora
+                  </span>
+                </div>
+              </a>
             </div>
           </div>
         </div>
