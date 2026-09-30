@@ -65,7 +65,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     items: [
       {
         id: 'dog-democratico',
-        name: '01. DEMOCRÁTICO',
+        name: 'DEMOCRÁTICO',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, maionese, ketchup e mostarda.',
         price: 6.7,
@@ -74,7 +74,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-raiz',
-        name: '02. RAIZ',
+        name: 'RAIZ',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, tomate, milho, cebola, maionese e batata palha.',
         price: 12.9,
@@ -83,7 +83,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-raiz-duplo',
-        name: '03. RAIZ DUPLO',
+        name: 'RAIZ DUPLO',
         category: 'hotdogs',
         description: 'Pão de hot dog, 2 vinas, tomate, milho, cebola, maionese e batata palha.',
         price: 15.9,
@@ -92,7 +92,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-frangolino',
-        name: '04. FRANGOLINO',
+        name: 'FRANGOLINO',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, frango desfiado, purê, tomate, milho, cebola, maionese e batata palha.',
         price: 18.9,
@@ -101,7 +101,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-calabresaco',
-        name: '05. CALABRESAÇO',
+        name: 'CALABRESAÇO',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, calabresa, purê, tomate, milho, cebola, maionese e batata palha.',
         price: 18.9,
@@ -110,7 +110,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-baconzeira',
-        name: '06. BACONZEIRA',
+        name: 'BACONZEIRA',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, bacon, purê, tomate, milho, cebola, maionese e batata palha.',
         price: 19.9,
@@ -119,7 +119,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-costelaco',
-        name: '07. COSTELAÇO',
+        name: 'COSTELAÇO',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, costela desfiada, purê, tomate, milho, cebola, maionese e batata palha.',
         price: 21.9,
@@ -129,7 +129,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-six-seven',
-        name: '08. SIX SEVEN',
+        name: 'SIX SEVEN',
         category: 'hotdogs',
         description: 'Pão de hot dog, 2 vinas, frango desfiado, calabresa, bacon, purê, tomate, milho, cebola, maionese e batata palha.',
         price: 23.9,
@@ -185,7 +185,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     items: [
       {
         id: 'burger-classic-67',
-        name: '01. CLASSIC 67 BURGER',
+        name: 'CLASSIC 67 BURGER',
         category: 'hamburgueres',
         description: 'Pão brioche selado na manteiga, blend bovino 150g suculento, queijo cheddar fatiado derretido, maionese artesanal da casa, alface americana e tomate fresco.',
         price: 24.9,
@@ -195,7 +195,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'burger-bacon-supreme',
-        name: '02. BACON CHEDDAR SUPREME',
+        name: 'BACON CHEDDAR SUPREME',
         category: 'hamburgueres',
         description: 'Pão brioche macio, blend 150g no ponto certo, fatias generosas de bacon super crocante, duplo cheddar cremoso e cebola caramelizada.',
         price: 28.9,
@@ -205,7 +205,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'burger-costelaco-bbq',
-        name: '03. BURGER COSTELAÇO 67',
+        name: 'BURGER COSTELAÇO 67',
         category: 'hamburgueres',
         description: 'A especialidade do 67 DOG no hambúrguer! Pão brioche, blend artesanal 150g, costela bovina desfiada no molho barbecue especial e queijo derretido.',
         price: 31.9,
@@ -215,7 +215,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'burger-smash-duplo',
-        name: '04. SMASH BURGER DUPLO',
+        name: 'SMASH BURGER DUPLO',
         category: 'hamburgueres',
         description: 'Dois blends smash 90g com aquela crostinha perfeita prensada na chapa quente, dobro de cheddar, picles artesanal e molho da casa.',
         price: 26.9,
@@ -232,7 +232,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     items: [
       {
         id: 'pastel-carne-especial',
-        name: '01. PASTEL DE CARNE ESPECIAL',
+        name: 'PASTEL DE CARNE ESPECIAL',
         category: 'pasteis',
         description: 'Massa crocante e sequinha recheada com carne moída de primeira temperada artesanalmente, azeitona e cheiro verde.',
         price: 11.9,
@@ -242,7 +242,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'pastel-queijo-duplo',
-        name: '02. PASTEL DE QUEIJO DUPLO',
+        name: 'PASTEL DE QUEIJO DUPLO',
         category: 'pasteis',
         description: 'Pastel super sequinho com queijo muçarela abundante que derrete e estica até a última mordida, com toque suave de orégano.',
         price: 11.9,
@@ -251,7 +251,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'pastel-frango-catupiry',
-        name: '03. FRANGO COM CATUPIRY®',
+        name: 'FRANGO COM CATUPIRY®',
         category: 'pasteis',
         description: 'Frango desfiado suculento com temperos especiais e o autêntico Catupiry® cremoso derretido.',
         price: 14.9,
@@ -261,7 +261,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'pastel-costela-queijo',
-        name: '04. PASTEL COSTELA COM QUEIJO',
+        name: 'PASTEL COSTELA COM QUEIJO',
         category: 'pasteis',
         description: 'A famosa costela do 67 DOG desfiada e temperada, combinada com queijo muçarela derretido em massa dourada.',
         price: 16.9,
@@ -271,7 +271,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'pastel-pizza-especial',
-        name: '05. PASTEL PIZZA ESPECIAL',
+        name: 'PASTEL PIZZA ESPECIAL',
         category: 'pasteis',
         description: 'Muçarela fatiada derretida, presunto selecionado em cubinhos, rodelas de tomate fresco e orégano.',
         price: 13.9,
@@ -280,7 +280,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'pastel-chocolate-banana',
-        name: '06. PASTEL CHOCOLATE COM BANANA',
+        name: 'PASTEL CHOCOLATE COM BANANA',
         category: 'pasteis',
         description: 'Pastel doce crocante recheado com chocolate ao leite cremoso derretido e banana fresca fatiada com canela.',
         price: 13.9,

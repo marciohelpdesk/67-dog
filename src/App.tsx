@@ -1015,115 +1015,108 @@ export default function App() {
                     <div className="space-y-2.5">
                       {cat.items.map((item) => {
                         const isCombo = item.category === 'combos';
+                        const isBebida = item.category === 'bebidas';
+                        const cleanName = item.name.replace(/^\d+\.\s*/, '');
 
                         if (isCombo) {
                           return (
                             <article
                               key={item.id}
                               onClick={() => openCustomization(item)}
-                              className="group relative flex items-center justify-between gap-3 rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-950/20 via-card to-card p-3 transition-all hover:border-amber-400/80 cursor-pointer active:scale-[0.99] shadow-sm hover:shadow-md"
+                              className="group relative flex items-center gap-3.5 rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-950/20 via-card to-card p-3 transition-all hover:border-amber-400/80 cursor-pointer active:scale-[0.99] shadow-sm hover:shadow-md"
                             >
-                              {/* INFORMAÇÕES DO COMBO */}
-                              <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                                <div>
-                                  <div className="flex items-center gap-1.5 flex-wrap">
-                                    <span className="text-xs">🔥</span>
-                                    <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-amber-400 transition-colors leading-snug">
-                                      {item.name}
-                                    </h4>
-                                    {item.tag && (
-                                      <span className="rounded-md bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">
-                                        {item.tag}
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                    {item.description}
-                                  </p>
-                                </div>
-
-                                <div className="mt-2.5 flex items-center gap-2 flex-wrap">
-                                  <span className="font-display text-sm font-black text-amber-400">
-                                    {formatCurrency(item.price)}
-                                  </span>
-                                  <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
-                                    <SlidersHorizontal className="h-2.5 w-2.5 text-amber-400" />
-                                    <span>Pedir Combo</span>
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* MINIATURA DA IMAGEM DO COMBO */}
+                              {/* MINIATURA DA IMAGEM DO COMBO (LADO ESQUERDO) */}
                               <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-amber-500/30 bg-neutral-900 shadow-md">
                                 <img
                                   src={getItemImage(item)}
-                                  alt={item.name}
+                                  alt={cleanName}
                                   loading="lazy"
                                   className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                                   onError={(e) => {
                                     e.currentTarget.src = ASSETS.heroBg;
                                   }}
                                 />
-                                <div className="absolute bottom-1.5 right-1.5 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-flame text-white shadow-lg group-hover:scale-110 group-hover:brightness-110 transition-all">
-                                  <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[3]" />
+                              </div>
+
+                              {/* INFORMAÇÕES DO COMBO (LADO DIREITO) */}
+                              <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs">🔥</span>
+                                    <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-amber-400 transition-colors leading-snug">
+                                      {cleanName}
+                                    </h4>
+                                  </div>
+                                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                    {item.description}
+                                  </p>
+                                </div>
+
+                                <div className="mt-2.5 flex items-center justify-between gap-2">
+                                  <span className="font-display text-sm font-black text-amber-400">
+                                    {formatCurrency(item.price)}
+                                  </span>
+
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
+                                      <SlidersHorizontal className="h-2.5 w-2.5 text-amber-400" />
+                                      <span>Pedir Combo</span>
+                                    </span>
+                                    <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-flame text-white shadow-sm group-hover:scale-110 group-hover:brightness-110 transition-all shrink-0">
+                                      <Plus className="h-3.5 w-3.5 stroke-[3]" />
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </article>
                           );
                         }
 
-                        const isBebida = item.category === 'bebidas';
-
                         return (
                           <article
                             key={item.id}
                             onClick={() => openCustomization(item)}
-                            className="group relative flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card p-3 transition-all hover:border-primary/50 hover:bg-card/90 cursor-pointer active:scale-[0.99] shadow-sm hover:shadow-md"
+                            className="group relative flex items-center gap-3.5 rounded-2xl border border-border/70 bg-card p-3 transition-all hover:border-primary/50 hover:bg-card/90 cursor-pointer active:scale-[0.99] shadow-sm hover:shadow-md"
                           >
-                            {/* INFORMAÇÕES DO LANCHE (NOME, INGREDIENTES, VALOR, SÍMBOLO) */}
-                            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                              <div>
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-primary transition-colors leading-snug">
-                                    {item.name}
-                                  </h4>
-                                  {item.tag && (
-                                    <span className="rounded-md bg-flame/15 border border-flame/30 px-1.5 py-0.2 text-[9px] font-bold text-flame">
-                                      {item.tag}
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                  {item.description}
-                                </p>
-                              </div>
-
-                              <div className="mt-2.5 flex items-center gap-2 flex-wrap">
-                                <span className="font-display text-sm font-black text-primary">
-                                  {formatCurrency(item.price)}
-                                </span>
-
-                                {/* Símbolo sutil indicando que pode pedir ou personalizar itens */}
-                                <span className="inline-flex items-center gap-1 rounded-md bg-secondary/80 border border-border/80 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground group-hover:text-foreground group-hover:border-primary/30 transition-colors">
-                                  <SlidersHorizontal className="h-2.5 w-2.5 text-primary" />
-                                  <span>{isBebida ? 'Pedir' : 'Personalizar'}</span>
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* MINIATURA DA IMAGEM DO LANCHE */}
+                            {/* MINIATURA DA IMAGEM DO LANCHE (LADO ESQUERDO DE QUEM VÊ) */}
                             <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-md">
                               <img
                                 src={getItemImage(item)}
-                                alt={item.name}
+                                alt={cleanName}
                                 loading="lazy"
                                 className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                                 onError={(e) => {
                                   e.currentTarget.src = ASSETS.hotdog;
                                 }}
                               />
-                              <div className="absolute bottom-1.5 right-1.5 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-flame text-white shadow-lg group-hover:scale-110 group-hover:brightness-110 transition-all">
-                                <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[3]" />
+                            </div>
+
+                            {/* INFORMAÇÕES DO LANCHE (LADO DIREITO: NOME LIMPO, INGREDIENTES, VALOR, SÍMBOLO) */}
+                            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                              <div>
+                                <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-primary transition-colors leading-snug">
+                                  {cleanName}
+                                </h4>
+                                <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                  {item.description}
+                                </p>
+                              </div>
+
+                              <div className="mt-2.5 flex items-center justify-between gap-2">
+                                <span className="font-display text-sm font-black text-primary">
+                                  {formatCurrency(item.price)}
+                                </span>
+
+                                {/* Símbolo sutil indicando que pode pedir ou personalizar itens */}
+                                <div className="flex items-center gap-1.5">
+                                  <span className="inline-flex items-center gap-1 rounded-md bg-secondary/80 border border-border/80 px-2 py-0.5 text-[10.5px] font-semibold text-muted-foreground group-hover:text-foreground group-hover:border-primary/30 transition-colors">
+                                    <SlidersHorizontal className="h-2.5 w-2.5 text-primary" />
+                                    <span>{isBebida ? 'Pedir' : 'Personalizar'}</span>
+                                  </span>
+                                  <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-flame text-white shadow-sm group-hover:scale-110 group-hover:brightness-110 transition-all shrink-0">
+                                    <Plus className="h-3.5 w-3.5 stroke-[3]" />
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </article>
@@ -1180,14 +1173,9 @@ export default function App() {
                   className="h-16 w-16 sm:h-18 sm:w-18 shrink-0 rounded-2xl object-cover border border-white/10 shadow-md bg-neutral-900"
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <h2 className="font-display text-base font-extrabold text-foreground">{customizingItem.name}</h2>
-                    {customizingItem.tag && (
-                      <span className="rounded-md bg-flame/15 border border-flame/30 px-1.5 py-0.2 text-[9px] font-bold text-flame">
-                        {customizingItem.tag}
-                      </span>
-                    )}
-                  </div>
+                  <h2 className="font-display text-base font-extrabold text-foreground">
+                    {customizingItem.name.replace(/^\d+\.\s*/, '')}
+                  </h2>
                   <p className="mt-1 text-xs text-muted-foreground leading-relaxed line-clamp-2">
                     {customizingItem.description}
                   </p>
