@@ -175,23 +175,46 @@ export default function App() {
   const totalPrice = cartItems.reduce((acc, curr) => acc + curr.unitPrice * curr.qty, 0);
 
   const highlights = useMemo(() => {
-    const dogSixSeven = MENU_CATEGORIES[0]?.items.find((i) => i.id === 'dog-six-seven');
-    const dogCostelaco = MENU_CATEGORIES[0]?.items.find((i) => i.id === 'dog-costelaco');
-    if (!dogSixSeven || !dogCostelaco) return [];
-    return [
-      {
+    const allItems = MENU_CATEGORIES.flatMap((c) => c.items);
+    const dogSixSeven = allItems.find((i) => i.id === 'dog-six-seven');
+    const burgerCostelaco = allItems.find((i) => i.id === 'burger-costelaco-bbq');
+    const pastelCostela = allItems.find((i) => i.id === 'pastel-costela-queijo');
+    const dogCostelaco = allItems.find((i) => i.id === 'dog-costelaco');
+
+    const list = [];
+    if (dogSixSeven) {
+      list.push({
         item: dogSixSeven,
-        badge: 'Top 1 • 2 Vinas',
-        subtitle: 'Frango, calabresa, bacon e purê',
+        badge: 'Top 1 • Hot Dog',
+        subtitle: '2 vinas, frango, calabresa e bacon',
         img: ASSETS.heroHotdog,
-      },
-      {
-        item: dogCostelaco,
-        badge: 'Costelaço',
-        subtitle: 'Costela desfiada e purê especial',
+      });
+    }
+    if (burgerCostelaco) {
+      list.push({
+        item: burgerCostelaco,
+        badge: '🍔 Novo Burger',
+        subtitle: 'Brioche, blend 150g e costela BBQ',
+        img: ASSETS.burger,
+      });
+    }
+    if (pastelCostela) {
+      list.push({
+        item: pastelCostela,
+        badge: '🥟 Novo Pastel',
+        subtitle: 'Costela desfiada e muçarela',
         img: ASSETS.pastelDestaque,
-      },
-    ];
+      });
+    }
+    if (dogCostelaco) {
+      list.push({
+        item: dogCostelaco,
+        badge: '🌭 Costelaço',
+        subtitle: 'Costela desfiada e purê especial',
+        img: ASSETS.heroBg,
+      });
+    }
+    return list;
   }, []);
 
   function handleCopyPix() {
@@ -534,17 +557,30 @@ export default function App() {
         </section>
 
         {/* CATEGORY SHORTCUT PILLS (CLIQUE ABRE O CARDÁPIO NA CATEGORIA ESCOLHIDA) */}
-        <nav className="mt-6 flex flex-wrap justify-center gap-2">
-          {MENU_CATEGORIES.slice(0, 4).map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => openMenu(cat.id)}
-              className="rounded-full border border-border bg-card px-4 py-1.5 text-xs font-bold transition-all hover:border-primary active:scale-95 cursor-pointer shadow-xs hover:bg-secondary"
-            >
-              {cat.emoji} {cat.label}
-            </button>
-          ))}
+        <nav className="mt-6 flex flex-wrap justify-center items-center gap-2 sm:gap-2.5 px-2">
+          {MENU_CATEGORIES.map((cat) => {
+            const isNew = cat.id === 'hamburgueres' || cat.id === 'pasteis';
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                onClick={() => openMenu(cat.id)}
+                className="group relative flex items-center gap-2 rounded-2xl border border-white/15 bg-neutral-900/80 px-3.5 py-2 text-xs font-bold text-white shadow-lg backdrop-blur-xl transition-all hover:scale-105 hover:border-amber-400/60 hover:bg-neutral-800 active:scale-95 cursor-pointer"
+              >
+                <span className="text-base transition-transform group-hover:scale-110">
+                  {cat.emoji}
+                </span>
+                <span className="group-hover:text-amber-300 transition-colors">
+                  {cat.label}
+                </span>
+                {isNew && (
+                  <span className="rounded-full bg-gradient-to-r from-flame to-amber-500 px-1.5 py-0.5 text-[9px] font-black uppercase text-black tracking-wider shadow-xs animate-pulse">
+                    Novo
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
         {/* HIGHLIGHTS SECTION: DESTAQUES MAIS PEDIDOS */}
