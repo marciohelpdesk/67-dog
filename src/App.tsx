@@ -27,6 +27,8 @@ import {
   Sparkles,
   UserPlus,
   PhoneCall,
+  Trash2,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { ASSETS } from './assets/images';
 import {
@@ -41,6 +43,67 @@ import {
 
 function formatCurrency(val: number) {
   return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function getItemImage(item: MenuItem): string {
+  if (item.image) return item.image;
+  
+  switch (item.id) {
+    case 'dog-democratico':
+      return ASSETS.hotdog;
+    case 'dog-raiz':
+      return ASSETS.hotdogAppetizing;
+    case 'dog-raiz-duplo':
+      return ASSETS.hotdogGourmet;
+    case 'dog-frangolino':
+      return ASSETS.hotdogRealista;
+    case 'dog-calabresaco':
+      return ASSETS.hotdogAppetizing;
+    case 'dog-baconzeira':
+      return ASSETS.hotdogCheddar;
+    case 'dog-costelaco':
+      return ASSETS.heroHotdog;
+    case 'dog-six-seven':
+      return ASSETS.heroHotdog;
+
+    // Combos
+    case 'combo-six-seven-na-medida':
+    case 'combo-duplinha':
+    case 'combo-galera':
+      return ASSETS.combo;
+
+    // Burgers
+    case 'burger-classic-67':
+    case 'burger-bacon-supreme':
+    case 'burger-costelaco-bbq':
+    case 'burger-smash-duplo':
+      return ASSETS.burger;
+
+    // Pastéis
+    case 'pastel-carne-especial':
+    case 'pastel-queijo-duplo':
+    case 'pastel-pizza-especial':
+      return ASSETS.pastel;
+    case 'pastel-frango-catupiry':
+    case 'pastel-costela-queijo':
+    case 'pastel-chocolate-banana':
+      return ASSETS.pastelCrocante;
+
+    // Bebidas
+    case 'refri-lata':
+    case 'coca-600':
+    case 'refri-2l':
+    case 'agua-500':
+      return ASSETS.bebidas;
+
+    default:
+      if (item.category === 'hotdogs') return ASSETS.hotdog;
+      if (item.category === 'hamburgueres') return ASSETS.burger;
+      if (item.category === 'pasteis') return ASSETS.pastel;
+      if (item.category === 'combos') return ASSETS.combo;
+      if (item.category === 'bebidas') return ASSETS.bebidas;
+      return ASSETS.hotdog;
+  }
 }
 
 function useAnimatedNumber(target: number, duration = 380) {
@@ -169,6 +232,23 @@ export default function App() {
   // Dedicated Contact Session Modal
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [copiedPhone, setCopiedPhone] = useState(false);
+
+  // Floating WhatsApp button visibility (activates after 300px scroll)
+  const [showFloatingWhatsApp, setShowFloatingWhatsApp] = useState(false);
+
+  // Hero banner background image loading state (for skeleton shimmer effect)
+  const [heroBgLoaded, setHeroBgLoaded] = useState(false);
+
+  React.useEffect(() => {
+    function handleScroll() {
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      setShowFloatingWhatsApp(scrollY >= 300);
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Item customization modal state
   const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null);
@@ -361,6 +441,15 @@ export default function App() {
     });
   }
 
+  function handleClearCart() {
+    setCart({});
+    setCustomerName('');
+    setOrderNotes('');
+    setPixConfirmed(false);
+    setPixPayerName('');
+    setCopiedPix(false);
+  }
+
   function sendWhatsAppOrder() {
     if (cartItems.length === 0 || !customerName.trim() || !pixConfirmed) return;
 
@@ -440,22 +529,35 @@ export default function App() {
       <div className="mx-auto max-w-md px-3 pt-3">
         
         {/* HERO BANNER SECTION (HERO FOOD BACKGROUND + FLOATING 67 DOG LOGO + CURVED WAVE) */}
-        <section className="relative overflow-hidden rounded-3xl">
+        <section className="relative overflow-hidden rounded-3xl min-h-[360px] sm:min-h-[400px] w-full bg-neutral-950 border border-white/5 shadow-2xl">
+          {/* SKELETON LOADING COM DESTAQUE-SKELETON-SHIMMER */}
+          <div
+            className={`absolute inset-0 z-0 bg-neutral-900/90 destaque-skeleton-shimmer transition-opacity duration-700 ease-out ${
+              heroBgLoaded ? 'opacity-0 pointer-events-none' : 'opacity-100'
+            }`}
+            aria-hidden="true"
+          />
+
+          {/* IMAGEM DO BANNER PRINCIPAL */}
           <img
             src={ASSETS.heroBg}
+            onLoad={() => setHeroBgLoaded(true)}
             onError={(e) => {
               e.currentTarget.src = ASSETS.heroDogRemote;
+              setHeroBgLoaded(true);
             }}
             alt="67 Dog - hot dog, hambúrguer e pastel"
             width={1024}
             height={1024}
             fetchPriority="high"
             loading="eager"
-            className="absolute inset-0 h-full w-full object-cover object-[50%_62%]"
+            className={`absolute inset-0 h-full w-full object-cover object-[50%_62%] transition-opacity duration-700 ease-out ${
+              heroBgLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-background" />
+          <div className="absolute inset-0 z-1 bg-gradient-to-b from-black/30 via-black/10 to-background" />
 
-          <div className="relative flex flex-col items-center px-6 pb-24 pt-16 text-center">
+          <div className="relative z-10 flex flex-col items-center px-6 pb-24 pt-16 text-center">
             <img
               src={ASSETS.logo67}
               alt="Logo 67 Dog"
@@ -469,7 +571,7 @@ export default function App() {
           <svg
             viewBox="0 0 400 40"
             preserveAspectRatio="none"
-            className="absolute bottom-0 left-0 h-10 w-full text-background"
+            className="absolute bottom-0 left-0 z-10 h-10 w-full text-background"
             fill="currentColor"
             aria-hidden="true"
           >
@@ -776,7 +878,7 @@ export default function App() {
           className="fixed inset-x-4 bottom-4 z-40 mx-auto flex max-w-md items-center justify-between rounded-2xl bg-flame px-5 py-4 font-bold text-flame-foreground shadow-2xl transition-transform active:scale-[0.98] cursor-pointer"
         >
           <span className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-flame-foreground/20 text-xs font-black">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-xs font-black text-flame shadow-sm">
               {totalCount}
             </span>
             <span>Ver meu pedido</span>
@@ -786,6 +888,40 @@ export default function App() {
           </span>
         </button>
       )}
+
+      {/* BOTÃO FLUTUANTE DE WHATSAPP FIXO NO CANTO INFERIOR DIREITO (VISÍVEL APÓS 300PX DE ROLAGEM) */}
+      <div
+        className={`fixed z-40 transition-all duration-500 ease-out ${
+          totalCount > 0 && !isCartOpen && !customizingItem
+            ? 'bottom-22 sm:bottom-24 right-4 sm:right-6'
+            : 'bottom-5 sm:bottom-6 right-4 sm:right-6'
+        } ${
+          showFloatingWhatsApp && !isMenuOpen && !isCartOpen && !customizingItem && !isInfoModalOpen && !isContactModalOpen
+            ? 'opacity-100 translate-y-0 scale-100 pointer-events-auto'
+            : 'opacity-0 translate-y-6 scale-75 pointer-events-none'
+        }`}
+      >
+        <a
+          href={`https://wa.me/${ESTABLISHMENT_INFO.phone}?text=${encodeURIComponent('Olá! Gostaria de fazer um pedido no 67 Dog.')}`}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Chamar no WhatsApp"
+          className="group relative flex h-13 w-13 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-gradient-to-tr from-[#1EBE5D] via-[#25D366] to-[#34E77B] text-white shadow-[0_8px_24px_rgba(37,211,102,0.45)] hover:shadow-[0_10px_32px_rgba(37,211,102,0.65)] hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer"
+        >
+          {/* Efeito de pulsação suave em ondas (radar) */}
+          <span className="absolute -inset-1 rounded-full bg-[#25D366] opacity-35 animate-ping" />
+          <span className="absolute -inset-1.5 rounded-full bg-[#25D366]/20 animate-pulse" />
+
+          {/* Ícone Oficial WhatsApp */}
+          <OfficialWhatsAppIcon className="relative z-10 h-7 w-7 text-white drop-shadow-sm group-hover:scale-110 transition-transform" />
+
+          {/* Tooltip elegante no Desktop ao passar o mouse */}
+          <span className="pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-xl border border-white/10 bg-neutral-950/95 px-3 py-1.5 text-xs font-black tracking-wide text-white opacity-0 shadow-2xl backdrop-blur-md transition-all duration-200 group-hover:opacity-100 group-hover:-translate-x-1 hidden sm:flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse" />
+            <span>Chamar no WhatsApp</span>
+          </span>
+        </a>
+      </div>
 
       {/* FULLSCREEN / DEDICATED CARDÁPIO MODAL */}
       {isMenuOpen && (
@@ -885,65 +1021,53 @@ export default function App() {
                             <article
                               key={item.id}
                               onClick={() => openCustomization(item)}
-                              className="group relative overflow-hidden rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-950/30 via-card to-card p-4 transition-all hover:border-amber-400/70 cursor-pointer active:scale-[0.99] shadow-md"
+                              className="group relative flex items-center justify-between gap-3 rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-950/20 via-card to-card p-3 transition-all hover:border-amber-400/80 cursor-pointer active:scale-[0.99] shadow-sm hover:shadow-md"
                             >
-                              <div className="flex items-start justify-between gap-2">
+                              {/* INFORMAÇÕES DO COMBO */}
+                              <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                                 <div>
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-base">🔥</span>
-                                    <h4 className="font-display text-sm font-black tracking-wide text-foreground group-hover:text-amber-400 transition-colors">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="text-xs">🔥</span>
+                                    <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-amber-400 transition-colors leading-snug">
                                       {item.name}
                                     </h4>
+                                    {item.tag && (
+                                      <span className="rounded-md bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">
+                                        {item.tag}
+                                      </span>
+                                    )}
                                   </div>
-                                  {item.tag && (
-                                    <span className="mt-1 inline-block rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-500/30">
-                                      {item.tag}
-                                    </span>
-                                  )}
+                                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                    {item.description}
+                                  </p>
                                 </div>
-                                <span className="font-display text-base font-black text-amber-400">
-                                  {formatCurrency(item.price)}
-                                </span>
+
+                                <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+                                  <span className="font-display text-sm font-black text-amber-400">
+                                    {formatCurrency(item.price)}
+                                  </span>
+                                  <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
+                                    <SlidersHorizontal className="h-2.5 w-2.5 text-amber-400" />
+                                    <span>Pedir Combo</span>
+                                  </span>
+                                </div>
                               </div>
 
-                              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
-                                {item.description}
-                              </p>
-
-                              {item.comboItems && (
-                                <div className="mt-3 rounded-xl bg-black/40 p-2.5 border border-amber-500/20 space-y-1">
-                                  <p className="text-[10px] font-bold text-amber-300 uppercase tracking-wider">
-                                    Itens inclusos neste combo:
-                                  </p>
-                                  <div className="space-y-1 mt-1">
-                                    {item.comboItems.map((ci) => (
-                                      <p key={ci} className="text-xs text-foreground/90 flex items-center gap-1.5 font-medium">
-                                        <span className="text-emerald-400 font-bold">✓</span>
-                                        <span>{ci}</span>
-                                      </p>
-                                    ))}
-                                  </div>
+                              {/* MINIATURA DA IMAGEM DO COMBO */}
+                              <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-amber-500/30 bg-neutral-900 shadow-md">
+                                <img
+                                  src={getItemImage(item)}
+                                  alt={item.name}
+                                  loading="lazy"
+                                  className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  onError={(e) => {
+                                    e.currentTarget.src = ASSETS.heroBg;
+                                  }}
+                                />
+                                <div className="absolute bottom-1.5 right-1.5 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-flame text-white shadow-lg group-hover:scale-110 group-hover:brightness-110 transition-all">
+                                  <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[3]" />
                                 </div>
-                              )}
-
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  openCustomization(item);
-                                }}
-                                className="mt-3.5 flex w-full items-center justify-between rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-300 transition-all hover:bg-flame hover:text-flame-foreground hover:border-flame active:scale-[0.98] cursor-pointer shadow-xs group/btn"
-                                aria-label={`Pedir combo ${item.name}`}
-                              >
-                                <span className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground/90 group-hover/btn:text-flame-foreground transition-colors">
-                                  <span>✨</span>
-                                  <span>Clique aqui para pedir o combo</span>
-                                </span>
-                                <span className="flex items-center gap-1 rounded-lg bg-flame px-2.5 py-1 text-xs font-black text-flame-foreground shadow-xs group-hover/btn:bg-white group-hover/btn:text-flame transition-colors shrink-0">
-                                  <Plus className="h-3.5 w-3.5 stroke-[3]" />
-                                  <span>Pedir</span>
-                                </span>
-                              </button>
+                              </div>
                             </article>
                           );
                         }
@@ -954,49 +1078,54 @@ export default function App() {
                           <article
                             key={item.id}
                             onClick={() => openCustomization(item)}
-                            className="group flex flex-col justify-between gap-2.5 rounded-2xl border border-border bg-card p-3.5 transition-all hover:border-primary/50 cursor-pointer active:scale-[0.99]"
+                            className="group relative flex items-center justify-between gap-3 rounded-2xl border border-border/70 bg-card p-3 transition-all hover:border-primary/50 hover:bg-card/90 cursor-pointer active:scale-[0.99] shadow-sm hover:shadow-md"
                           >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="min-w-0 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <h4 className="text-sm font-bold group-hover:text-primary transition-colors">
+                            {/* INFORMAÇÕES DO LANCHE (NOME, INGREDIENTES, VALOR, SÍMBOLO) */}
+                            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                              <div>
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-primary transition-colors leading-snug">
                                     {item.name}
                                   </h4>
                                   {item.tag && (
-                                    <span className="rounded-full bg-flame px-2 py-0.5 text-[9px] font-black uppercase text-flame-foreground">
+                                    <span className="rounded-md bg-flame/15 border border-flame/30 px-1.5 py-0.2 text-[9px] font-bold text-flame">
                                       {item.tag}
                                     </span>
                                   )}
                                 </div>
-                                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                                <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                                   {item.description}
                                 </p>
                               </div>
 
-                              <span className="font-display text-sm font-extrabold text-primary shrink-0">
-                                {formatCurrency(item.price)}
-                              </span>
+                              <div className="mt-2.5 flex items-center gap-2 flex-wrap">
+                                <span className="font-display text-sm font-black text-primary">
+                                  {formatCurrency(item.price)}
+                                </span>
+
+                                {/* Símbolo sutil indicando que pode pedir ou personalizar itens */}
+                                <span className="inline-flex items-center gap-1 rounded-md bg-secondary/80 border border-border/80 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground group-hover:text-foreground group-hover:border-primary/30 transition-colors">
+                                  <SlidersHorizontal className="h-2.5 w-2.5 text-primary" />
+                                  <span>{isBebida ? 'Pedir' : 'Personalizar'}</span>
+                                </span>
+                              </div>
                             </div>
 
-                            {/* BOTÃO ÚNICO DE AÇÃO E CHAMARIZ */}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openCustomization(item);
-                              }}
-                              className="mt-1 flex w-full items-center justify-between rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary transition-all hover:bg-flame hover:text-flame-foreground hover:border-flame active:scale-[0.98] cursor-pointer shadow-xs group/btn"
-                              aria-label={isBebida ? `Adicionar ${item.name}` : `Clique para adicionar ou remover itens no ${item.name}`}
-                            >
-                              <span className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground/90 group-hover/btn:text-flame-foreground transition-colors">
-                                <span>✨</span>
-                                <span>{isBebida ? 'Clique aqui para adicionar bebida' : 'Clique aqui para adicionar ou remover itens'}</span>
-                              </span>
-                              <span className="flex items-center gap-1 rounded-lg bg-flame px-2.5 py-1 text-xs font-black text-flame-foreground shadow-xs group-hover/btn:bg-white group-hover/btn:text-flame transition-colors shrink-0">
-                                <Plus className="h-3.5 w-3.5 stroke-[3]" />
-                                <span>Pedir</span>
-                              </span>
-                            </button>
+                            {/* MINIATURA DA IMAGEM DO LANCHE */}
+                            <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-md">
+                              <img
+                                src={getItemImage(item)}
+                                alt={item.name}
+                                loading="lazy"
+                                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                onError={(e) => {
+                                  e.currentTarget.src = ASSETS.hotdog;
+                                }}
+                              />
+                              <div className="absolute bottom-1.5 right-1.5 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-flame text-white shadow-lg group-hover:scale-110 group-hover:brightness-110 transition-all">
+                                <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 stroke-[3]" />
+                              </div>
+                            </div>
                           </article>
                         );
                       })}
@@ -1015,7 +1144,7 @@ export default function App() {
                   className="flex w-full items-center justify-between rounded-2xl bg-flame px-4 py-3.5 font-bold text-flame-foreground shadow-xl transition-transform active:scale-98 cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-flame-foreground/20 text-xs font-black">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-xs font-black text-flame shadow-sm">
                       {totalCount}
                     </span>
                     <span>Ver Comanda / Finalizar</span>
@@ -1042,27 +1171,34 @@ export default function App() {
           <div className="relative mx-auto max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-3xl border-t border-border bg-card p-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted" />
 
-            {/* HEADER */}
+            {/* HEADER COM IMAGEM DO LANCHE SELECIONADO */}
             <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h2 className="font-display text-lg font-extrabold">{customizingItem.name}</h2>
-                  {customizingItem.tag && (
-                    <span className="rounded-full bg-flame px-2 py-0.5 text-[9px] font-black uppercase text-flame-foreground">
-                      {customizingItem.tag}
-                    </span>
-                  )}
+              <div className="flex items-start gap-3 min-w-0 flex-1">
+                <img
+                  src={getItemImage(customizingItem)}
+                  alt={customizingItem.name}
+                  className="h-16 w-16 sm:h-18 sm:w-18 shrink-0 rounded-2xl object-cover border border-white/10 shadow-md bg-neutral-900"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <h2 className="font-display text-base font-extrabold text-foreground">{customizingItem.name}</h2>
+                    {customizingItem.tag && (
+                      <span className="rounded-md bg-flame/15 border border-flame/30 px-1.5 py-0.2 text-[9px] font-bold text-flame">
+                        {customizingItem.tag}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                    {customizingItem.description}
+                  </p>
+                  <p className="mt-1.5 font-display text-sm font-extrabold text-primary">
+                    {formatCurrency(customizingItem.price)}
+                  </p>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                  {customizingItem.description}
-                </p>
-                <p className="mt-2 font-display text-base font-extrabold text-primary">
-                  {formatCurrency(customizingItem.price)}
-                </p>
               </div>
               <button
                 onClick={() => setCustomizingItem(null)}
-                className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer"
+                className="rounded-full p-1.5 text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -1230,12 +1366,26 @@ export default function App() {
                 <ShoppingBag className="h-5 w-5 text-primary" />
                 <h2 className="font-display text-lg font-extrabold">Comanda &amp; Pedido</h2>
               </div>
-              <button
-                onClick={() => setIsCartOpen(false)}
-                className="text-xs text-muted-foreground hover:text-foreground cursor-pointer px-2 py-1"
-              >
-                Fechar
-              </button>
+              <div className="flex items-center gap-2">
+                {cartItems.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearCart}
+                    className="flex items-center gap-1.5 rounded-xl border border-destructive/30 bg-destructive/10 px-2.5 py-1 text-xs font-bold text-destructive hover:bg-destructive hover:text-white transition-all cursor-pointer active:scale-95"
+                    title="Limpar todos os itens da comanda e começar do zero"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span>Limpar Comanda</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsCartOpen(false)}
+                  className="rounded-xl border border-border bg-secondary px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                >
+                  Fechar
+                </button>
+              </div>
             </div>
 
             {cartItems.length === 0 ? (
@@ -1292,7 +1442,15 @@ export default function App() {
                         key={cartEntry.cartItemId}
                         className="rounded-xl border border-border bg-secondary/60 p-3 flex flex-col gap-2"
                       >
-                        <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start justify-between gap-2.5">
+                          <img
+                            src={getItemImage(cartEntry.item)}
+                            alt={cartEntry.item.name}
+                            className="h-12 w-12 shrink-0 rounded-xl object-cover border border-white/10 shadow-xs bg-neutral-900"
+                            onError={(e) => {
+                              e.currentTarget.src = ASSETS.hotdog;
+                            }}
+                          />
                           <div className="min-w-0 flex-1">
                             <p className="font-bold text-sm text-foreground">{cartEntry.item.name}</p>
                             <p className="text-xs font-bold text-primary">
