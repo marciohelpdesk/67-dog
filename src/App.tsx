@@ -232,6 +232,27 @@ export default function App() {
   }
 
   function handleSaveContact() {
+    setContactSaved(true);
+    setTimeout(() => setContactSaved(false), 3500);
+
+    const userAgent = typeof navigator !== 'undefined' ? navigator.userAgent || '' : '';
+    const isAndroid = /Android/i.test(userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
+
+    if (isAndroid) {
+      // Dispara o Intent oficial do Android para abrir diretamente o aplicativo de Contatos
+      // (Google Contatos / Samsung Contatos) na tela de criar contato com Nome e Telefone preenchidos,
+      // sem solicitar download de arquivo antes.
+      const androidIntent = `intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;S.name=67%20Dog%20Hot%20Dog;S.phone=${encodeURIComponent(ESTABLISHMENT_INFO.phoneDisplay)};S.company=67%20Dog;end;`;
+      
+      const link = document.createElement('a');
+      link.href = androidIntent;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      return;
+    }
+
     const currentUrl = typeof window !== 'undefined' ? window.location.href : 'https://67dog.com.br';
     const vcard = [
       'BEGIN:VCARD',
@@ -247,6 +268,15 @@ export default function App() {
       'END:VCARD',
     ].join('\r\n');
 
+    if (isIOS) {
+      // No iOS (Safari), abrir diretamente data:text/vcard sem atributo download ativa
+      // a tela nativa do iPhone "Adicionar aos Contatos" / "Criar Novo Contato".
+      const dataUri = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
+      window.location.href = dataUri;
+      return;
+    }
+
+    // Fallback para computadores / Desktop
     const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -256,9 +286,6 @@ export default function App() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-
-    setContactSaved(true);
-    setTimeout(() => setContactSaved(false), 3000);
   }
 
   function openMenu(categoryId: string = 'all') {
