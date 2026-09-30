@@ -21,6 +21,10 @@ import {
   ShoppingBag,
   Search,
   ArrowLeft,
+  Navigation,
+  ExternalLink,
+  CreditCard,
+  Sparkles,
 } from 'lucide-react';
 import { ASSETS } from './assets/images';
 import {
@@ -101,6 +105,36 @@ function AnimatedPrice({ value, className = '' }: { value: number; className?: s
   );
 }
 
+// Ícones Oficiais das Marcas para reconhecimento imediato por qualquer pessoa
+function OfficialWhatsAppIcon({ className = 'h-6 w-6' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2ZM12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19.01L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 14.99 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67ZM8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7.02 8.48 7.02 9.69C7.02 10.9 7.9 12.06 8.02 12.23C8.14 12.4 9.75 14.89 12.21 15.95C12.8 16.2 13.25 16.35 13.61 16.47C14.2 16.65 14.74 16.63 15.17 16.56C15.65 16.49 16.64 15.96 16.85 15.37C17.05 14.78 17.05 14.28 16.99 14.17C16.93 14.07 16.79 14.01 16.57 13.9C16.35 13.79 15.28 13.26 15.08 13.19C14.88 13.12 14.74 13.08 14.59 13.31C14.45 13.53 14.04 14.01 13.92 14.15C13.79 14.3 13.67 14.32 13.45 14.21C13.23 14.1 12.52 13.87 11.68 13.12C11.02 12.53 10.58 11.8 10.45 11.58C10.33 11.36 10.44 11.24 10.55 11.13C10.65 11.03 10.77 10.87 10.88 10.74C10.99 10.61 11.03 10.51 11.1 10.36C11.17 10.22 11.14 10.09 11.08 9.98C11.03 9.87 10.59 8.79 10.4 8.35C10.23 7.92 10.05 7.98 9.91 7.97C9.78 7.96 9.63 7.96 9.49 7.96C9.34 7.96 9.1 8.01 8.89 8.24C8.67 8.47 8.53 8.61 8.53 7.33Z" />
+    </svg>
+  );
+}
+
+function OfficialInstagramIcon({ className = 'h-6 w-6' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
+      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+    </svg>
+  );
+}
+
+function OfficialGoogleMapsPinIcon({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
+        fill="#EA4335"
+      />
+      <circle cx="12" cy="9" r="3.2" fill="#FFFFFF" />
+      <circle cx="12" cy="9" r="1.8" fill="#B31412" />
+    </svg>
+  );
+}
+
 export interface CartItemState {
   cartItemId: string;
   item: MenuItem;
@@ -123,6 +157,11 @@ export default function App() {
   const [copiedPix, setCopiedPix] = useState(false);
   const [pixConfirmed, setPixConfirmed] = useState(false);
   const [pixPayerName, setPixPayerName] = useState('');
+
+  // Location & Schedule Info Modal
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [infoModalTab, setInfoModalTab] = useState<'all' | 'address' | 'hours'>('all');
+  const [copiedAddress, setCopiedAddress] = useState(false);
 
   // Item customization modal state
   const [customizingItem, setCustomizingItem] = useState<MenuItem | null>(null);
@@ -159,6 +198,12 @@ export default function App() {
     navigator.clipboard.writeText(ESTABLISHMENT_INFO.pixKey);
     setCopiedPix(true);
     setTimeout(() => setCopiedPix(false), 2500);
+  }
+
+  function handleCopyAddress() {
+    navigator.clipboard.writeText(ESTABLISHMENT_INFO.address);
+    setCopiedAddress(true);
+    setTimeout(() => setCopiedAddress(false), 2500);
   }
 
   function openMenu(categoryId: string = 'all') {
@@ -368,68 +413,124 @@ export default function App() {
           </svg>
         </section>
 
-        {/* INTERACTIVE ACTION CIRCLES */}
-        <section className="mt-6 flex flex-col items-center">
-          <div className="flex flex-wrap justify-center gap-3">
+        {/* INTERACTIVE GLASSMORPHISM ACTION CARDS */}
+        <section className="mt-5 w-full px-2">
+          {/* Subtitle / Helper indicator */}
+          <div className="flex items-center justify-center gap-2 mb-3 text-center">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
+            <p className="text-[11px] font-bold tracking-wide uppercase text-amber-300 drop-shadow">
+              Toque abaixo para falar, ver cardápio ou endereço:
+            </p>
+          </div>
+
+          {/* Linha 1: Os dois principais (WhatsApp Oficial e Cardápio Completo) */}
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
+            {/* 1. WHATSAPP (ÍCONE ORIGINAL WHATSAPP) */}
             <a
               href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
               target="_blank"
               rel="noreferrer"
-              title="WhatsApp"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-card text-primary transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-[#25D366]/40 bg-gradient-to-br from-emerald-950/80 via-black/75 to-[#25D366]/20 p-3 sm:p-3.5 backdrop-blur-xl shadow-lg shadow-black/50 transition-all hover:scale-[1.02] hover:border-[#25D366] hover:bg-emerald-950/90 active:scale-95 cursor-pointer"
             >
-              <MessageCircle className="h-5 w-5" strokeWidth={2.2} />
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-[0_4px_14px_rgba(37,211,102,0.45)] group-hover:scale-110 group-hover:brightness-110 transition-all">
+                <OfficialWhatsAppIcon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+              </div>
+              <div className="min-w-0 text-left">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display text-sm font-black text-white group-hover:text-[#25D366] transition-colors">
+                    WhatsApp
+                  </span>
+                  <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse" />
+                </div>
+                <p className="text-[11px] font-medium text-emerald-200/80 truncate">
+                  Falar direto conosco
+                </p>
+              </div>
             </a>
 
-            <a
-              href={ESTABLISHMENT_INFO.mapsUrl}
-              target="_blank"
-              rel="noreferrer"
-              title="Localização"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-card text-primary transition-transform hover:scale-110 active:scale-95 shadow-sm"
-            >
-              <MapPin className="h-5 w-5" strokeWidth={2.2} />
-            </a>
-
+            {/* 2. CARDÁPIO (ÍCONE CULINÁRIA & LANCHES) */}
             <button
               type="button"
               onClick={() => openMenu('all')}
-              title="Abrir Cardápio"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-card text-primary transition-transform hover:scale-110 active:scale-95 shadow-sm cursor-pointer"
+              className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-950/80 via-black/75 to-flame/20 p-3 sm:p-3.5 backdrop-blur-xl shadow-lg shadow-black/50 transition-all hover:scale-[1.02] hover:border-amber-400 hover:bg-amber-950/90 active:scale-95 cursor-pointer"
             >
-              <Utensils className="h-5 w-5" strokeWidth={2.2} />
+              <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 via-flame to-red-600 text-white shadow-[0_4px_14px_rgba(245,158,11,0.45)] group-hover:scale-110 group-hover:brightness-110 transition-all">
+                <Utensils className="h-6 w-6 sm:h-7 sm:w-7 text-white stroke-[2.5]" />
+              </div>
+              <div className="min-w-0 text-left">
+                <div className="flex items-center gap-1">
+                  <span className="font-display text-sm font-black text-white group-hover:text-amber-300 transition-colors">
+                    Cardápio
+                  </span>
+                  <span className="text-xs">🌭</span>
+                </div>
+                <p className="text-[11px] font-medium text-amber-200/80 truncate">
+                  Ver lanches e preços
+                </p>
+              </div>
+            </button>
+          </div>
+
+          {/* Linha 2: 3 Cartões Informativos (Endereço Google Maps, Horários, Instagram Oficial) */}
+          <div className="mt-2.5 grid grid-cols-3 gap-2">
+            {/* 3. ENDEREÇO & COMO CHEGAR (ÍCONE ORIGINAL GOOGLE MAPS PIN) */}
+            <button
+              type="button"
+              onClick={() => {
+                setInfoModalTab('address');
+                setIsInfoModalOpen(true);
+              }}
+              className="group flex flex-col items-center justify-center rounded-2xl border border-rose-500/35 bg-gradient-to-b from-rose-950/60 via-black/70 to-rose-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-rose-400 hover:bg-rose-900/40 active:scale-95 cursor-pointer"
+            >
+              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 p-1 border border-white/20 shadow-[0_2px_8px_rgba(234,67,53,0.35)] group-hover:scale-110 transition-transform">
+                <OfficialGoogleMapsPinIcon className="h-5 w-5" />
+              </div>
+              <span className="font-display text-xs font-bold text-white group-hover:text-rose-300">
+                Endereço
+              </span>
+              <span className="text-[9.5px] font-medium text-rose-200/80 truncate w-full">
+                Como Chegar
+              </span>
             </button>
 
-            <a
-              href="#info"
-              title="Horário"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-card text-primary transition-transform hover:scale-110 active:scale-95 shadow-sm"
+            {/* 4. HORÁRIOS */}
+            <button
+              type="button"
+              onClick={() => {
+                setInfoModalTab('hours');
+                setIsInfoModalOpen(true);
+              }}
+              className="group flex flex-col items-center justify-center rounded-2xl border border-sky-500/35 bg-gradient-to-b from-sky-950/60 via-black/70 to-sky-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-sky-400 hover:bg-sky-900/40 active:scale-95 cursor-pointer"
             >
-              <Clock3 className="h-5 w-5" strokeWidth={2.2} />
-            </a>
+              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-[0_2px_8px_rgba(14,165,233,0.4)] group-hover:scale-110 transition-transform">
+                <Clock3 className="h-4.5 w-4.5 text-white" strokeWidth={2.4} />
+              </div>
+              <span className="font-display text-xs font-bold text-white group-hover:text-sky-300">
+                Horários
+              </span>
+              <span className="text-[9.5px] font-medium text-sky-200/80 truncate w-full">
+                18h às 23h
+              </span>
+            </button>
 
+            {/* 5. INSTAGRAM (ÍCONE ORIGINAL GRADIENTE DO INSTAGRAM) */}
             <a
               href={ESTABLISHMENT_INFO.instagram}
               target="_blank"
               rel="noreferrer"
-              title="Instagram"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-card text-primary transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              className="group flex flex-col items-center justify-center rounded-2xl border border-pink-500/35 bg-gradient-to-b from-pink-950/60 via-black/70 to-pink-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-pink-400 hover:bg-pink-900/40 active:scale-95 cursor-pointer"
             >
-              <Instagram className="h-5 w-5" strokeWidth={2.2} />
+              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-[0_2px_10px_rgba(220,39,67,0.45)] group-hover:scale-110 transition-transform">
+                <OfficialInstagramIcon className="h-4.5 w-4.5 text-white" />
+              </div>
+              <span className="font-display text-xs font-bold text-white group-hover:text-pink-300">
+                Instagram
+              </span>
+              <span className="text-[9.5px] font-medium text-pink-200/80 truncate w-full">
+                Novidades
+              </span>
             </a>
-
-            <button
-              type="button"
-              onClick={() => openMenu('all')}
-              title="Fazer Pedido"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/40 bg-card text-primary transition-transform hover:scale-110 active:scale-95 shadow-sm cursor-pointer"
-            >
-              <Truck className="h-5 w-5" strokeWidth={2.2} />
-            </button>
           </div>
-          <p className="mt-3 rounded-full border border-primary/30 px-4 py-1 text-[10px] font-bold tracking-widest text-primary">
-            👆 CLIQUE NOS ÍCONES PARA INTERAGIR
-          </p>
         </section>
 
         {/* CATEGORY SHORTCUT PILLS (CLIQUE ABRE O CARDÁPIO NA CATEGORIA ESCOLHIDA) */}
@@ -542,19 +643,36 @@ export default function App() {
 
         {/* INFO CARDS (RETIRADA / HORÁRIO / PIX CNPJ) */}
         <section id="info" className="mt-8 grid grid-cols-3 gap-2 scroll-mt-6">
-          <div className="rounded-2xl border border-border bg-card p-3 text-center">
+          <button
+            type="button"
+            onClick={() => {
+              setInfoModalTab('address');
+              setIsInfoModalOpen(true);
+            }}
+            className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-3 text-center cursor-pointer hover:border-amber-500/50 hover:bg-white/[0.08] transition-all active:scale-95 group shadow-sm"
+          >
             <span className="text-xl">🏃</span>
-            <p className="mt-1 text-xs font-bold">Retirada</p>
+            <p className="mt-1 text-xs font-bold group-hover:text-amber-300">Retirada</p>
             <p className="text-[10px] text-muted-foreground">Balcão (Grátis)</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-card p-3 text-center">
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setInfoModalTab('hours');
+              setIsInfoModalOpen(true);
+            }}
+            className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-3 text-center cursor-pointer hover:border-amber-500/50 hover:bg-white/[0.08] transition-all active:scale-95 group shadow-sm"
+          >
             <span className="text-xl">⏰</span>
-            <p className="mt-1 text-xs font-bold">Horário</p>
+            <p className="mt-1 text-xs font-bold group-hover:text-amber-300">Horário</p>
             <p className="text-[10px] text-muted-foreground">{ESTABLISHMENT_INFO.hoursDisplay}</p>
-          </div>
-          <div
+          </button>
+
+          <button
+            type="button"
             onClick={handleCopyPix}
-            className="rounded-2xl border border-border bg-card p-3 text-center cursor-pointer hover:border-primary/50 transition-all active:scale-95 group"
+            className="rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl p-3 text-center cursor-pointer hover:border-amber-500/50 hover:bg-white/[0.08] transition-all active:scale-95 group shadow-sm"
             title="Clique para copiar a Chave Pix (CNPJ)"
           >
             <span className="text-xl">💳</span>
@@ -564,14 +682,21 @@ export default function App() {
             <p className="text-[10px] text-muted-foreground truncate font-mono">
               {copiedPix ? 'Copiado!' : ESTABLISHMENT_INFO.pixKeyDisplay}
             </p>
-          </div>
+          </button>
         </section>
 
         {/* FOOTER */}
         <footer className="mt-10 border-t border-border pt-6 text-center text-xs text-muted-foreground">
-          <p className="text-[10px] sm:text-xs tracking-tight text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
-            📍 {ESTABLISHMENT_INFO.address}
-          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setInfoModalTab('address');
+              setIsInfoModalOpen(true);
+            }}
+            className="mx-auto block text-[10px] sm:text-xs tracking-tight text-muted-foreground hover:text-amber-400 transition-colors underline-offset-4 hover:underline cursor-pointer"
+          >
+            📍 {ESTABLISHMENT_INFO.address} (Toque para ver rotas)
+          </button>
           <p className="mt-1.5 text-[11px] sm:text-xs">© 2026 {ESTABLISHMENT_INFO.name}. Sabor e crocância inigualáveis.</p>
         </footer>
 
@@ -1310,7 +1435,7 @@ export default function App() {
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/20 backdrop-blur-xs text-white shadow-inner group-hover:scale-105 transition-transform">
-                          <MessageCircle className="h-6 w-6 fill-white stroke-none" />
+                          <OfficialWhatsAppIcon className="h-6 w-6 text-white" />
                         </div>
                         <div className="text-left min-w-0">
                           <span className="font-display text-xs font-black uppercase tracking-wider block truncate">
@@ -1329,6 +1454,240 @@ export default function App() {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL INFORMATIVO: ENDEREÇO & HORÁRIOS DE ATENDIMENTO */}
+      {isInfoModalOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md"
+          onClick={() => setIsInfoModalOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/20 bg-neutral-950/95 p-5 text-foreground shadow-2xl backdrop-blur-2xl max-h-[92vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header com Glassmorphism */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                  {infoModalTab === 'hours' ? (
+                    <Clock3 className="h-6 w-6" />
+                  ) : (
+                    <MapPin className="h-6 w-6" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="font-display text-base font-extrabold text-white">
+                    {infoModalTab === 'hours' ? 'Horários de Atendimento' : 'Endereço & Localização'}
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    67 DOG • Fazenda Rio Grande - PR
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsInfoModalOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer"
+                title="Fechar"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Abas Alternáveis */}
+            <div className="mt-4 flex rounded-xl bg-white/5 p-1 border border-white/10">
+              <button
+                type="button"
+                onClick={() => setInfoModalTab('address')}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  infoModalTab === 'address'
+                    ? 'bg-amber-500 text-black shadow-md'
+                    : 'text-muted-foreground hover:text-white'
+                }`}
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                <span>Endereço</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setInfoModalTab('hours')}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  infoModalTab === 'hours'
+                    ? 'bg-amber-500 text-black shadow-md'
+                    : 'text-muted-foreground hover:text-white'
+                }`}
+              >
+                <Clock3 className="h-3.5 w-3.5" />
+                <span>Horários</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setInfoModalTab('all')}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+                  infoModalTab === 'all'
+                    ? 'bg-amber-500 text-black shadow-md'
+                    : 'text-muted-foreground hover:text-white'
+                }`}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
+                <span>Tudo</span>
+              </button>
+            </div>
+
+            {/* Conteúdo scrollável */}
+            <div className="mt-4 overflow-y-auto space-y-4 pr-1">
+              {/* SEÇÃO ENDEREÇO */}
+              {(infoModalTab === 'address' || infoModalTab === 'all') && (
+                <div className="rounded-2xl border border-rose-500/30 bg-gradient-to-br from-rose-950/40 via-neutral-900/60 to-black/60 p-4 backdrop-blur-xl">
+                  <div className="flex items-center gap-2 text-rose-400 font-display font-bold text-xs uppercase tracking-wider mb-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>Local para Retirada dos Lanches</span>
+                  </div>
+
+                  <p className="text-sm font-semibold text-white leading-relaxed">
+                    {ESTABLISHMENT_INFO.address}
+                  </p>
+
+                  <p className="mt-2 text-xs text-rose-200/80">
+                    📍 Bairro Nações — Fazenda Rio Grande / PR. Fácil acesso e parada rápida para retirada no balcão.
+                  </p>
+
+                  {/* Botões de Ação para Rotas */}
+                  <div className="mt-3.5 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <a
+                      href={ESTABLISHMENT_INFO.mapsUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-2.5 text-xs font-bold text-white shadow-md hover:brightness-110 active:scale-95 transition-all"
+                    >
+                      <Navigation className="h-4 w-4" />
+                      <span>Abrir no Google Maps</span>
+                      <ExternalLink className="h-3 w-3 opacity-70" />
+                    </a>
+
+                    <a
+                      href={ESTABLISHMENT_INFO.wazeUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-sky-600 px-3 py-2.5 text-xs font-bold text-white shadow-md hover:brightness-110 active:scale-95 transition-all"
+                    >
+                      <span>🚗 Abrir no Waze</span>
+                      <ExternalLink className="h-3 w-3 opacity-70" />
+                    </a>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleCopyAddress}
+                    className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-xs font-bold text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+                  >
+                    {copiedAddress ? (
+                      <>
+                        <Check className="h-4 w-4 text-emerald-400" />
+                        <span className="text-emerald-400 font-bold">Endereço Copiado com Sucesso!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4 text-amber-400" />
+                        <span>Copiar Endereço Completo</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+
+              {/* SEÇÃO HORÁRIOS */}
+              {(infoModalTab === 'hours' || infoModalTab === 'all') && (
+                <div className="rounded-2xl border border-sky-500/30 bg-gradient-to-br from-sky-950/40 via-neutral-900/60 to-black/60 p-4 backdrop-blur-xl">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2 text-sky-400 font-display font-bold text-xs uppercase tracking-wider">
+                      <Clock3 className="h-4 w-4" />
+                      <span>Horários de Funcionamento</span>
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
+                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                      Terça a Domingo
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    {ESTABLISHMENT_INFO.hours.map((h, i) => (
+                      <div
+                        key={i}
+                        className={`flex items-center justify-between rounded-xl p-2.5 text-xs ${
+                          h.open
+                            ? 'bg-emerald-950/30 border border-emerald-500/20 text-white'
+                            : 'bg-white/5 border border-white/5 text-muted-foreground'
+                        }`}
+                      >
+                        <span className="font-bold">{h.day}</span>
+                        <span className={`font-semibold ${h.open ? 'text-emerald-400' : 'text-rose-400'}`}>
+                          {h.time}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="mt-3 text-[11px] text-sky-200/80 leading-snug">
+                    🌭 Dica: Você pode montar sua comanda e enviar no WhatsApp com antecedência para agilizar seu lanche!
+                  </p>
+                </div>
+              )}
+
+              {/* FORMAS DE PAGAMENTO */}
+              {infoModalTab === 'all' && (
+                <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-neutral-900/60 to-black/60 p-4 backdrop-blur-xl">
+                  <div className="flex items-center gap-2 text-amber-400 font-display font-bold text-xs uppercase tracking-wider mb-2.5">
+                    <CreditCard className="h-4 w-4" />
+                    <span>Formas de Pagamento Aceitas</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                    <div className="rounded-xl bg-white/5 p-2.5 border border-white/10">
+                      <span className="text-lg block">⚡</span>
+                      <span className="font-bold text-white block mt-0.5">Pix</span>
+                      <span className="text-[10px] text-emerald-400">Sem taxa</span>
+                    </div>
+                    <div className="rounded-xl bg-white/5 p-2.5 border border-white/10">
+                      <span className="text-lg block">💳</span>
+                      <span className="font-bold text-white block mt-0.5">Cartão</span>
+                      <span className="text-[10px] text-muted-foreground">Débito/Crédito</span>
+                    </div>
+                    <div className="rounded-xl bg-white/5 p-2.5 border border-white/10">
+                      <span className="text-lg block">💵</span>
+                      <span className="font-bold text-white block mt-0.5">Dinheiro</span>
+                      <span className="text-[10px] text-muted-foreground">No Balcão</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Rodapé do Modal */}
+            <div className="mt-4 pt-3 border-t border-white/10 flex gap-2">
+              <a
+                href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
+                target="_blank"
+                rel="noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#1EBE5D] py-3 text-xs font-black uppercase text-white shadow-lg shadow-emerald-950/50 hover:brightness-110 active:scale-95 transition-all"
+              >
+                <OfficialWhatsAppIcon className="h-4.5 w-4.5 text-white" />
+                <span>Chamar no WhatsApp</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsInfoModalOpen(false);
+                  openMenu('all');
+                }}
+                className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/20 py-3 text-xs font-black uppercase text-amber-300 hover:bg-amber-500/30 active:scale-95 transition-all cursor-pointer"
+              >
+                <Utensils className="h-4 w-4" />
+                <span>Ver Cardápio</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
