@@ -33,6 +33,7 @@ import {
 import { ASSETS } from './assets/images';
 import {
   MENU_CATEGORIES,
+  MENU_ITEMS,
   ESTABLISHMENT_INFO,
   AVAILABLE_EXTRAS,
   AVAILABLE_REMOVALS,
@@ -73,6 +74,12 @@ function getItemImage(item: MenuItem): string {
       return ASSETS.combo;
 
     // Burgers
+    case 'burger-x-salada':
+    case 'burger-x-frango':
+    case 'burger-x-bacon':
+    case 'burger-x-calabresa':
+    case 'burger-x-costela':
+    case 'burger-x-tudo':
     case 'burger-classic-67':
     case 'burger-bacon-supreme':
     case 'burger-costelaco-bbq':
@@ -80,11 +87,18 @@ function getItemImage(item: MenuItem): string {
       return ASSETS.burger;
 
     // Pastéis
+    case 'pastel-carne':
     case 'pastel-carne-especial':
-    case 'pastel-queijo-duplo':
-    case 'pastel-pizza-especial':
       return ASSETS.pastel;
+    case 'pastel-frango':
     case 'pastel-frango-catupiry':
+      return ASSETS.pastelCrocante;
+    case 'pastel-queijo':
+    case 'pastel-queijo-duplo':
+      return ASSETS.pastel;
+    case 'pastel-pizza':
+    case 'pastel-pizza-especial':
+      return ASSETS.pastelCrocante;
     case 'pastel-costela-queijo':
     case 'pastel-chocolate-banana':
       return ASSETS.pastelCrocante;
@@ -104,6 +118,67 @@ function getItemImage(item: MenuItem): string {
       if (item.category === 'bebidas') return ASSETS.bebidas;
       return ASSETS.hotdog;
   }
+}
+
+function MenuItemCard({
+  item,
+  onSelect,
+}: {
+  item: MenuItem;
+  onSelect: (item: MenuItem) => void;
+}) {
+  const isBebida = item.category === 'bebidas';
+  const cleanName = item.name.replace(/^(\d{1,2}\.|\d{1,2}\s*-\s*)\s*/, '').trim();
+
+  return (
+    <article
+      onClick={() => onSelect(item)}
+      className="group relative flex items-center gap-3 sm:gap-3.5 rounded-2xl border border-border/70 bg-card p-3 transition-all hover:border-primary/50 hover:bg-card/90 cursor-pointer active:scale-[0.99] shadow-xs hover:shadow-md"
+    >
+      {/* MINIATURA DA IMAGEM DO LANCHE (LADO ESQUERDO DE QUEM VÊ) */}
+      <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-sm">
+        <img
+          src={getItemImage(item)}
+          alt={cleanName}
+          loading="lazy"
+          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            e.currentTarget.src = ASSETS.hotdog;
+          }}
+        />
+      </div>
+
+      {/* INFORMAÇÕES DO LANCHE (LADO DIREITO: NOME, INGREDIENTES, VALOR, SÍMBOLO 'PERSONALIZAR') */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+        <div>
+          <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-primary transition-colors leading-snug">
+            {cleanName}
+          </h4>
+          <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+            {item.description}
+          </p>
+        </div>
+
+        <div className="mt-2.5 flex items-center justify-between gap-2">
+          {/* PREÇO EM DESTAQUE */}
+          <span className="font-display text-sm font-black text-primary">
+            {formatCurrency(item.price)}
+          </span>
+
+          {/* SÍMBOLO 'PERSONALIZAR' E BOTÃO + */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <span className="inline-flex items-center gap-1 rounded-md bg-secondary/80 border border-border/80 px-2 py-0.5 text-[10.5px] font-semibold text-muted-foreground group-hover:text-foreground group-hover:border-primary/30 transition-colors">
+              <SlidersHorizontal className="h-2.5 w-2.5 text-primary" />
+              <span>{isBebida ? 'Pedir' : 'Personalizar'}</span>
+            </span>
+            <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-flame text-white shadow-sm group-hover:scale-110 group-hover:brightness-110 transition-all shrink-0">
+              <Plus className="h-3.5 w-3.5 stroke-[3]" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  );
 }
 
 function useAnimatedNumber(target: number, duration = 380) {
@@ -744,7 +819,11 @@ export default function App() {
               <button
                 key={cat.id}
                 type="button"
-                onClick={() => openMenu(cat.id)}
+                onClick={() => {
+                  setActiveCategory(cat.id);
+                  const el = document.getElementById('cardapio-67-dog');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                }}
                 className="group relative flex flex-col items-center justify-between rounded-2xl border border-white/10 bg-neutral-900/70 p-1.5 sm:p-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/60 hover:bg-neutral-800 hover:shadow-[0_6px_20px_rgba(245,158,11,0.2)] active:scale-95 cursor-pointer text-center h-[82px] sm:h-[88px]"
               >
                 {/* Ícone com container orgânico uniforme */}
@@ -768,91 +847,98 @@ export default function App() {
           </div>
         </nav>
 
-        {/* HIGHLIGHTS SECTION: DESTAQUES MAIS PEDIDOS */}
-        <section className="mt-6 rounded-3xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between">
-            <h2 className="font-display text-sm font-extrabold tracking-wide text-primary">
-              🔥 DESTAQUES MAIS PEDIDOS
-            </h2>
-            <button
-              type="button"
-              onClick={() => openMenu('all')}
-              className="text-xs font-semibold text-muted-foreground hover:text-primary transition-colors cursor-pointer"
-            >
-              Ver cardápio ›
-            </button>
+        {/* SEÇÃO CARDÁPIO 67 DOG (ESTRUTURA ESTRITAMENTE UNIFORME) */}
+        <section id="cardapio-67-dog" className="mt-6 rounded-3xl border border-border bg-card/70 p-4 shadow-xl scroll-mt-4">
+          <div className="flex items-center justify-between pb-3 border-b border-border/60">
+            <div>
+              <h2 className="font-display text-base sm:text-lg font-black tracking-wide text-foreground flex items-center gap-2">
+                <span>🌭</span>
+                <span>Cardápio 67 DOG</span>
+              </h2>
+              <p className="text-[11px] text-muted-foreground mt-0.5">
+                Toque em qualquer lanche para personalizar e pedir (Retirada no Balcão)
+              </p>
+            </div>
+            <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-[10px] font-bold text-primary shrink-0">
+              Balcão
+            </span>
           </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            {highlights.map(({ item, badge, subtitle, img }) => (
-              <article key={item.id} className="overflow-hidden rounded-2xl border border-border bg-secondary flex flex-col justify-between">
-                <div>
-                  <div className="relative">
-                    <img src={img} alt={item.name} loading="lazy" className="h-28 w-full object-cover" />
-                    <span className="absolute left-2 top-2 rounded-md bg-flame px-2 py-0.5 text-[10px] font-black text-flame-foreground shadow-sm">
-                      {badge}
+          {/* SEARCH AND CATEGORY FILTER TABS */}
+          <div className="mt-3.5 space-y-2.5">
+            <div className="relative">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar hot dog, hambúrguer, pastel, bebida..."
+                className="w-full rounded-xl border border-input bg-secondary/80 pl-9 pr-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              <button
+                type="button"
+                onClick={() => setActiveCategory('all')}
+                className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
+                  activeCategory === 'all'
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'border border-border bg-secondary text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Todos ({MENU_ITEMS.length})
+              </button>
+              {MENU_CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
+                    activeCategory === cat.id
+                      ? 'bg-primary text-primary-foreground shadow-xs'
+                      : 'border border-border bg-secondary text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {cat.emoji} {cat.label} ({cat.items.length})
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* LISTA UNIFORME DE ITENS DO CARDÁPIO */}
+          <div className="mt-4 space-y-6">
+            {filteredCategories.length === 0 ? (
+              <div className="py-10 text-center">
+                <p className="text-3xl mb-2">🔍</p>
+                <p className="text-sm font-bold">Nenhum item encontrado</p>
+                <p className="mt-1 text-xs text-muted-foreground">Tente buscar por outro termo.</p>
+              </div>
+            ) : (
+              filteredCategories.map((cat) => (
+                <div key={cat.id} className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-display text-sm font-extrabold flex items-center gap-2 text-primary">
+                      <span>{cat.emoji}</span> {cat.label}
+                    </h3>
+                    <span className="text-[10px] text-muted-foreground font-medium">
+                      {cat.items.length} {cat.items.length === 1 ? 'opção' : 'opções'}
                     </span>
                   </div>
-                  <div className="p-3 pb-0">
-                    <h3 className="truncate text-sm font-black tracking-wide">{item.name}</h3>
-                    <p className="line-clamp-2 text-[11px] text-muted-foreground leading-tight mt-0.5">
-                      {subtitle || item.description}
-                    </p>
-                    <p className="mt-1 font-display text-sm font-extrabold text-primary">
-                      {formatCurrency(item.price)}
-                    </p>
+
+                  <div className="space-y-2.5">
+                    {cat.items.map((item) => (
+                      <MenuItemCard
+                        key={item.id}
+                        item={item}
+                        onSelect={openCustomization}
+                      />
+                    ))}
                   </div>
                 </div>
-                <div className="p-3 pt-2">
-                  <button
-                    onClick={() => openCustomization(item)}
-                    className="w-full rounded-lg bg-flame py-2 text-xs font-extrabold text-flame-foreground transition-transform active:scale-95 cursor-pointer hover:brightness-110 shadow-sm"
-                  >
-                    🛒 Pedir / Personalizar
-                  </button>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          {/* TEASER DOS COMBOS 67 */}
-          <div
-            onClick={() => openMenu('combos')}
-            className="mt-3.5 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-secondary to-secondary p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-amber-400/50 transition-all active:scale-[0.99] group shadow-xs"
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 text-lg group-hover:scale-105 transition-transform">
-                🔥
-              </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-display text-xs font-black uppercase text-amber-400 tracking-wide truncate">
-                    COMBOS 67
-                  </span>
-                  <span className="rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[9px] font-bold text-amber-300">
-                    Com Refri
-                  </span>
-                </div>
-                <p className="text-[11px] text-muted-foreground truncate">
-                  Duplinha (R$ 49,90), Galera (R$ 74,90) e Na Medida (R$ 29,90)
-                </p>
-              </div>
-            </div>
-            <div className="shrink-0 flex items-center gap-1 text-xs font-bold text-primary group-hover:translate-x-0.5 transition-transform">
-              <span>Ver</span>
-              <span>›</span>
-            </div>
+              ))
+            )}
           </div>
         </section>
-
-        {/* PRIMARY CALL TO ACTION BUTTON (ABRE O CARDÁPIO COMPLETO) */}
-        <button
-          type="button"
-          onClick={() => openMenu('all')}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-flame to-accent py-4 font-display text-sm font-black tracking-wide text-flame-foreground shadow-xl transition-transform active:scale-[0.98] hover:brightness-105 cursor-pointer"
-        >
-          <span>🏃 FAZER PEDIDO (RETIRADA NO BALCÃO)</span>
-        </button>
 
         {/* FOOTER */}
         <footer className="mt-10 border-t border-border pt-6 text-center text-xs text-muted-foreground">
@@ -1013,115 +1099,13 @@ export default function App() {
                     </h3>
 
                     <div className="space-y-2.5">
-                      {cat.items.map((item) => {
-                        const isCombo = item.category === 'combos';
-                        const isBebida = item.category === 'bebidas';
-                        const cleanName = item.name.replace(/^\d+\.\s*/, '');
-
-                        if (isCombo) {
-                          return (
-                            <article
-                              key={item.id}
-                              onClick={() => openCustomization(item)}
-                              className="group relative flex items-center gap-3.5 rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-950/20 via-card to-card p-3 transition-all hover:border-amber-400/80 cursor-pointer active:scale-[0.99] shadow-sm hover:shadow-md"
-                            >
-                              {/* MINIATURA DA IMAGEM DO COMBO (LADO ESQUERDO) */}
-                              <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-amber-500/30 bg-neutral-900 shadow-md">
-                                <img
-                                  src={getItemImage(item)}
-                                  alt={cleanName}
-                                  loading="lazy"
-                                  className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                  onError={(e) => {
-                                    e.currentTarget.src = ASSETS.heroBg;
-                                  }}
-                                />
-                              </div>
-
-                              {/* INFORMAÇÕES DO COMBO (LADO DIREITO) */}
-                              <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                                <div>
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="text-xs">🔥</span>
-                                    <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-amber-400 transition-colors leading-snug">
-                                      {cleanName}
-                                    </h4>
-                                  </div>
-                                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                    {item.description}
-                                  </p>
-                                </div>
-
-                                <div className="mt-2.5 flex items-center justify-between gap-2">
-                                  <span className="font-display text-sm font-black text-amber-400">
-                                    {formatCurrency(item.price)}
-                                  </span>
-
-                                  <div className="flex items-center gap-1.5">
-                                    <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 border border-amber-500/25 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
-                                      <SlidersHorizontal className="h-2.5 w-2.5 text-amber-400" />
-                                      <span>Pedir Combo</span>
-                                    </span>
-                                    <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-flame text-white shadow-sm group-hover:scale-110 group-hover:brightness-110 transition-all shrink-0">
-                                      <Plus className="h-3.5 w-3.5 stroke-[3]" />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </article>
-                          );
-                        }
-
-                        return (
-                          <article
-                            key={item.id}
-                            onClick={() => openCustomization(item)}
-                            className="group relative flex items-center gap-3.5 rounded-2xl border border-border/70 bg-card p-3 transition-all hover:border-primary/50 hover:bg-card/90 cursor-pointer active:scale-[0.99] shadow-sm hover:shadow-md"
-                          >
-                            {/* MINIATURA DA IMAGEM DO LANCHE (LADO ESQUERDO DE QUEM VÊ) */}
-                            <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-md">
-                              <img
-                                src={getItemImage(item)}
-                                alt={cleanName}
-                                loading="lazy"
-                                className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                                onError={(e) => {
-                                  e.currentTarget.src = ASSETS.hotdog;
-                                }}
-                              />
-                            </div>
-
-                            {/* INFORMAÇÕES DO LANCHE (LADO DIREITO: NOME LIMPO, INGREDIENTES, VALOR, SÍMBOLO) */}
-                            <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                              <div>
-                                <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-primary transition-colors leading-snug">
-                                  {cleanName}
-                                </h4>
-                                <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                  {item.description}
-                                </p>
-                              </div>
-
-                              <div className="mt-2.5 flex items-center justify-between gap-2">
-                                <span className="font-display text-sm font-black text-primary">
-                                  {formatCurrency(item.price)}
-                                </span>
-
-                                {/* Símbolo sutil indicando que pode pedir ou personalizar itens */}
-                                <div className="flex items-center gap-1.5">
-                                  <span className="inline-flex items-center gap-1 rounded-md bg-secondary/80 border border-border/80 px-2 py-0.5 text-[10.5px] font-semibold text-muted-foreground group-hover:text-foreground group-hover:border-primary/30 transition-colors">
-                                    <SlidersHorizontal className="h-2.5 w-2.5 text-primary" />
-                                    <span>{isBebida ? 'Pedir' : 'Personalizar'}</span>
-                                  </span>
-                                  <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-flame text-white shadow-sm group-hover:scale-110 group-hover:brightness-110 transition-all shrink-0">
-                                    <Plus className="h-3.5 w-3.5 stroke-[3]" />
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </article>
-                        );
-                      })}
+                      {cat.items.map((item) => (
+                        <MenuItemCard
+                          key={item.id}
+                          item={item}
+                          onSelect={openCustomization}
+                        />
+                      ))}
                     </div>
                   </section>
                 ))
