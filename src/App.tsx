@@ -123,36 +123,52 @@ function getItemImage(item: MenuItem): string {
 function MenuItemCard({
   item,
   onSelect,
+  index = 0,
 }: {
   item: MenuItem;
   onSelect: (item: MenuItem) => void;
+  index?: number;
 }) {
   const isBebida = item.category === 'bebidas';
-  const cleanName = item.name.replace(/^(\d{1,2}\.|\d{1,2}\s*-\s*)\s*/, '').trim();
+  const match = item.name.match(/^(\d+)[\.\-\s]+(.*)$/);
+  const itemNumber = match ? match[1] : null;
+  const displayName = match ? match[2] : item.name;
+  const staggerDelay = `${Math.min(index * 40, 360)}ms`;
 
   return (
     <article
       onClick={() => onSelect(item)}
-      className="group relative flex items-center gap-3 sm:gap-3.5 rounded-2xl border border-border/70 bg-card p-3 transition-all hover:border-primary/50 hover:bg-card/90 cursor-pointer active:scale-[0.99] shadow-xs hover:shadow-md"
+      style={{ animationDelay: staggerDelay }}
+      className="animate-card-entry group relative flex items-center gap-3 sm:gap-3.5 rounded-2xl border border-border/60 bg-card/80 p-3 transition-all hover:border-amber-400/50 hover:bg-card cursor-pointer active:scale-[0.99] shadow-xs hover:shadow-md will-change-[transform,opacity]"
     >
-      {/* MINIATURA DA IMAGEM DO LANCHE (LADO ESQUERDO DE QUEM VÊ) */}
+      {/* MINIATURA DA IMAGEM DO LANCHE (LADO ESQUERDO) */}
       <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-sm">
         <img
           src={getItemImage(item)}
-          alt={cleanName}
+          alt={displayName}
           loading="lazy"
           className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
             e.currentTarget.src = ASSETS.hotdog;
           }}
         />
+        {item.discountPercent && (
+          <span className="absolute top-1 left-1 rounded-md bg-flame px-1.5 py-0.5 text-[9px] font-black text-white shadow-xs">
+            -{item.discountPercent}%
+          </span>
+        )}
       </div>
 
-      {/* INFORMAÇÕES DO LANCHE (LADO DIREITO: NOME, INGREDIENTES, VALOR, SÍMBOLO 'PERSONALIZAR') */}
+      {/* INFORMAÇÕES DO LANCHE */}
       <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
         <div>
-          <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-primary transition-colors leading-snug">
-            {cleanName}
+          <h4 className="font-display text-sm font-extrabold text-foreground group-hover:text-amber-300 transition-colors leading-snug flex items-center gap-1.5 flex-wrap">
+            {itemNumber && (
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-amber-500/15 border border-amber-500/30 text-[11px] font-black text-amber-400 font-mono shadow-2xs">
+                {itemNumber}
+              </span>
+            )}
+            <span>{displayName}</span>
           </h4>
           <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
             {item.description}
@@ -160,24 +176,195 @@ function MenuItemCard({
         </div>
 
         <div className="mt-2.5 flex items-center justify-between gap-2">
-          {/* PREÇO EM DESTAQUE */}
-          <span className="font-display text-sm font-black text-primary">
-            {formatCurrency(item.price)}
-          </span>
-
-          {/* SÍMBOLO 'PERSONALIZAR' E BOTÃO + */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <span className="inline-flex items-center gap-1 rounded-md bg-secondary/80 border border-border/80 px-2 py-0.5 text-[10.5px] font-semibold text-muted-foreground group-hover:text-foreground group-hover:border-primary/30 transition-colors">
-              <SlidersHorizontal className="h-2.5 w-2.5 text-primary" />
-              <span>{isBebida ? 'Pedir' : 'Personalizar'}</span>
+          {/* PREÇO EM DESTAQUE COM PREÇO ORIGINAL SE HOUVER DESCONTO */}
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-display text-sm font-black text-primary">
+              {formatCurrency(item.price)}
             </span>
-            <div className="flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-flame text-white shadow-sm group-hover:scale-110 group-hover:brightness-110 transition-all shrink-0">
-              <Plus className="h-3.5 w-3.5 stroke-[3]" />
-            </div>
+            {item.originalPrice && (
+              <span className="text-[11px] text-muted-foreground line-through opacity-70">
+                {formatCurrency(item.originalPrice)}
+              </span>
+            )}
           </div>
+
+          {/* BOTÃO UNIFICADO COM ALTA LEGIBILIDADE */}
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-flame/90 group-hover:bg-flame text-white px-2.5 py-1 text-[11px] font-bold shadow-xs transition-all active:scale-95 shrink-0 cursor-pointer"
+          >
+            <SlidersHorizontal className="h-2.5 w-2.5" />
+            <span>{isBebida ? 'Pedir' : 'Personalizar'}</span>
+          </button>
         </div>
       </div>
     </article>
+  );
+}
+
+function DailyOffersCarousel({
+  offers,
+  onSelect,
+}: {
+  offers: MenuItem[];
+  onSelect: (item: MenuItem) => void;
+}) {
+  const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollLeft = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -240, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 240, behavior: 'smooth' });
+    }
+  };
+
+  if (!offers || offers.length === 0) return null;
+
+  return (
+    <div className="relative overflow-hidden rounded-3xl border-2 border-flame/40 bg-gradient-to-br from-flame/15 via-card to-card p-3.5 sm:p-4 shadow-lg shadow-flame/5">
+      {/* HEADER DA SEÇÃO OFERTAS DO DIA */}
+      <div className="flex items-center justify-between gap-2 mb-3">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-flame text-white shadow-xs">
+            <span className="text-sm">⚡</span>
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-display text-xs sm:text-sm font-black uppercase tracking-wider text-flame">
+                Ofertas do Dia
+              </h3>
+              <span className="rounded-full bg-flame/20 border border-flame/40 px-2 py-0.5 text-[9px] font-black uppercase text-flame tracking-tight">
+                Desconto Especial
+              </span>
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Preços promocionais válidos para pedidos no balcão hoje
+            </p>
+          </div>
+        </div>
+
+        {/* SETAS DE NAVEGAÇÃO RÁPIDA */}
+        <div className="hidden sm:flex items-center gap-1">
+          <button
+            type="button"
+            onClick={scrollLeft}
+            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-secondary/80 text-muted-foreground hover:bg-secondary hover:text-foreground active:scale-95 transition-all cursor-pointer font-bold text-sm"
+            aria-label="Rolar para esquerda"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={scrollRight}
+            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-secondary/80 text-muted-foreground hover:bg-secondary hover:text-foreground active:scale-95 transition-all cursor-pointer font-bold text-sm"
+            aria-label="Rolar para direita"
+          >
+            ›
+          </button>
+        </div>
+      </div>
+
+      {/* CARROSSEL HORIZONTAL DE OFERTAS */}
+      <div
+        ref={scrollRef}
+        className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory scroll-smooth -mx-1 px-1"
+      >
+        {offers.map((offer, idx) => {
+          const match = offer.name.match(/^(\d+)[\.\-\s]+(.*)$/);
+          const itemNumber = match ? match[1] : null;
+          const displayName = match ? match[2] : offer.name;
+
+          return (
+            <article
+              key={`daily-offer-${offer.id}`}
+              onClick={() => onSelect(offer)}
+              style={{ animationDelay: `${Math.min(idx * 50, 250)}ms` }}
+              className="animate-card-entry snap-start w-[240px] sm:w-[260px] shrink-0 rounded-2xl border border-white/10 bg-neutral-900/95 p-3 shadow-md transition-all hover:border-flame/70 hover:shadow-xl hover:shadow-flame/10 hover:bg-neutral-850 cursor-pointer active:scale-[0.98] group flex flex-col justify-between will-change-[transform,opacity]"
+            >
+              <div>
+                {/* TOPO DO CARD: TAG DE ECONOMIA E IMAGEM */}
+                <div className="flex items-start gap-2.5">
+                  <div className="relative h-18 w-18 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 shadow-inner">
+                    <img
+                      src={getItemImage(offer)}
+                      alt={displayName}
+                      loading="lazy"
+                      className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.src = ASSETS.hotdog;
+                      }}
+                    />
+                    {offer.discountPercent && (
+                      <span className="absolute top-1 left-1 rounded-md bg-flame px-1.5 py-0.5 text-[9px] font-black text-white shadow-xs">
+                        -{offer.discountPercent}%
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1 mb-0.5">
+                      {itemNumber && (
+                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded bg-primary/20 text-[10px] font-black text-primary font-mono">
+                          {itemNumber}
+                        </span>
+                      )}
+                      <span className="text-[10px] font-bold text-amber-400 uppercase tracking-tight truncate">
+                        {offer.category === 'combos'
+                          ? 'Combo'
+                          : offer.category === 'hotdogs'
+                          ? 'Hot Dog'
+                          : offer.category === 'hamburgueres'
+                          ? 'Burger'
+                          : offer.category === 'pasteis'
+                          ? 'Pastel'
+                          : 'Especial'}
+                      </span>
+                    </div>
+                    <h4 className="font-display text-xs font-black text-foreground group-hover:text-primary transition-colors leading-tight truncate">
+                      {displayName}
+                    </h4>
+                    <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                      {offer.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* RODAPÉ DO CARD: PREÇOS E BOTÃO DE AÇÃO */}
+              <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2.5">
+                <div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="font-display text-sm font-black text-flame">
+                      {formatCurrency(offer.price)}
+                    </span>
+                    {offer.originalPrice && (
+                      <span className="text-[11px] text-muted-foreground line-through opacity-70">
+                        {formatCurrency(offer.originalPrice)}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 rounded-md bg-flame/15 border border-flame/30 px-2 py-0.5 text-[10px] font-bold text-flame group-hover:bg-flame group-hover:text-white transition-colors">
+                    <SlidersHorizontal className="h-2.5 w-2.5" />
+                    <span>Pedir</span>
+                  </span>
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-flame text-white shadow-xs group-hover:scale-110 group-hover:brightness-110 transition-all shrink-0">
+                    <Plus className="h-3.5 w-3.5 stroke-[3]" />
+                  </div>
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -290,6 +477,10 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const dailyOffers = useMemo(() => {
+    return MENU_ITEMS.filter((item) => item.isDailyOffer);
+  }, []);
+
   const [cart, setCart] = useState<Record<string, CartItemState>>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [customerName, setCustomerName] = useState('');
@@ -338,42 +529,42 @@ export default function App() {
 
   const highlights = useMemo(() => {
     const allItems = MENU_CATEGORIES.flatMap((c) => c.items);
+    const dogRaiz = allItems.find((i) => i.id === 'dog-raiz');
     const dogSixSeven = allItems.find((i) => i.id === 'dog-six-seven');
-    const burgerCostelaco = allItems.find((i) => i.id === 'burger-costelaco-bbq');
-    const pastelCostela = allItems.find((i) => i.id === 'pastel-costela-queijo');
-    const dogCostelaco = allItems.find((i) => i.id === 'dog-costelaco');
+    const burgerBacon = allItems.find((i) => i.id === 'burger-x-bacon');
+    const pastelCarne = allItems.find((i) => i.id === 'pastel-carne');
 
     const list = [];
+    if (dogRaiz) {
+      list.push({
+        item: dogRaiz,
+        badge: '⚡ 16% OFF • Oferta',
+        subtitle: 'Vina, tomate, milho, cebola, maionese e batata palha',
+        img: ASSETS.hotdogAppetizing,
+      });
+    }
     if (dogSixSeven) {
       list.push({
         item: dogSixSeven,
-        badge: 'Top 1 • Hot Dog',
-        subtitle: '2 vinas, frango, calabresa e bacon',
+        badge: '🔥 Top 1 • O Mais Pedido',
+        subtitle: '2 vinas, frango desfiado, calabresa, bacon e purê',
         img: ASSETS.heroHotdog,
       });
     }
-    if (burgerCostelaco) {
+    if (burgerBacon) {
       list.push({
-        item: burgerCostelaco,
-        badge: '🍔 Burger Artesanal',
-        subtitle: 'Brioche, blend 150g e costela BBQ',
+        item: burgerBacon,
+        badge: '🍔 11% OFF • Artesanal',
+        subtitle: 'Brioche, blend suculento, queijo e fatias generosas de bacon',
         img: ASSETS.burger,
       });
     }
-    if (pastelCostela) {
+    if (pastelCarne) {
       list.push({
-        item: pastelCostela,
-        badge: '🥟 Pastel Especial',
-        subtitle: 'Costela desfiada e muçarela',
-        img: ASSETS.pastelDestaque,
-      });
-    }
-    if (dogCostelaco) {
-      list.push({
-        item: dogCostelaco,
-        badge: '🌭 Costelaço',
-        subtitle: 'Costela desfiada e purê especial',
-        img: ASSETS.heroBg,
+        item: pastelCarne,
+        badge: '🥟 15% OFF • Crocante',
+        subtitle: 'Massa crocante e sequinha com carne moída especial',
+        img: ASSETS.pastel,
       });
     }
     return list;
@@ -654,138 +845,132 @@ export default function App() {
           </svg>
         </section>
 
-        {/* INTERACTIVE GLASSMORPHISM ACTION CARDS */}
-        <section className="mt-5 w-full px-2">
-          {/* Subtitle / Helper indicator */}
-          <div className="flex items-center justify-center gap-2 mb-3 text-center">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-ping" />
-            <p className="text-[11px] font-bold tracking-wide uppercase text-amber-300 drop-shadow">
-              Toque abaixo para falar, salvar contato ou ver rotas:
-            </p>
-          </div>
-
-          {/* Linha 1: Os dois principais (WhatsApp Oficial e Salvar Contato Principal) */}
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-            {/* 1. WHATSAPP (ÍCONE ORIGINAL WHATSAPP) */}
-            <a
-              href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
-              target="_blank"
-              rel="noreferrer"
-              className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-[#25D366]/40 bg-gradient-to-br from-emerald-950/80 via-black/75 to-[#25D366]/20 p-3 sm:p-3.5 backdrop-blur-xl shadow-lg shadow-black/50 transition-all hover:scale-[1.02] hover:border-[#25D366] hover:bg-emerald-950/90 active:scale-95 cursor-pointer"
-            >
-              <div className="flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-[0_4px_14px_rgba(37,211,102,0.45)] group-hover:scale-110 group-hover:brightness-110 transition-all">
-                <OfficialWhatsAppIcon className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
-              </div>
-              <div className="min-w-0 text-left">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-display text-sm font-black text-white group-hover:text-[#25D366] transition-colors">
-                    WhatsApp
-                  </span>
-                  <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse" />
-                </div>
-                <p className="text-[11px] font-medium text-emerald-200/80 truncate">
-                  Falar direto conosco
-                </p>
-              </div>
-            </a>
-
-            {/* 2. CONTATO PRINCIPAL NA AGENDA (SUBSTITUINDO O CARDÁPIO) */}
-            <button
-              type="button"
-              onClick={handleSaveContact}
-              className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-3 sm:p-3.5 backdrop-blur-xl shadow-lg shadow-black/50 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer ${
-                contactSaved
-                  ? 'border-emerald-400 bg-emerald-950/90 shadow-[0_4px_20px_rgba(16,185,129,0.35)]'
-                  : 'border-amber-500/40 bg-gradient-to-br from-amber-950/80 via-black/75 to-flame/20 hover:border-amber-400 hover:bg-amber-950/90'
-              }`}
-              title="Salvar contato oficial do 67 Dog na agenda do seu celular"
-            >
-              <div
-                className={`flex h-11 w-11 sm:h-12 sm:w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-[0_4px_14px_rgba(245,158,11,0.45)] group-hover:scale-110 group-hover:brightness-110 transition-all ${
-                  contactSaved
-                    ? 'bg-emerald-500 shadow-[0_4px_14px_rgba(16,185,129,0.5)]'
-                    : 'bg-gradient-to-br from-amber-500 via-flame to-red-600'
-                }`}
+        {/* INTERACTIVE ACTION CARDS (CLEAN, BALANCED QUICK HUB) */}
+        <section className="mt-5 w-full">
+          <div className="rounded-3xl border border-border/70 bg-card/80 p-3 sm:p-3.5 backdrop-blur-xl shadow-xl space-y-2.5">
+            {/* Linha 1: WhatsApp Oficial e Salvar Contato */}
+            <div className="grid grid-cols-2 gap-2.5">
+              {/* 1. WHATSAPP */}
+              <a
+                href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
+                target="_blank"
+                rel="noreferrer"
+                className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-emerald-500/30 bg-emerald-950/40 hover:bg-emerald-950/70 p-3 backdrop-blur-md transition-all hover:scale-[1.02] hover:border-emerald-400 active:scale-95 cursor-pointer shadow-xs"
               >
-                {contactSaved ? (
-                  <Check className="h-6 w-6 sm:h-7 sm:w-7 text-white stroke-[3] animate-bounce" />
-                ) : (
-                  <UserPlus className="h-6 w-6 sm:h-7 sm:w-7 text-white stroke-[2.4]" />
-                )}
-              </div>
-              <div className="min-w-0 text-left">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-display text-sm font-black text-white group-hover:text-amber-300 transition-colors truncate">
-                    {contactSaved ? 'Salvo!' : 'Contato'}
-                  </span>
-                  <span className={`h-2 w-2 rounded-full ${contactSaved ? 'bg-emerald-400' : 'bg-amber-400'} animate-pulse`} />
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-[0_4px_12px_rgba(37,211,102,0.35)] group-hover:scale-105 transition-transform">
+                  <OfficialWhatsAppIcon className="h-6 w-6 text-white" />
                 </div>
-                <p className="text-[11px] font-medium text-amber-200/80 truncate">
-                  {contactSaved ? 'Adicionado na agenda ✓' : 'Salvar na agenda'}
-                </p>
-              </div>
-            </button>
-          </div>
+                <div className="min-w-0 text-left">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-display text-xs sm:text-sm font-black text-white group-hover:text-emerald-300 transition-colors">
+                      WhatsApp
+                    </span>
+                    <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse shrink-0" />
+                  </div>
+                  <p className="text-[11px] font-medium text-emerald-200/80 truncate">
+                    Falar conosco
+                  </p>
+                </div>
+              </a>
 
-          {/* Linha 2: 3 Cartões Informativos (Endereço Google Maps, Horários, Instagram Oficial) */}
-          <div className="mt-2.5 grid grid-cols-3 gap-2">
-            {/* 3. ENDEREÇO & COMO CHEGAR (ÍCONE ORIGINAL GOOGLE MAPS PIN) */}
-            <button
-              type="button"
-              onClick={() => {
-                setInfoModalTab('address');
-                setIsInfoModalOpen(true);
-              }}
-              className="group flex flex-col items-center justify-center rounded-2xl border border-rose-500/35 bg-gradient-to-b from-rose-950/60 via-black/70 to-rose-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-rose-400 hover:bg-rose-900/40 active:scale-95 cursor-pointer"
-            >
-              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 p-1 border border-white/20 shadow-[0_2px_8px_rgba(234,67,53,0.35)] group-hover:scale-110 transition-transform">
-                <OfficialGoogleMapsPinIcon className="h-5 w-5" />
-              </div>
-              <span className="font-display text-xs font-bold text-white group-hover:text-rose-300">
-                Endereço
-              </span>
-              <span className="text-[9.5px] font-medium text-rose-200/80 truncate w-full">
-                Como Chegar
-              </span>
-            </button>
+              {/* 2. SALVAR CONTATO */}
+              <button
+                type="button"
+                onClick={handleSaveContact}
+                className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-3 backdrop-blur-md transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs ${
+                  contactSaved
+                    ? 'border-emerald-400 bg-emerald-950/80 shadow-[0_4px_16px_rgba(16,185,129,0.3)]'
+                    : 'border-amber-500/30 bg-amber-950/40 hover:bg-amber-950/70 hover:border-amber-400'
+                }`}
+                title="Salvar contato oficial do 67 Dog na agenda do seu celular"
+              >
+                <div
+                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-sm group-hover:scale-105 transition-transform ${
+                    contactSaved
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-amber-500 text-black'
+                  }`}
+                >
+                  {contactSaved ? (
+                    <Check className="h-5 w-5 text-white stroke-[3]" />
+                  ) : (
+                    <UserPlus className="h-5 w-5 stroke-[2.4]" />
+                  )}
+                </div>
+                <div className="min-w-0 text-left">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-display text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition-colors truncate">
+                      {contactSaved ? 'Salvo!' : 'Contato'}
+                    </span>
+                    <span className={`h-2 w-2 rounded-full ${contactSaved ? 'bg-emerald-400' : 'bg-amber-400'} shrink-0`} />
+                  </div>
+                  <p className="text-[11px] font-medium text-amber-200/80 truncate">
+                    {contactSaved ? 'Adicionado ✓' : 'Salvar na agenda'}
+                  </p>
+                </div>
+              </button>
+            </div>
 
-            {/* 4. HORÁRIOS */}
-            <button
-              type="button"
-              onClick={() => {
-                setInfoModalTab('hours');
-                setIsInfoModalOpen(true);
-              }}
-              className="group flex flex-col items-center justify-center rounded-2xl border border-sky-500/35 bg-gradient-to-b from-sky-950/60 via-black/70 to-sky-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-sky-400 hover:bg-sky-900/40 active:scale-95 cursor-pointer"
-            >
-              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-blue-600 text-white shadow-[0_2px_8px_rgba(14,165,233,0.4)] group-hover:scale-110 transition-transform">
-                <Clock3 className="h-4.5 w-4.5 text-white" strokeWidth={2.4} />
-              </div>
-              <span className="font-display text-xs font-bold text-white group-hover:text-sky-300">
-                Horários
-              </span>
-              <span className="text-[9.5px] font-medium text-sky-200/80 truncate w-full">
-                18h às 23h
-              </span>
-            </button>
+            {/* Linha 2: 3 Cartões Informativos (Endereço, Horários, Instagram) */}
+            <div className="grid grid-cols-3 gap-2 pt-0.5">
+              {/* 3. ENDEREÇO */}
+              <button
+                type="button"
+                onClick={() => {
+                  setInfoModalTab('address');
+                  setIsInfoModalOpen(true);
+                }}
+                className="group flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-secondary/60 hover:bg-secondary hover:border-border p-2.5 text-center transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
+              >
+                <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 p-1 group-hover:scale-105 transition-transform">
+                  <OfficialGoogleMapsPinIcon className="h-5 w-5" />
+                </div>
+                <span className="font-display text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                  Endereço
+                </span>
+                <span className="text-[10px] text-muted-foreground truncate w-full">
+                  Como Chegar
+                </span>
+              </button>
 
-            {/* 5. INSTAGRAM (ÍCONE ORIGINAL GRADIENTE DO INSTAGRAM) */}
-            <a
-              href={ESTABLISHMENT_INFO.instagram}
-              target="_blank"
-              rel="noreferrer"
-              className="group flex flex-col items-center justify-center rounded-2xl border border-pink-500/35 bg-gradient-to-b from-pink-950/60 via-black/70 to-pink-950/30 p-2.5 text-center backdrop-blur-xl shadow-md transition-all hover:scale-[1.02] hover:border-pink-400 hover:bg-pink-900/40 active:scale-95 cursor-pointer"
-            >
-              <div className="mb-1 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-[0_2px_10px_rgba(220,39,67,0.45)] group-hover:scale-110 transition-transform">
-                <OfficialInstagramIcon className="h-4.5 w-4.5 text-white" />
-              </div>
-              <span className="font-display text-xs font-bold text-white group-hover:text-pink-300">
-                Instagram
-              </span>
-              <span className="text-[9.5px] font-medium text-pink-200/80 truncate w-full">
-                Novidades
-              </span>
-            </a>
+              {/* 4. HORÁRIOS */}
+              <button
+                type="button"
+                onClick={() => {
+                  setInfoModalTab('hours');
+                  setIsInfoModalOpen(true);
+                }}
+                className="group flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-secondary/60 hover:bg-secondary hover:border-border p-2.5 text-center transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
+              >
+                <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 text-primary group-hover:scale-105 transition-transform">
+                  <Clock3 className="h-4 w-4" strokeWidth={2.4} />
+                </div>
+                <span className="font-display text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                  Horários
+                </span>
+                <span className="text-[10px] text-muted-foreground truncate w-full">
+                  18h às 23h
+                </span>
+              </button>
+
+              {/* 5. INSTAGRAM */}
+              <a
+                href={ESTABLISHMENT_INFO.instagram}
+                target="_blank"
+                rel="noreferrer"
+                className="group flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-secondary/60 hover:bg-secondary hover:border-border p-2.5 text-center transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
+              >
+                <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white group-hover:scale-105 transition-transform">
+                  <OfficialInstagramIcon className="h-4 w-4 text-white" />
+                </div>
+                <span className="font-display text-xs font-bold text-foreground group-hover:text-pink-300 transition-colors">
+                  Instagram
+                </span>
+                <span className="text-[10px] text-muted-foreground truncate w-full">
+                  @67dog_
+                </span>
+              </a>
+            </div>
           </div>
         </section>
 
@@ -847,6 +1032,134 @@ export default function App() {
           </div>
         </nav>
 
+        {/* SEÇÃO OFERTAS DO DIA & DESTAQUES MAIS PEDIDOS (COMO NO INÍCIO: CARDS GRANDES, APETITOSOS E DESTACADOS) */}
+        <section className="mt-6 rounded-3xl border border-border bg-card p-4 shadow-xl">
+          <div className="flex items-center justify-between pb-1">
+            <div className="flex items-center gap-2">
+              <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-flame text-white text-xs font-black shadow-xs animate-bounce">
+                🔥
+              </span>
+              <div>
+                <h2 className="font-display text-sm sm:text-base font-black tracking-wide text-primary flex items-center gap-1.5">
+                  <span>OFERTAS DO DIA & MAIS PEDIDOS</span>
+                </h2>
+                <p className="text-[11px] text-muted-foreground">
+                  Destaques preparados na hora com desconto especial hoje
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const el = document.getElementById('cardapio-67-dog');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="text-xs font-bold text-muted-foreground hover:text-primary transition-colors cursor-pointer shrink-0"
+            >
+              Ver tudo ›
+            </button>
+          </div>
+
+          {/* GRADE DE CARDS DESTACADOS COM FOTOS GRANDES, DESCONTOS E BOTÃO DIRETO */}
+          <div className="mt-3.5 grid grid-cols-2 gap-3 sm:gap-3.5">
+            {highlights.map(({ item, badge, subtitle, img }) => {
+              const match = item.name.match(/^(\d+)[\.\-\s]+(.*)$/);
+              const itemNumber = match ? match[1] : null;
+              const displayName = match ? match[2] : item.name;
+
+              return (
+                <article
+                  key={item.id}
+                  className="group overflow-hidden rounded-2xl border border-border/70 bg-card/85 hover:border-amber-400/50 hover:bg-card transition-all flex flex-col justify-between shadow-sm hover:shadow-xl"
+                >
+                  <div className="flex-1 flex flex-col">
+                    <div className="relative overflow-hidden h-28 sm:h-34 w-full bg-neutral-950">
+                      <img
+                        src={img}
+                        alt={displayName}
+                        loading="lazy"
+                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <span className="absolute left-2 top-2 rounded-lg bg-flame/95 px-2 py-0.5 text-[10px] font-black text-white shadow-md">
+                        {badge}
+                      </span>
+                    </div>
+                    <div className="p-3 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          {itemNumber && (
+                            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded bg-amber-500/20 text-[10px] font-black text-amber-400 font-mono">
+                              {itemNumber}
+                            </span>
+                          )}
+                          <h3 className="truncate font-display text-sm font-black tracking-wide text-foreground group-hover:text-amber-300 transition-colors">
+                            {displayName}
+                          </h3>
+                        </div>
+                        <p className="line-clamp-2 text-[11px] text-muted-foreground leading-relaxed">
+                          {subtitle || item.description}
+                        </p>
+                      </div>
+                      <div className="mt-2.5 flex items-baseline gap-1.5">
+                        <span className="font-display text-sm sm:text-base font-black text-primary">
+                          {formatCurrency(item.price)}
+                        </span>
+                        {item.originalPrice && (
+                          <span className="text-[11px] text-muted-foreground line-through opacity-70">
+                            {formatCurrency(item.originalPrice)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="px-3 pb-3 pt-0">
+                    <button
+                      onClick={() => openCustomization(item)}
+                      className="w-full rounded-xl bg-flame py-2 sm:py-2.5 text-xs font-black text-white transition-all active:scale-95 cursor-pointer hover:brightness-110 shadow-sm flex items-center justify-center gap-1.5"
+                    >
+                      <Plus className="h-3.5 w-3.5 stroke-[3]" />
+                      <span>Pedir / Personalizar</span>
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+
+          {/* TEASER DOS COMBOS 67 */}
+          <div
+            onClick={() => {
+              setActiveCategory('combos');
+              const el = document.getElementById('cardapio-67-dog');
+              el?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className="mt-3.5 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-card to-card p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-amber-400/60 transition-all active:scale-[0.99] group shadow-xs"
+          >
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 text-lg group-hover:scale-105 transition-transform">
+                🔥
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-display text-xs font-black uppercase text-amber-400 tracking-wide truncate">
+                    Combos 67
+                  </span>
+                  <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[9px] font-bold text-amber-300">
+                    Com Refrigerante
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                  Duplinha (R$ 64,90), Galera (R$ 98,90) e Na Medida (R$ 39,90)
+                </p>
+              </div>
+            </div>
+            <div className="shrink-0 flex items-center gap-1 text-xs font-bold text-primary group-hover:translate-x-0.5 transition-transform">
+              <span>Ver</span>
+              <span>›</span>
+            </div>
+          </div>
+        </section>
+
         {/* SEÇÃO CARDÁPIO 67 DOG (ESTRUTURA ESTRITAMENTE UNIFORME) */}
         <section id="cardapio-67-dog" className="mt-6 rounded-3xl border border-border bg-card/70 p-4 shadow-xl scroll-mt-4">
           <div className="flex items-center justify-between pb-3 border-b border-border/60">
@@ -865,7 +1178,7 @@ export default function App() {
           </div>
 
           {/* SEARCH AND CATEGORY FILTER TABS */}
-          <div className="mt-3.5 space-y-2.5">
+          <div className="mt-4 space-y-2.5">
             <div className="relative">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <input
@@ -926,11 +1239,12 @@ export default function App() {
                   </div>
 
                   <div className="space-y-2.5">
-                    {cat.items.map((item) => (
+                    {cat.items.map((item, idx) => (
                       <MenuItemCard
                         key={item.id}
                         item={item}
                         onSelect={openCustomization}
+                        index={idx}
                       />
                     ))}
                   </div>
@@ -1085,6 +1399,13 @@ export default function App() {
 
             {/* SCROLLABLE LIST OF MENU ITEMS */}
             <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
+              {/* OFERTAS DO DIA NO TOPO DO MODAL */}
+              {dailyOffers.length > 0 && searchQuery.trim() === '' && (
+                <div>
+                  <DailyOffersCarousel offers={dailyOffers} onSelect={openCustomization} />
+                </div>
+              )}
+
               {filteredCategories.length === 0 ? (
                 <div className="py-12 text-center">
                   <p className="text-3xl mb-2">🔍</p>
@@ -1099,11 +1420,12 @@ export default function App() {
                     </h3>
 
                     <div className="space-y-2.5">
-                      {cat.items.map((item) => (
+                      {cat.items.map((item, idx) => (
                         <MenuItemCard
                           key={item.id}
                           item={item}
                           onSelect={openCustomization}
+                          index={idx}
                         />
                       ))}
                     </div>

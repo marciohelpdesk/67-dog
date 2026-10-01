@@ -1,9 +1,12 @@
 export interface MenuItem {
   id: string;
   name: string;
-  category?: 'hotdogs' | 'combos' | 'bebidas' | string;
+  category?: 'hotdogs' | 'combos' | 'hamburgueres' | 'pasteis' | 'bebidas' | string;
   description: string;
   price: number;
+  originalPrice?: number;
+  discountPercent?: number;
+  isDailyOffer?: boolean;
   tag?: string;
   image?: string;
   popular?: boolean;
@@ -65,7 +68,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     items: [
       {
         id: 'dog-democratico',
-        name: '67 Democrático',
+        name: '1. Democrático',
         category: 'hotdogs',
         description: 'Pão de hot dog macio, vina, maionese artesanal da casa, ketchup e mostarda.',
         price: 12.9,
@@ -73,15 +76,18 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-raiz',
-        name: '67 Raiz',
+        name: '2. Raiz',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, tomate fresco, milho verde, cebola, maionese e batata palha crocante.',
         price: 15.9,
+        originalPrice: 18.9,
+        discountPercent: 16,
+        isDailyOffer: true,
         ingredients: ['Vina', 'Tomate', 'Milho', 'Cebola', 'Maionese', 'Batata Palha'],
       },
       {
         id: 'dog-raiz-duplo',
-        name: '67 Raiz Duplo',
+        name: '3. Raiz Duplo',
         category: 'hotdogs',
         description: 'Pão de hot dog, 2 vinas, tomate, milho, cebola, maionese artesanal e batata palha.',
         price: 17.9,
@@ -89,7 +95,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-frangolino',
-        name: '67 Frangolino',
+        name: '4. Frangolino',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, frango desfiado temperado, purê especial, tomate, milho, cebola, maionese e batata palha.',
         price: 21.9,
@@ -97,7 +103,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-calabresaco',
-        name: '67 Calabresaço',
+        name: '5. Calabresaço',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, calabresa fatiada na chapa, purê especial, tomate, milho, cebola, maionese e batata palha.',
         price: 22.9,
@@ -105,7 +111,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-baconzeira',
-        name: '67 Baconzeira',
+        name: '6. Baconzeira',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, bacon crocante em tiras, purê especial, tomate, milho, cebola, maionese e batata palha.',
         price: 22.9,
@@ -113,7 +119,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-costelaco',
-        name: '67 Costelaço',
+        name: '7. Costelaço',
         category: 'hotdogs',
         description: 'Pão de hot dog, vina, costela desfiada suculenta, purê especial, tomate, milho, cebola, maionese e batata palha.',
         price: 27.9,
@@ -121,10 +127,13 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'dog-six-seven',
-        name: '67 Six Seven',
+        name: '8. Six Seven',
         category: 'hotdogs',
         description: 'O mais completo! Pão de hot dog, 2 vinas, frango desfiado, calabresa, bacon, purê, tomate, milho, cebola, maionese e batata palha.',
         price: 33.9,
+        originalPrice: 38.9,
+        discountPercent: 13,
+        isDailyOffer: true,
         ingredients: ['2 Vinas', 'Frango Desfiado', 'Calabresa', 'Bacon Crocante', 'Purê', 'Milho', 'Tomate', 'Cebola', 'Maionese', 'Batata Palha'],
       },
     ],
@@ -137,27 +146,30 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     items: [
       {
         id: 'combo-six-seven-na-medida',
-        name: 'SIX SEVEN NA MEDIDA',
+        name: '1. Six Seven na Medida',
         category: 'combos',
         description: '1 Six Seven + 1 refrigerante lata (350 ml). O lanche mais completo com a sua bebida geladinha.',
         price: 39.9,
-        comboItems: ['1x 67 Six Seven (Completo)', '1x Refrigerante Lata 350 ml'],
+        comboItems: ['1x 8. Six Seven (Completo)', '1x Refrigerante Lata 350 ml'],
       },
       {
         id: 'combo-duplinha',
-        name: 'DUPLINHA',
+        name: '2. Duplinha',
         category: 'combos',
         description: '1 Costelaço + 1 Six Seven + 1 Coca-Cola 600 ml. Perfeito para dividir ou comer a dois com economia!',
         price: 64.9,
-        comboItems: ['1x 67 Costelaço (Costela desfiada)', '1x 67 Six Seven (Completo)', '1x Coca-Cola 600 ml Gelada'],
+        originalPrice: 74.9,
+        discountPercent: 13,
+        isDailyOffer: true,
+        comboItems: ['1x 7. Costelaço (Costela desfiada)', '1x 8. Six Seven (Completo)', '1x Coca-Cola 600 ml Gelada'],
       },
       {
         id: 'combo-galera',
-        name: 'GALERA SIX SEVEN',
+        name: '3. Galera Six Seven',
         category: 'combos',
         description: '1 Six Seven + 1 Costelaço + 2 Raiz + 1 Coca-Cola 2 L. O combo definitivo para reunir os amigos e a família.',
         price: 98.9,
-        comboItems: ['1x 67 Six Seven', '1x 67 Costelaço', '2x 67 Raiz', '1x Coca-Cola 2 Litros'],
+        comboItems: ['1x 8. Six Seven', '1x 7. Costelaço', '2x 2. Raiz', '1x Coca-Cola 2 Litros'],
       },
     ],
   },
@@ -169,7 +181,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     items: [
       {
         id: 'burger-x-salada',
-        name: 'X-Salada',
+        name: '1. X-Salada',
         category: 'hamburgueres',
         description: 'Pão brioche selado na manteiga, blend bovino artesanal suculento, queijo derretido, maionese da casa, alface e tomate fresco.',
         price: 18.9,
@@ -177,7 +189,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'burger-x-frango',
-        name: 'X-Frango',
+        name: '2. X-Frango',
         category: 'hamburgueres',
         description: 'Pão brioche macio, frango desfiado temperado suculento, queijo derretido, maionese artesanal da casa, alface e tomate.',
         price: 18.06,
@@ -185,15 +197,18 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'burger-x-bacon',
-        name: 'X-Bacon',
+        name: '3. X-Bacon',
         category: 'hamburgueres',
         description: 'Pão brioche, blend bovino artesanal, fatias generosas de bacon super crocante, queijo derretido e maionese da casa.',
         price: 23.9,
+        originalPrice: 26.9,
+        discountPercent: 11,
+        isDailyOffer: true,
         ingredients: ['Pão Brioche', 'Blend Bovino', 'Bacon Crocante em Tiras', 'Queijo Derretido', 'Maionese da Casa'],
       },
       {
         id: 'burger-x-calabresa',
-        name: 'X-Calabresa',
+        name: '4. X-Calabresa',
         category: 'hamburgueres',
         description: 'Pão brioche selado, blend bovino, calabresa fatiada dourada na chapa, queijo derretido e maionese especial.',
         price: 23.9,
@@ -201,7 +216,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'burger-x-costela',
-        name: 'X-Costela',
+        name: '5. X-Costela',
         category: 'hamburgueres',
         description: 'A especialidade da casa! Pão brioche, costela bovina desfiada no molho especial da casa e queijo muçarela derretido.',
         price: 25.9,
@@ -209,7 +224,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'burger-x-tudo',
-        name: 'X-Tudo',
+        name: '6. X-Tudo',
         category: 'hamburgueres',
         description: 'O lanche supremo! Blend bovino, frango desfiado, bacon crocante, calabresa na chapa, queijo derretido, alface, tomate e maionese especial.',
         price: 31.9,
@@ -225,15 +240,18 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     items: [
       {
         id: 'pastel-carne',
-        name: 'Pastel de Carne',
+        name: '1. Pastel de Carne',
         category: 'pasteis',
         description: 'Massa artesanal super crocante e sequinha recheada com carne moída de primeira temperada artesanalmente, azeitona e cheiro verde.',
         price: 16.9,
+        originalPrice: 19.9,
+        discountPercent: 15,
+        isDailyOffer: true,
         ingredients: ['Massa Crocante 67', 'Carne Moída Especial', 'Azeitona', 'Cheiro Verde'],
       },
       {
         id: 'pastel-frango',
-        name: 'Pastel de Frango',
+        name: '2. Pastel de Frango',
         category: 'pasteis',
         description: 'Massa dourada e sequinha recheada com frango desfiado bem temperado e suculento com temperos da casa.',
         price: 17.9,
@@ -241,7 +259,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'pastel-queijo',
-        name: 'Pastel de Queijo',
+        name: '3. Pastel de Queijo',
         category: 'pasteis',
         description: 'Pastel super sequinho com queijo muçarela abundante que derrete e estica até a última mordida, com toque suave de orégano.',
         price: 16.9,
@@ -249,7 +267,7 @@ export const MENU_CATEGORIES: MenuCategory[] = [
       },
       {
         id: 'pastel-pizza',
-        name: 'Pastel de Pizza',
+        name: '4. Pastel de Pizza',
         category: 'pasteis',
         description: 'Muçarela fatiada derretida, presunto selecionado em cubinhos, rodelas de tomate fresco e orégano chileno.',
         price: 17.9,
