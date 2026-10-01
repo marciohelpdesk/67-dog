@@ -152,11 +152,6 @@ function MenuItemCard({
             e.currentTarget.src = ASSETS.hotdog;
           }}
         />
-        {item.discountPercent && (
-          <span className="absolute top-1 left-1 rounded-md bg-flame px-1.5 py-0.5 text-[9px] font-black text-white shadow-xs">
-            -{item.discountPercent}%
-          </span>
-        )}
       </div>
 
       {/* INFORMAÇÕES DO LANCHE */}
@@ -176,17 +171,10 @@ function MenuItemCard({
         </div>
 
         <div className="mt-2.5 flex items-center justify-between gap-2">
-          {/* PREÇO EM DESTAQUE COM PREÇO ORIGINAL SE HOUVER DESCONTO */}
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-display text-sm font-black text-primary">
-              {formatCurrency(item.price)}
-            </span>
-            {item.originalPrice && (
-              <span className="text-[11px] text-muted-foreground line-through opacity-70">
-                {formatCurrency(item.originalPrice)}
-              </span>
-            )}
-          </div>
+          {/* PREÇO EM DESTAQUE */}
+          <span className="font-display text-sm font-black text-primary">
+            {formatCurrency(item.price)}
+          </span>
 
           {/* BOTÃO UNIFICADO COM ALTA LEGIBILIDADE */}
           <button
@@ -199,172 +187,6 @@ function MenuItemCard({
         </div>
       </div>
     </article>
-  );
-}
-
-function DailyOffersCarousel({
-  offers,
-  onSelect,
-}: {
-  offers: MenuItem[];
-  onSelect: (item: MenuItem) => void;
-}) {
-  const scrollRef = React.useRef<HTMLDivElement>(null);
-
-  const scrollLeft = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: -240, behavior: 'smooth' });
-    }
-  };
-
-  const scrollRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: 240, behavior: 'smooth' });
-    }
-  };
-
-  if (!offers || offers.length === 0) return null;
-
-  return (
-    <div className="relative overflow-hidden rounded-3xl border-2 border-flame/40 bg-gradient-to-br from-flame/15 via-card to-card p-3.5 sm:p-4 shadow-lg shadow-flame/5">
-      {/* HEADER DA SEÇÃO OFERTAS DO DIA */}
-      <div className="flex items-center justify-between gap-2 mb-3">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-xl bg-flame text-white shadow-xs">
-            <span className="text-sm">⚡</span>
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="font-display text-xs sm:text-sm font-black uppercase tracking-wider text-flame">
-                Ofertas do Dia
-              </h3>
-              <span className="rounded-full bg-flame/20 border border-flame/40 px-2 py-0.5 text-[9px] font-black uppercase text-flame tracking-tight">
-                Desconto Especial
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              Preços promocionais válidos para pedidos no balcão hoje
-            </p>
-          </div>
-        </div>
-
-        {/* SETAS DE NAVEGAÇÃO RÁPIDA */}
-        <div className="hidden sm:flex items-center gap-1">
-          <button
-            type="button"
-            onClick={scrollLeft}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-secondary/80 text-muted-foreground hover:bg-secondary hover:text-foreground active:scale-95 transition-all cursor-pointer font-bold text-sm"
-            aria-label="Rolar para esquerda"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            onClick={scrollRight}
-            className="flex h-7 w-7 items-center justify-center rounded-lg border border-border bg-secondary/80 text-muted-foreground hover:bg-secondary hover:text-foreground active:scale-95 transition-all cursor-pointer font-bold text-sm"
-            aria-label="Rolar para direita"
-          >
-            ›
-          </button>
-        </div>
-      </div>
-
-      {/* CARROSSEL HORIZONTAL DE OFERTAS */}
-      <div
-        ref={scrollRef}
-        className="flex gap-3 overflow-x-auto pb-2 scrollbar-none snap-x snap-mandatory scroll-smooth -mx-1 px-1"
-      >
-        {offers.map((offer, idx) => {
-          const match = offer.name.match(/^(\d+)[\.\-\s]+(.*)$/);
-          const itemNumber = match ? match[1] : null;
-          const displayName = match ? match[2] : offer.name;
-
-          return (
-            <article
-              key={`daily-offer-${offer.id}`}
-              onClick={() => onSelect(offer)}
-              style={{ animationDelay: `${Math.min(idx * 50, 250)}ms` }}
-              className="animate-card-entry snap-start w-[240px] sm:w-[260px] shrink-0 rounded-2xl border border-white/10 bg-neutral-900/95 p-3 shadow-md transition-all hover:border-flame/70 hover:shadow-xl hover:shadow-flame/10 hover:bg-neutral-850 cursor-pointer active:scale-[0.98] group flex flex-col justify-between will-change-[transform,opacity]"
-            >
-              <div>
-                {/* TOPO DO CARD: TAG DE ECONOMIA E IMAGEM */}
-                <div className="flex items-start gap-2.5">
-                  <div className="relative h-18 w-18 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-neutral-950 shadow-inner">
-                    <img
-                      src={getItemImage(offer)}
-                      alt={displayName}
-                      loading="lazy"
-                      className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-300"
-                      onError={(e) => {
-                        e.currentTarget.src = ASSETS.hotdog;
-                      }}
-                    />
-                    {offer.discountPercent && (
-                      <span className="absolute top-1 left-1 rounded-md bg-flame px-1.5 py-0.5 text-[9px] font-black text-white shadow-xs">
-                        -{offer.discountPercent}%
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1 mb-0.5">
-                      {itemNumber && (
-                        <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded bg-primary/20 text-[10px] font-black text-primary font-mono">
-                          {itemNumber}
-                        </span>
-                      )}
-                      <span className="text-[10px] font-bold text-amber-400 uppercase tracking-tight truncate">
-                        {offer.category === 'combos'
-                          ? 'Combo'
-                          : offer.category === 'hotdogs'
-                          ? 'Hot Dog'
-                          : offer.category === 'hamburgueres'
-                          ? 'Burger'
-                          : offer.category === 'pasteis'
-                          ? 'Pastel'
-                          : 'Especial'}
-                      </span>
-                    </div>
-                    <h4 className="font-display text-xs font-black text-foreground group-hover:text-primary transition-colors leading-tight truncate">
-                      {displayName}
-                    </h4>
-                    <p className="mt-1 text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
-                      {offer.description}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* RODAPÉ DO CARD: PREÇOS E BOTÃO DE AÇÃO */}
-              <div className="mt-3 flex items-center justify-between border-t border-white/10 pt-2.5">
-                <div>
-                  <div className="flex items-baseline gap-1.5">
-                    <span className="font-display text-sm font-black text-flame">
-                      {formatCurrency(offer.price)}
-                    </span>
-                    {offer.originalPrice && (
-                      <span className="text-[11px] text-muted-foreground line-through opacity-70">
-                        {formatCurrency(offer.originalPrice)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 rounded-md bg-flame/15 border border-flame/30 px-2 py-0.5 text-[10px] font-bold text-flame group-hover:bg-flame group-hover:text-white transition-colors">
-                    <SlidersHorizontal className="h-2.5 w-2.5" />
-                    <span>Pedir</span>
-                  </span>
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-flame text-white shadow-xs group-hover:scale-110 group-hover:brightness-110 transition-all shrink-0">
-                    <Plus className="h-3.5 w-3.5 stroke-[3]" />
-                  </div>
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </div>
   );
 }
 
@@ -477,10 +299,6 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const dailyOffers = useMemo(() => {
-    return MENU_ITEMS.filter((item) => item.isDailyOffer);
-  }, []);
-
   const [cart, setCart] = useState<Record<string, CartItemState>>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [customerName, setCustomerName] = useState('');
@@ -529,41 +347,41 @@ export default function App() {
 
   const highlights = useMemo(() => {
     const allItems = MENU_CATEGORIES.flatMap((c) => c.items);
-    const dogRaiz = allItems.find((i) => i.id === 'dog-raiz');
     const dogSixSeven = allItems.find((i) => i.id === 'dog-six-seven');
+    const dogRaiz = allItems.find((i) => i.id === 'dog-raiz');
     const burgerBacon = allItems.find((i) => i.id === 'burger-x-bacon');
     const pastelCarne = allItems.find((i) => i.id === 'pastel-carne');
 
     const list = [];
-    if (dogRaiz) {
-      list.push({
-        item: dogRaiz,
-        badge: '⚡ 16% OFF • Oferta',
-        subtitle: 'Vina, tomate, milho, cebola, maionese e batata palha',
-        img: ASSETS.hotdogAppetizing,
-      });
-    }
     if (dogSixSeven) {
       list.push({
         item: dogSixSeven,
         badge: '🔥 Top 1 • O Mais Pedido',
-        subtitle: '2 vinas, frango desfiado, calabresa, bacon e purê',
+        subtitle: '2 vinas, frango desfiado, calabresa, bacon crocante e purê',
         img: ASSETS.heroHotdog,
+      });
+    }
+    if (dogRaiz) {
+      list.push({
+        item: dogRaiz,
+        badge: '🌭 O Tradicional',
+        subtitle: 'Vina, tomate fresco, milho verde, cebola, maionese e batata palha',
+        img: ASSETS.hotdogAppetizing,
       });
     }
     if (burgerBacon) {
       list.push({
         item: burgerBacon,
-        badge: '🍔 11% OFF • Artesanal',
-        subtitle: 'Brioche, blend suculento, queijo e fatias generosas de bacon',
+        badge: '🍔 Burger Artesanal',
+        subtitle: 'Brioche, blend suculento, queijo derretido e fatias generosas de bacon',
         img: ASSETS.burger,
       });
     }
     if (pastelCarne) {
       list.push({
         item: pastelCarne,
-        badge: '🥟 15% OFF • Crocante',
-        subtitle: 'Massa crocante e sequinha com carne moída especial',
+        badge: '🥟 Pastel Crocante',
+        subtitle: 'Massa crocante e sequinha recheada com carne moída especial',
         img: ASSETS.pastel,
       });
     }
@@ -1032,8 +850,8 @@ export default function App() {
           </div>
         </nav>
 
-        {/* SEÇÃO OFERTAS DO DIA & DESTAQUES MAIS PEDIDOS (COMO NO INÍCIO: CARDS GRANDES, APETITOSOS E DESTACADOS) */}
-        <section className="mt-6 rounded-3xl border border-border bg-card p-4 shadow-xl">
+        {/* SEÇÃO DESTAQUES MAIS PEDIDOS (PURO DESTAQUE, SEM DESCONTOS) */}
+        <section className="mt-6 rounded-3xl border border-border/80 bg-card p-4 shadow-xl">
           <div className="flex items-center justify-between pb-1">
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-flame text-white text-xs font-black shadow-xs animate-bounce">
@@ -1041,10 +859,10 @@ export default function App() {
               </span>
               <div>
                 <h2 className="font-display text-sm sm:text-base font-black tracking-wide text-primary flex items-center gap-1.5">
-                  <span>OFERTAS DO DIA & MAIS PEDIDOS</span>
+                  <span>DESTAQUES MAIS PEDIDOS</span>
                 </h2>
                 <p className="text-[11px] text-muted-foreground">
-                  Destaques preparados na hora com desconto especial hoje
+                  Os lanches queridinhos dos nossos clientes, preparados na hora
                 </p>
               </div>
             </div>
@@ -1060,7 +878,7 @@ export default function App() {
             </button>
           </div>
 
-          {/* GRADE DE CARDS DESTACADOS COM FOTOS GRANDES, DESCONTOS E BOTÃO DIRETO */}
+          {/* GRADE DE CARDS DESTACADOS COM FOTOS GRANDES E BOTÃO DIRETO */}
           <div className="mt-3.5 grid grid-cols-2 gap-3 sm:gap-3.5">
             {highlights.map(({ item, badge, subtitle, img }) => {
               const match = item.name.match(/^(\d+)[\.\-\s]+(.*)$/);
@@ -1100,15 +918,10 @@ export default function App() {
                           {subtitle || item.description}
                         </p>
                       </div>
-                      <div className="mt-2.5 flex items-baseline gap-1.5">
+                      <div className="mt-2.5">
                         <span className="font-display text-sm sm:text-base font-black text-primary">
                           {formatCurrency(item.price)}
                         </span>
-                        {item.originalPrice && (
-                          <span className="text-[11px] text-muted-foreground line-through opacity-70">
-                            {formatCurrency(item.originalPrice)}
-                          </span>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -1399,13 +1212,6 @@ export default function App() {
 
             {/* SCROLLABLE LIST OF MENU ITEMS */}
             <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
-              {/* OFERTAS DO DIA NO TOPO DO MODAL */}
-              {dailyOffers.length > 0 && searchQuery.trim() === '' && (
-                <div>
-                  <DailyOffersCarousel offers={dailyOffers} onSelect={openCustomization} />
-                </div>
-              )}
-
               {filteredCategories.length === 0 ? (
                 <div className="py-12 text-center">
                   <p className="text-3xl mb-2">🔍</p>
