@@ -29,6 +29,8 @@ import {
   PhoneCall,
   Trash2,
   SlidersHorizontal,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { ASSETS } from './assets/images';
 import {
@@ -298,6 +300,35 @@ export default function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Theme mode: 'dark' (default) or 'light'
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('67dog_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    }
+    return 'dark';
+  });
+
+  React.useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+    }
+    try {
+      localStorage.setItem('67dog_theme', theme);
+    } catch {
+      // ignore
+    }
+  }, [theme]);
+
+  function toggleTheme() {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  }
 
   const [cart, setCart] = useState<Record<string, CartItemState>>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -614,6 +645,27 @@ export default function App() {
         
         {/* HERO BANNER SECTION (HERO FOOD BACKGROUND + FLOATING 67 DOG LOGO + CURVED WAVE) */}
         <section className="relative overflow-hidden rounded-3xl min-h-[360px] sm:min-h-[400px] w-full bg-neutral-950 border border-white/5 shadow-2xl">
+          {/* BOTÃO ALTERNAR MODO DIA / MODO NOITE */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Mudar para Modo Dia' : 'Mudar para Modo Noite'}
+            title={theme === 'dark' ? 'Ativar Modo Dia' : 'Ativar Modo Noite'}
+            className="absolute top-3.5 right-3.5 z-20 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/55 px-3 py-1.5 text-xs font-bold text-white backdrop-blur-md shadow-lg transition-all hover:scale-105 active:scale-95 cursor-pointer hover:bg-black/75 hover:border-amber-400/60 group"
+          >
+            {theme === 'dark' ? (
+              <>
+                <Sun className="h-3.5 w-3.5 text-amber-400 group-hover:rotate-45 transition-transform" />
+                <span>Modo Dia</span>
+              </>
+            ) : (
+              <>
+                <Moon className="h-3.5 w-3.5 text-amber-300 group-hover:-rotate-12 transition-transform" />
+                <span>Modo Noite</span>
+              </>
+            )}
+          </button>
+
           {/* SKELETON LOADING COM DESTAQUE-SKELETON-SHIMMER */}
           <div
             className={`absolute inset-0 z-0 bg-neutral-900/90 destaque-skeleton-shimmer transition-opacity duration-700 ease-out ${
@@ -655,7 +707,7 @@ export default function App() {
           <svg
             viewBox="0 0 400 40"
             preserveAspectRatio="none"
-            className="absolute bottom-0 left-0 z-10 h-10 w-full text-background"
+            className="absolute bottom-0 left-0 z-10 h-10 w-full text-background transition-colors duration-300"
             fill="currentColor"
             aria-hidden="true"
           >
@@ -673,19 +725,19 @@ export default function App() {
                 href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
                 target="_blank"
                 rel="noreferrer"
-                className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-emerald-500/30 bg-emerald-950/40 hover:bg-emerald-950/70 p-3 backdrop-blur-md transition-all hover:scale-[1.02] hover:border-emerald-400 active:scale-95 cursor-pointer shadow-xs"
+                className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-emerald-500/30 dark:bg-emerald-950/40 bg-emerald-500/10 hover:bg-emerald-500/15 dark:hover:bg-emerald-950/70 p-3 backdrop-blur-md transition-all hover:scale-[1.02] hover:border-emerald-400 active:scale-95 cursor-pointer shadow-xs"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-[0_4px_12px_rgba(37,211,102,0.35)] group-hover:scale-105 transition-transform">
                   <OfficialWhatsAppIcon className="h-6 w-6 text-white" />
                 </div>
                 <div className="min-w-0 text-left">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-display text-xs sm:text-sm font-black text-white group-hover:text-emerald-300 transition-colors">
+                    <span className="font-display text-xs sm:text-sm font-black text-foreground dark:text-white group-hover:text-emerald-500 transition-colors">
                       WhatsApp
                     </span>
                     <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse shrink-0" />
                   </div>
-                  <p className="text-[11px] font-medium text-emerald-200/80 truncate">
+                  <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-200/80 truncate">
                     Falar conosco
                   </p>
                 </div>
@@ -698,7 +750,7 @@ export default function App() {
                 className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-3 backdrop-blur-md transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs ${
                   contactSaved
                     ? 'border-emerald-400 bg-emerald-950/80 shadow-[0_4px_16px_rgba(16,185,129,0.3)]'
-                    : 'border-amber-500/30 bg-amber-950/40 hover:bg-amber-950/70 hover:border-amber-400'
+                    : 'border-amber-500/30 dark:bg-amber-950/40 bg-amber-500/10 hover:bg-amber-500/15 dark:hover:bg-amber-950/70 hover:border-amber-400'
                 }`}
                 title="Salvar contato oficial do 67 Dog na agenda do seu celular"
               >
@@ -717,12 +769,12 @@ export default function App() {
                 </div>
                 <div className="min-w-0 text-left">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-display text-xs sm:text-sm font-black text-white group-hover:text-amber-300 transition-colors truncate">
+                    <span className="font-display text-xs sm:text-sm font-black text-foreground dark:text-white group-hover:text-amber-500 transition-colors truncate">
                       {contactSaved ? 'Salvo!' : 'Contato'}
                     </span>
                     <span className={`h-2 w-2 rounded-full ${contactSaved ? 'bg-emerald-400' : 'bg-amber-400'} shrink-0`} />
                   </div>
-                  <p className="text-[11px] font-medium text-amber-200/80 truncate">
+                  <p className="text-[11px] font-medium text-amber-700 dark:text-amber-200/80 truncate">
                     {contactSaved ? 'Adicionado ✓' : 'Salvar na agenda'}
                   </p>
                 </div>
@@ -795,7 +847,7 @@ export default function App() {
         {/* QUADRO DE CATEGORIAS UNIFORME & ORGÂNICO */}
         <nav
           aria-label="Categorias do Cardápio"
-          className="mt-6 relative overflow-hidden rounded-3xl border border-amber-500/25 bg-gradient-to-b from-neutral-900/90 via-card to-card/95 p-3 sm:p-3.5 shadow-xl shadow-black/40 backdrop-blur-2xl"
+          className="mt-6 relative overflow-hidden rounded-3xl border border-amber-500/25 dark:bg-gradient-to-b dark:from-neutral-900/90 dark:via-card dark:to-card/95 bg-card p-3 sm:p-3.5 shadow-xl dark:shadow-black/40 shadow-amber-950/5 backdrop-blur-2xl"
         >
           {/* Linha de brilho orgânico no topo */}
           <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
@@ -811,7 +863,7 @@ export default function App() {
                 Cardápio por Categoria
               </span>
             </div>
-            <span className="text-[10px] font-bold text-amber-300/90">
+            <span className="text-[10px] font-bold text-amber-500 dark:text-amber-300/90">
               Toque para abrir ›
             </span>
           </div>
@@ -827,10 +879,10 @@ export default function App() {
                   const el = document.getElementById('cardapio-67-dog');
                   el?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="group relative flex flex-col items-center justify-between rounded-2xl border border-white/10 bg-neutral-900/70 p-1.5 sm:p-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/60 hover:bg-neutral-800 hover:shadow-[0_6px_20px_rgba(245,158,11,0.2)] active:scale-95 cursor-pointer text-center h-[82px] sm:h-[88px]"
+                className="group relative flex flex-col items-center justify-between rounded-2xl border border-border/70 bg-secondary/70 p-1.5 sm:p-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/60 hover:bg-secondary hover:shadow-[0_6px_20px_rgba(245,158,11,0.15)] active:scale-95 cursor-pointer text-center h-[82px] sm:h-[88px]"
               >
                 {/* Ícone com container orgânico uniforme */}
-                <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-gradient-to-b from-white/10 to-white/[0.03] border border-white/10 shadow-inner group-hover:scale-110 group-hover:border-amber-400/50 group-hover:from-amber-500/20 transition-all duration-200">
+                <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-card border border-border shadow-2xs group-hover:scale-110 group-hover:border-amber-400/50 transition-all duration-200">
                   <span className="text-xl sm:text-2xl drop-shadow-xs">
                     {cat.emoji}
                   </span>
@@ -838,10 +890,10 @@ export default function App() {
 
                 {/* Nome uniforme e quantidade de opções */}
                 <div className="w-full mt-1 flex flex-col items-center justify-center">
-                  <span className="block w-full font-display text-[10px] sm:text-xs font-extrabold text-foreground group-hover:text-amber-300 transition-colors leading-tight text-center truncate tracking-tight">
+                  <span className="block w-full font-display text-[10px] sm:text-xs font-extrabold text-foreground group-hover:text-amber-500 transition-colors leading-tight text-center truncate tracking-tight">
                     {cat.label}
                   </span>
-                  <span className="block text-[9px] font-medium text-muted-foreground group-hover:text-amber-200/80 transition-colors">
+                  <span className="block text-[9px] font-medium text-muted-foreground group-hover:text-amber-600 dark:group-hover:text-amber-200/80 transition-colors">
                     {cat.items.length} itens
                   </span>
                 </div>
@@ -946,7 +998,7 @@ export default function App() {
               const el = document.getElementById('cardapio-67-dog');
               el?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="mt-3.5 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-card to-card p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-amber-400/60 transition-all active:scale-[0.99] group shadow-xs"
+            className="mt-3.5 rounded-2xl border border-amber-500/30 dark:bg-gradient-to-r dark:from-amber-950/40 dark:via-card dark:to-card bg-amber-500/10 p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-amber-400/60 transition-all active:scale-[0.99] group shadow-xs"
           >
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 text-lg group-hover:scale-105 transition-transform">
@@ -954,10 +1006,10 @@ export default function App() {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="font-display text-xs font-black uppercase text-amber-400 tracking-wide truncate">
+                  <span className="font-display text-xs font-black uppercase text-amber-500 dark:text-amber-400 tracking-wide truncate">
                     Combos 67
                   </span>
-                  <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[9px] font-bold text-amber-300">
+                  <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-[9px] font-bold text-amber-600 dark:text-amber-300">
                     Com Refrigerante
                   </span>
                 </div>
@@ -1068,18 +1120,40 @@ export default function App() {
         </section>
 
         {/* FOOTER */}
-        <footer className="mt-10 border-t border-border pt-6 text-center text-xs text-muted-foreground">
+        <footer className="mt-10 border-t border-border pt-6 text-center text-xs text-muted-foreground space-y-2.5">
           <button
             type="button"
             onClick={() => {
               setInfoModalTab('address');
               setIsInfoModalOpen(true);
             }}
-            className="mx-auto block text-[10px] sm:text-xs tracking-tight text-muted-foreground hover:text-amber-400 transition-colors underline-offset-4 hover:underline cursor-pointer"
+            className="mx-auto block text-[10px] sm:text-xs tracking-tight text-muted-foreground hover:text-amber-500 transition-colors underline-offset-4 hover:underline cursor-pointer"
           >
             📍 {ESTABLISHMENT_INFO.address} (Toque para ver rotas)
           </button>
-          <p className="mt-1.5 text-[11px] sm:text-xs">© 2026 {ESTABLISHMENT_INFO.name}. Sabor e crocância inigualáveis.</p>
+
+          {/* CHANGER NO RODAPÉ */}
+          <div className="flex items-center justify-center pt-0.5">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/80 px-3 py-1.5 text-xs font-bold text-foreground hover:bg-secondary hover:border-amber-400/50 transition-all cursor-pointer shadow-2xs"
+            >
+              {theme === 'dark' ? (
+                <>
+                  <Sun className="h-3.5 w-3.5 text-amber-500" />
+                  <span>Alternar para Modo Dia</span>
+                </>
+              ) : (
+                <>
+                  <Moon className="h-3.5 w-3.5 text-amber-500" />
+                  <span>Alternar para Modo Noite</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          <p className="mt-1.5 text-[11px] sm:text-xs text-muted-foreground/80">© 2026 {ESTABLISHMENT_INFO.name}. Sabor e crocância inigualáveis.</p>
         </footer>
 
       </div>

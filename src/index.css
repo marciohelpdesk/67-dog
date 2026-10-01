@@ -1,28 +1,58 @@
 @import "tailwindcss";
 
+:root, html.dark {
+  --bg-app: oklch(14% 0.01 60);
+  --fg-app: oklch(96% 0.01 80);
+  --card-app: oklch(18% 0.012 60);
+  --card-fg-app: oklch(96% 0.01 80);
+  --sec-app: oklch(22% 0.015 60);
+  --sec-fg-app: oklch(96% 0.01 80);
+  --muted-app: oklch(22% 0.015 60);
+  --muted-fg-app: oklch(68% 0.02 70);
+  --border-app: oklch(100% 0 0 / 0.1);
+  --input-app: oklch(100% 0 0 / 0.14);
+  --primary-app: oklch(78% 0.16 75);
+  --primary-fg-app: oklch(16% 0.02 60);
+}
+
+html.light {
+  --bg-app: #f7f5f0;
+  --fg-app: #1c1917;
+  --card-app: #ffffff;
+  --card-fg-app: #1c1917;
+  --sec-app: #efebe4;
+  --sec-fg-app: #1c1917;
+  --muted-app: #e8e3d9;
+  --muted-fg-app: #575047;
+  --border-app: rgba(0, 0, 0, 0.09);
+  --input-app: rgba(0, 0, 0, 0.12);
+  --primary-app: #d97706;
+  --primary-fg-app: #ffffff;
+}
+
 @theme {
   --font-display: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
   --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
   
-  --color-background: oklch(14% 0.01 60);
-  --color-foreground: oklch(96% 0.01 80);
-  --color-card: oklch(18% 0.012 60);
-  --color-card-foreground: oklch(96% 0.01 80);
-  --color-popover: oklch(18% 0.012 60);
-  --color-popover-foreground: oklch(96% 0.01 80);
-  --color-primary: oklch(78% 0.16 75);
-  --color-primary-foreground: oklch(16% 0.02 60);
-  --color-secondary: oklch(22% 0.015 60);
-  --color-secondary-foreground: oklch(96% 0.01 80);
-  --color-muted: oklch(22% 0.015 60);
-  --color-muted-foreground: oklch(68% 0.02 70);
+  --color-background: var(--bg-app);
+  --color-foreground: var(--fg-app);
+  --color-card: var(--card-app);
+  --color-card-foreground: var(--card-fg-app);
+  --color-popover: var(--card-app);
+  --color-popover-foreground: var(--card-fg-app);
+  --color-primary: var(--primary-app);
+  --color-primary-foreground: var(--primary-fg-app);
+  --color-secondary: var(--sec-app);
+  --color-secondary-foreground: var(--sec-fg-app);
+  --color-muted: var(--muted-app);
+  --color-muted-foreground: var(--muted-fg-app);
   --color-accent: oklch(62% 0.19 45);
   --color-accent-foreground: oklch(96% 0.01 80);
   --color-destructive: oklch(60% 0.2 25);
   --color-destructive-foreground: oklch(96% 0.01 80);
-  --color-border: oklch(100% 0 0 / 0.1);
-  --color-input: oklch(100% 0 0 / 0.14);
-  --color-ring: oklch(78% 0.16 75);
+  --color-border: var(--border-app);
+  --color-input: var(--input-app);
+  --color-ring: var(--primary-app);
   --color-whatsapp: oklch(72% 0.19 150);
   --color-whatsapp-foreground: oklch(14% 0.02 150);
   --color-flame: oklch(58% 0.22 27);
