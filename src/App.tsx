@@ -643,8 +643,8 @@ export default function App() {
     <div className="min-h-screen bg-background pb-28 text-foreground selection:bg-primary selection:text-primary-foreground font-sans">
       <div className="mx-auto max-w-md px-3 pt-3">
         
-        {/* HERO BANNER SECTION (HERO FOOD BACKGROUND + FLOATING 67 DOG LOGO + CURVED WAVE) */}
-        <section className="relative overflow-hidden rounded-3xl min-h-[360px] sm:min-h-[400px] w-full bg-neutral-950 border border-white/5 shadow-2xl">
+        {/* HERO BANNER SECTION (HERO FOOD BACKGROUND + FLOATING 67 DOG LOGO) */}
+        <section className="relative overflow-hidden rounded-3xl w-full bg-neutral-950 border border-border/80 shadow-2xl">
           {/* BOTÃO ALTERNAR MODO DIA / MODO NOITE */}
           <button
             type="button"
@@ -691,32 +691,21 @@ export default function App() {
               heroBgLoaded ? 'opacity-100' : 'opacity-0'
             }`}
           />
-          <div className="absolute inset-0 z-1 bg-gradient-to-b from-black/30 via-black/10 to-background" />
+          <div className="absolute inset-0 z-1 bg-gradient-to-b from-black/50 via-black/20 to-black/60" />
 
-          <div className="relative z-10 flex flex-col items-center px-6 pb-24 pt-16 text-center">
+          <div className="relative z-10 flex flex-col items-center px-6 pt-12 pb-6 sm:pt-14 sm:pb-8 text-center">
             <img
               src={ASSETS.logo67}
               alt="Logo 67 Dog"
               width={813}
               height={900}
-              className="animate-float-slow h-64 w-auto drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)]"
+              className="animate-float-slow h-56 sm:h-64 w-auto drop-shadow-[0_12px_32px_rgba(0,0,0,0.7)]"
             />
           </div>
-
-          {/* ICONIC BOTTOM WAVY DIVIDER */}
-          <svg
-            viewBox="0 0 400 40"
-            preserveAspectRatio="none"
-            className="absolute bottom-0 left-0 z-10 h-10 w-full text-background transition-colors duration-300"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path d="M0 0h400v8c-12 0-14 18-22 18s-10-14-20-14-12 22-22 22-10-18-20-18-12 12-22 12-10-20-20-20-12 16-22 16-10-12-20-12-12 24-22 24-10-16-20-16-12 10-22 10-10-18-20-18-12 14-22 14-10-10-20-10-12 20-22 20S12 8 0 8V0z" />
-          </svg>
         </section>
 
         {/* INTERACTIVE ACTION CARDS (CLEAN, BALANCED QUICK HUB) */}
-        <section className="mt-5 w-full">
+        <section className="mt-3.5 sm:mt-4 w-full">
           <div className="rounded-3xl border border-border/70 bg-card/80 p-3 sm:p-3.5 backdrop-blur-xl shadow-xl space-y-2.5">
             {/* Linha 1: WhatsApp Oficial e Salvar Contato */}
             <div className="grid grid-cols-2 gap-2.5">
