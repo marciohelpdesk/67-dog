@@ -141,7 +141,7 @@ function MenuItemCard({
     <article
       onClick={() => onSelect(item)}
       style={{ animationDelay: staggerDelay }}
-      className="animate-card-entry group relative flex items-center gap-3 sm:gap-3.5 rounded-2xl border border-border/60 bg-card/80 p-3 transition-all hover:border-amber-400/50 hover:bg-card cursor-pointer active:scale-[0.99] shadow-xs hover:shadow-md will-change-[transform,opacity]"
+      className="animate-card-entry group relative flex items-center gap-3 sm:gap-3.5 rounded-2xl glass-panel-subtle p-3 transition-all hover:border-amber-400/50 hover:-translate-y-0.5 cursor-pointer active:scale-[0.99] shadow-xs hover:shadow-md will-change-[transform,opacity]"
     >
       {/* MINIATURA DA IMAGEM DO LANCHE (LADO ESQUERDO) */}
       <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-sm">
@@ -301,14 +301,8 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Theme mode: 'dark' (default) or 'light'
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('67dog_theme');
-      if (saved === 'light' || saved === 'dark') return saved;
-    }
-    return 'dark';
-  });
+  // Theme mode: starts in 'light' (Modo Dia) every time the link is accessed
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
 
   React.useEffect(() => {
     const root = document.documentElement;
@@ -318,11 +312,6 @@ export default function App() {
     } else {
       root.classList.remove('light');
       root.classList.add('dark');
-    }
-    try {
-      localStorage.setItem('67dog_theme', theme);
-    } catch {
-      // ignore
     }
   }, [theme]);
 
@@ -432,7 +421,7 @@ export default function App() {
   }
 
   function handleSaveContact() {
-    setIsContactModalOpen(true);
+    handleDownloadVCard();
   }
 
   function handleDownloadVCard() {
@@ -640,8 +629,23 @@ export default function App() {
   const modalCurrentTotal = modalCurrentUnitPrice * modalQty;
 
   return (
-    <div className="min-h-screen bg-background pb-28 text-foreground selection:bg-primary selection:text-primary-foreground font-sans">
-      <div className="mx-auto max-w-md px-3 pt-3">
+    <div className="min-h-screen bg-background pb-28 text-foreground selection:bg-primary selection:text-primary-foreground font-sans relative overflow-x-hidden">
+      {/* AMBIENT WARM GLOWS (ORBS DE LUZ DIFUSA SUAVE EM TONS QUENTES) */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        {/* Glow Superior / Âmbar Quente */}
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 h-[420px] w-[420px] sm:w-[540px] rounded-full bg-gradient-to-br from-amber-400/25 via-amber-500/15 to-transparent blur-3xl opacity-75 dark:opacity-40 animate-pulse duration-[7000ms]" />
+        
+        {/* Glow Central Esquerdo / Dourado */}
+        <div className="absolute top-[30%] -left-32 h-[360px] w-[360px] rounded-full bg-gradient-to-tr from-orange-400/20 via-amber-400/15 to-transparent blur-3xl opacity-65 dark:opacity-30" />
+        
+        {/* Glow Central Direito / Chama Suave */}
+        <div className="absolute top-[55%] -right-28 h-[380px] w-[380px] rounded-full bg-gradient-to-bl from-amber-400/20 via-orange-500/15 to-transparent blur-3xl opacity-65 dark:opacity-30" />
+
+        {/* Glow Inferior / Âmbar Dourado */}
+        <div className="absolute -bottom-24 left-1/4 h-[320px] w-[320px] rounded-full bg-gradient-to-t from-amber-500/20 to-transparent blur-3xl opacity-60 dark:opacity-25" />
+      </div>
+
+      <div className="relative z-10 mx-auto max-w-md px-3 pt-3">
         
         {/* HERO BANNER SECTION (HERO FOOD BACKGROUND + FLOATING 67 DOG LOGO) */}
         <section className="relative overflow-hidden rounded-3xl w-full bg-neutral-950 border border-border/80 shadow-2xl">
@@ -706,7 +710,7 @@ export default function App() {
 
         {/* INTERACTIVE ACTION CARDS (CLEAN, BALANCED QUICK HUB) */}
         <section className="mt-3.5 sm:mt-4 w-full">
-          <div className="rounded-3xl border border-border/70 bg-card/80 p-3 sm:p-3.5 backdrop-blur-xl shadow-xl space-y-2.5">
+          <div className="rounded-3xl glass-panel p-3 sm:p-3.5 space-y-2.5 transition-all duration-300">
             {/* Linha 1: WhatsApp Oficial e Salvar Contato */}
             <div className="grid grid-cols-2 gap-2.5">
               {/* 1. WHATSAPP */}
@@ -714,7 +718,7 @@ export default function App() {
                 href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
                 target="_blank"
                 rel="noreferrer"
-                className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-emerald-500/30 dark:bg-emerald-950/40 bg-emerald-500/10 hover:bg-emerald-500/15 dark:hover:bg-emerald-950/70 p-3 backdrop-blur-md transition-all hover:scale-[1.02] hover:border-emerald-400 active:scale-95 cursor-pointer shadow-xs"
+                className="group relative flex items-center gap-3 overflow-hidden rounded-2xl border border-emerald-500/35 glass-panel-subtle hover:border-emerald-400 p-3 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-[0_4px_12px_rgba(37,211,102,0.35)] group-hover:scale-105 transition-transform">
                   <OfficialWhatsAppIcon className="h-6 w-6 text-white" />
@@ -736,10 +740,10 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleSaveContact}
-                className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-3 backdrop-blur-md transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs ${
+                className={`group relative flex items-center gap-3 overflow-hidden rounded-2xl border p-3 glass-panel-subtle transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs ${
                   contactSaved
-                    ? 'border-emerald-400 bg-emerald-950/80 shadow-[0_4px_16px_rgba(16,185,129,0.3)]'
-                    : 'border-amber-500/30 dark:bg-amber-950/40 bg-amber-500/10 hover:bg-amber-500/15 dark:hover:bg-amber-950/70 hover:border-amber-400'
+                    ? 'border-emerald-400 bg-emerald-500/20 shadow-[0_4px_16px_rgba(16,185,129,0.25)]'
+                    : 'border-amber-500/35 hover:border-amber-400'
                 }`}
                 title="Salvar contato oficial do 67 Dog na agenda do seu celular"
               >
@@ -751,7 +755,7 @@ export default function App() {
                   }`}
                 >
                   {contactSaved ? (
-                    <Check className="h-5 w-5 text-white stroke-[3]" />
+                    <Check className="h-5 w-5 text-white stroke-[3] animate-check-pop" />
                   ) : (
                     <UserPlus className="h-5 w-5 stroke-[2.4]" />
                   )}
@@ -779,7 +783,7 @@ export default function App() {
                   setInfoModalTab('address');
                   setIsInfoModalOpen(true);
                 }}
-                className="group flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-secondary/60 hover:bg-secondary hover:border-border p-2.5 text-center transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
+                className="group flex flex-col items-center justify-center rounded-2xl glass-panel-subtle hover:border-amber-400/50 p-2.5 text-center transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
               >
                 <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 p-1 group-hover:scale-105 transition-transform">
                   <OfficialGoogleMapsPinIcon className="h-5 w-5" />
@@ -799,7 +803,7 @@ export default function App() {
                   setInfoModalTab('hours');
                   setIsInfoModalOpen(true);
                 }}
-                className="group flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-secondary/60 hover:bg-secondary hover:border-border p-2.5 text-center transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
+                className="group flex flex-col items-center justify-center rounded-2xl glass-panel-subtle hover:border-amber-400/50 p-2.5 text-center transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
               >
                 <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-xl bg-primary/15 text-primary group-hover:scale-105 transition-transform">
                   <Clock3 className="h-4 w-4" strokeWidth={2.4} />
@@ -817,7 +821,7 @@ export default function App() {
                 href={ESTABLISHMENT_INFO.instagram}
                 target="_blank"
                 rel="noreferrer"
-                className="group flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-secondary/60 hover:bg-secondary hover:border-border p-2.5 text-center transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
+                className="group flex flex-col items-center justify-center rounded-2xl glass-panel-subtle hover:border-amber-400/50 p-2.5 text-center transition-all hover:scale-[1.02] active:scale-95 cursor-pointer shadow-xs"
               >
                 <div className="mb-1 flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white group-hover:scale-105 transition-transform">
                   <OfficialInstagramIcon className="h-4 w-4 text-white" />
@@ -826,7 +830,7 @@ export default function App() {
                   Instagram
                 </span>
                 <span className="text-[10px] text-muted-foreground truncate w-full">
-                  @67dog_
+                  {ESTABLISHMENT_INFO.instagramDisplay || '@67lanches'}
                 </span>
               </a>
             </div>
@@ -836,7 +840,7 @@ export default function App() {
         {/* QUADRO DE CATEGORIAS UNIFORME & ORGÂNICO */}
         <nav
           aria-label="Categorias do Cardápio"
-          className="mt-6 relative overflow-hidden rounded-3xl border border-amber-500/25 dark:bg-gradient-to-b dark:from-neutral-900/90 dark:via-card dark:to-card/95 bg-card p-3 sm:p-3.5 shadow-xl dark:shadow-black/40 shadow-amber-950/5 backdrop-blur-2xl"
+          className="mt-6 relative overflow-hidden rounded-3xl glass-panel p-3 sm:p-3.5 transition-all duration-300"
         >
           {/* Linha de brilho orgânico no topo */}
           <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-amber-400/50 to-transparent" />
@@ -868,22 +872,19 @@ export default function App() {
                   const el = document.getElementById('cardapio-67-dog');
                   el?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="group relative flex flex-col items-center justify-between rounded-2xl border border-border/70 bg-secondary/70 p-1.5 sm:p-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/60 hover:bg-secondary hover:shadow-[0_6px_20px_rgba(245,158,11,0.15)] active:scale-95 cursor-pointer text-center h-[82px] sm:h-[88px]"
+                className="group relative flex flex-col items-center justify-center gap-1.5 rounded-2xl glass-panel-subtle p-2 transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-400/60 hover:shadow-[0_8px_20px_rgba(245,158,11,0.18)] active:scale-95 cursor-pointer text-center h-[72px] sm:h-[76px]"
               >
                 {/* Ícone com container orgânico uniforme */}
-                <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-card border border-border shadow-2xs group-hover:scale-110 group-hover:border-amber-400/50 transition-all duration-200">
+                <div className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-white/20 dark:bg-black/20 border border-white/25 dark:border-white/10 shadow-inner group-hover:scale-110 group-hover:border-amber-400/50 transition-all duration-200">
                   <span className="text-xl sm:text-2xl drop-shadow-xs">
                     {cat.emoji}
                   </span>
                 </div>
 
-                {/* Nome uniforme e quantidade de opções */}
-                <div className="w-full mt-1 flex flex-col items-center justify-center">
+                {/* Nome uniforme da categoria */}
+                <div className="w-full flex items-center justify-center">
                   <span className="block w-full font-display text-[10px] sm:text-xs font-extrabold text-foreground group-hover:text-amber-500 transition-colors leading-tight text-center truncate tracking-tight">
                     {cat.label}
-                  </span>
-                  <span className="block text-[9px] font-medium text-muted-foreground group-hover:text-amber-600 dark:group-hover:text-amber-200/80 transition-colors">
-                    {cat.items.length} itens
                   </span>
                 </div>
               </button>
@@ -892,7 +893,7 @@ export default function App() {
         </nav>
 
         {/* SEÇÃO DESTAQUES MAIS PEDIDOS (PURO DESTAQUE, SEM DESCONTOS) */}
-        <section className="mt-6 rounded-3xl border border-border/80 bg-card p-4 shadow-xl">
+        <section className="mt-6 rounded-3xl glass-panel p-4 transition-all duration-300">
           <div className="flex items-center justify-between pb-1">
             <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-flame text-white text-xs font-black shadow-xs animate-bounce">
@@ -902,9 +903,6 @@ export default function App() {
                 <h2 className="font-display text-sm sm:text-base font-black tracking-wide text-primary flex items-center gap-1.5">
                   <span>DESTAQUES MAIS PEDIDOS</span>
                 </h2>
-                <p className="text-[11px] text-muted-foreground">
-                  Os lanches queridinhos dos nossos clientes, preparados na hora
-                </p>
               </div>
             </div>
             <button
@@ -929,7 +927,7 @@ export default function App() {
               return (
                 <article
                   key={item.id}
-                  className="group overflow-hidden rounded-2xl border border-border/70 bg-card/85 hover:border-amber-400/50 hover:bg-card transition-all flex flex-col justify-between shadow-sm hover:shadow-xl"
+                  className="group overflow-hidden rounded-2xl glass-panel-subtle hover:border-amber-400/50 hover:-translate-y-0.5 transition-all flex flex-col justify-between shadow-xs hover:shadow-xl"
                 >
                   <div className="flex-1 flex flex-col">
                     <div className="relative overflow-hidden h-28 sm:h-34 w-full bg-neutral-950">
@@ -947,11 +945,11 @@ export default function App() {
                       <div>
                         <div className="flex items-center gap-1.5 mb-1">
                           {itemNumber && (
-                            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded bg-amber-500/20 text-[10px] font-black text-amber-400 font-mono">
+                            <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded bg-amber-500/20 text-[10px] font-black text-amber-500 dark:text-amber-400 font-mono">
                               {itemNumber}
                             </span>
                           )}
-                          <h3 className="truncate font-display text-sm font-black tracking-wide text-foreground group-hover:text-amber-300 transition-colors">
+                          <h3 className="truncate font-display text-sm font-black tracking-wide text-foreground group-hover:text-amber-500 transition-colors">
                             {displayName}
                           </h3>
                         </div>
@@ -987,7 +985,7 @@ export default function App() {
               const el = document.getElementById('cardapio-67-dog');
               el?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="mt-3.5 rounded-2xl border border-amber-500/30 dark:bg-gradient-to-r dark:from-amber-950/40 dark:via-card dark:to-card bg-amber-500/10 p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-amber-400/60 transition-all active:scale-[0.99] group shadow-xs"
+            className="mt-3.5 rounded-2xl glass-panel-subtle border-amber-500/35 p-3 flex items-center justify-between gap-3 cursor-pointer hover:border-amber-400/60 transition-all active:scale-[0.99] group shadow-xs"
           >
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-400 text-lg group-hover:scale-105 transition-transform">
@@ -1002,9 +1000,6 @@ export default function App() {
                     Com Refrigerante
                   </span>
                 </div>
-                <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                  Duplinha (R$ 64,90), Galera (R$ 98,90) e Na Medida (R$ 39,90)
-                </p>
               </div>
             </div>
             <div className="shrink-0 flex items-center gap-1 text-xs font-bold text-primary group-hover:translate-x-0.5 transition-transform">
@@ -1015,16 +1010,13 @@ export default function App() {
         </section>
 
         {/* SEÇÃO CARDÁPIO 67 DOG (ESTRUTURA ESTRITAMENTE UNIFORME) */}
-        <section id="cardapio-67-dog" className="mt-6 rounded-3xl border border-border bg-card/70 p-4 shadow-xl scroll-mt-4">
+        <section id="cardapio-67-dog" className="mt-6 rounded-3xl glass-panel p-4 scroll-mt-4 transition-all duration-300">
           <div className="flex items-center justify-between pb-3 border-b border-border/60">
             <div>
               <h2 className="font-display text-base sm:text-lg font-black tracking-wide text-foreground flex items-center gap-2">
                 <span>🌭</span>
                 <span>Cardápio 67 DOG</span>
               </h2>
-              <p className="text-[11px] text-muted-foreground mt-0.5">
-                Toque em qualquer lanche para personalizar e pedir (Retirada no Balcão)
-              </p>
             </div>
             <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-[10px] font-bold text-primary shrink-0">
               Balcão
@@ -1039,7 +1031,7 @@ export default function App() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Buscar hot dog, hambúrguer, pastel, bebida..."
-                className="w-full rounded-xl border border-input bg-secondary/80 pl-9 pr-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
+                className="w-full rounded-xl border border-input glass-panel-subtle pl-9 pr-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary transition-all"
               />
             </div>
 
@@ -1050,7 +1042,7 @@ export default function App() {
                 className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
                   activeCategory === 'all'
                     ? 'bg-primary text-primary-foreground shadow-xs'
-                    : 'border border-border bg-secondary text-muted-foreground hover:text-foreground'
+                    : 'glass-panel-subtle text-muted-foreground hover:text-foreground hover:border-amber-400/40'
                 }`}
               >
                 Todos ({MENU_ITEMS.length})
@@ -1063,7 +1055,7 @@ export default function App() {
                   className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
                     activeCategory === cat.id
                       ? 'bg-primary text-primary-foreground shadow-xs'
-                      : 'border border-border bg-secondary text-muted-foreground hover:text-foreground'
+                      : 'glass-panel-subtle text-muted-foreground hover:text-foreground hover:border-amber-400/40'
                   }`}
                 >
                   {cat.emoji} {cat.label} ({cat.items.length})
@@ -1126,7 +1118,7 @@ export default function App() {
             <button
               type="button"
               onClick={toggleTheme}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-secondary/80 px-3 py-1.5 text-xs font-bold text-foreground hover:bg-secondary hover:border-amber-400/50 transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 rounded-full glass-button px-4 py-2 text-xs font-bold text-foreground hover:border-amber-400/60 transition-all cursor-pointer shadow-xs"
             >
               {theme === 'dark' ? (
                 <>
@@ -1201,15 +1193,15 @@ export default function App() {
 
       {/* FULLSCREEN / DEDICATED CARDÁPIO MODAL */}
       {isMenuOpen && (
-        <div className="fixed inset-0 z-45 flex flex-col bg-background/95 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-45 flex flex-col bg-background/90 backdrop-blur-xl animate-in fade-in duration-200">
           <div className="mx-auto flex h-full w-full max-w-md flex-col">
             
             {/* MODAL HEADER */}
-            <div className="flex items-center justify-between border-b border-border bg-card px-4 py-3 shadow-xs">
+            <div className="flex items-center justify-between border-b border-border/80 glass-panel px-4 py-3 shadow-xs">
               <button
                 type="button"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex items-center gap-1.5 rounded-xl border border-border px-3 py-1.5 text-xs font-bold text-muted-foreground hover:bg-secondary hover:text-foreground cursor-pointer transition-all active:scale-95"
+                className="flex items-center gap-1.5 rounded-xl border border-border/80 glass-panel-subtle px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-all active:scale-95"
               >
                 <ArrowLeft className="h-4 w-4" />
                 <span>Voltar</span>
@@ -1233,14 +1225,14 @@ export default function App() {
             </div>
 
             {/* SEARCH AND CATEGORY FILTER TABS */}
-            <div className="border-b border-border bg-card p-3 space-y-2.5">
+            <div className="border-b border-border/80 glass-panel-subtle p-3 space-y-2.5">
               <div className="relative">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <input
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Buscar hot dog, pastel, bebida..."
-                  className="w-full rounded-xl border border-input bg-secondary pl-9 pr-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
+                  className="w-full rounded-xl border border-input glass-panel pl-9 pr-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
                 />
               </div>
 
@@ -1251,7 +1243,7 @@ export default function App() {
                   className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
                     activeCategory === 'all'
                       ? 'bg-primary text-primary-foreground shadow-xs'
-                      : 'border border-border bg-secondary text-muted-foreground hover:text-foreground'
+                      : 'border border-border/80 glass-panel text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   Todos
@@ -1264,7 +1256,7 @@ export default function App() {
                     className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
                       activeCategory === cat.id
                         ? 'bg-primary text-primary-foreground shadow-xs'
-                        : 'border border-border bg-secondary text-muted-foreground hover:text-foreground'
+                        : 'border border-border/80 glass-panel text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     {cat.emoji} {cat.label}
@@ -1305,11 +1297,11 @@ export default function App() {
 
             {/* BOTTOM BAR INSIDE MENU IF CART HAS ITEMS */}
             {totalCount > 0 && (
-              <div className="border-t border-border bg-card p-3 shadow-lg">
+              <div className="border-t border-border/80 glass-panel p-3 shadow-lg">
                 <button
                   type="button"
                   onClick={() => setIsCartOpen(true)}
-                  className="flex w-full items-center justify-between rounded-2xl bg-flame px-4 py-3.5 font-bold text-flame-foreground shadow-xl transition-transform active:scale-98 cursor-pointer"
+                  className="flex w-full items-center justify-between rounded-2xl bg-flame px-4 py-3.5 font-bold text-flame-foreground shadow-xl transition-transform active:scale-98 cursor-pointer hover:brightness-110"
                 >
                   <span className="flex items-center gap-2">
                     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-xs font-black text-flame shadow-sm">
@@ -1332,11 +1324,11 @@ export default function App() {
       {customizingItem && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
           <button
-            className="absolute inset-0 bg-overlay backdrop-blur-xs transition-opacity cursor-pointer"
+            className="absolute inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md transition-opacity cursor-pointer"
             onClick={() => setCustomizingItem(null)}
             aria-label="Fechar personalização"
           />
-          <div className="relative mx-auto max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-3xl border-t border-border bg-card p-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
+          <div className="relative mx-auto max-h-[90vh] w-full max-w-md overflow-y-auto rounded-t-3xl glass-panel p-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted" />
 
             {/* HEADER COM IMAGEM DO LANCHE SELECIONADO */}
@@ -1368,7 +1360,7 @@ export default function App() {
             </div>
 
             {/* TIPO DE ATENDIMENTO (RETIRADA VS ENTREGA INDISPONÍVEL) */}
-            <div className="mt-5 rounded-2xl border border-border bg-secondary/50 p-3">
+            <div className="mt-5 rounded-2xl glass-panel-subtle p-3 border border-border/80">
               <p className="text-xs font-bold text-muted-foreground mb-2">Tipo de atendimento:</p>
               <div className="grid grid-cols-2 gap-2">
                 <div className="flex items-center justify-center gap-1.5 rounded-xl border border-primary bg-primary/10 py-2.5 px-2 text-xs font-bold text-primary shadow-xs">
@@ -1377,14 +1369,14 @@ export default function App() {
                 </div>
 
                 <div
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary/80 py-2.5 px-2 text-xs font-semibold text-muted-foreground opacity-50 cursor-not-allowed select-none"
+                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-secondary/80 py-2.5 px-2 text-xs font-semibold text-muted-foreground opacity-50 cursor-not-allowed select-none"
                   title="Entrega delivery indisponível no momento"
                 >
                   <span>🛵 Entrega</span>
                   <span className="rounded-full bg-muted px-1.5 py-0.2 text-[9px] text-muted-foreground">Em breve</span>
                 </div>
               </div>
-              <p className="mt-2 text-[11px] text-amber-400/90 flex items-center gap-1">
+              <p className="mt-2 text-[11px] text-amber-500 dark:text-amber-400/90 flex items-center gap-1 font-medium">
                 <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                 <span>No momento operamos exclusivamente com retirada no balcão.</span>
               </p>
@@ -1407,8 +1399,8 @@ export default function App() {
                       onClick={() => toggleExtra(extra)}
                       className={`flex items-center justify-between rounded-xl border p-3 cursor-pointer transition-all ${
                         isSelected
-                          ? 'border-primary bg-primary/10 text-foreground'
-                          : 'border-border bg-secondary hover:border-border/80'
+                          ? 'border-primary bg-primary/15 text-foreground shadow-xs'
+                          : 'border-border/80 glass-panel-subtle hover:border-amber-400/40 text-foreground'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
@@ -1449,7 +1441,7 @@ export default function App() {
                       className={`flex items-center gap-2 rounded-xl border p-2.5 text-left text-xs font-medium transition-all cursor-pointer ${
                         isSelected
                           ? 'border-destructive bg-destructive/15 text-destructive font-bold'
-                          : 'border-border bg-secondary hover:border-border/80 text-muted-foreground'
+                          : 'border-border/80 glass-panel-subtle hover:border-destructive/40 text-muted-foreground'
                       }`}
                     >
                       <div
@@ -1475,21 +1467,21 @@ export default function App() {
                 value={modalItemNotes}
                 onChange={(e) => setModalItemNotes(e.target.value)}
                 placeholder="Ex.: Pão bem prensado, milho à parte, etc."
-                className="w-full rounded-xl border border-input bg-secondary px-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
+                className="w-full rounded-xl border border-input glass-panel-subtle px-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
               />
             </div>
 
             {/* QUANTIDADE E BOTÃO ADICIONAR */}
-            <div className="mt-6 flex items-center justify-between gap-3 border-t border-border pt-4">
-              <div className="flex items-center gap-2 rounded-full border border-border bg-secondary px-2 py-1">
+            <div className="mt-6 flex items-center justify-between gap-3 border-t border-border/80 pt-4">
+              <div className="flex items-center gap-2 rounded-full border border-border/80 glass-panel-subtle px-2 py-1">
                 <button
                   type="button"
                   onClick={() => setModalQty((q) => Math.max(1, q - 1))}
-                  className="flex h-7 w-7 items-center justify-center rounded-full bg-muted font-bold cursor-pointer active:scale-90 hover:bg-muted-foreground/20"
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-muted font-bold cursor-pointer active:scale-90 hover:bg-muted-foreground/20 text-foreground"
                 >
                   <Minus className="h-3.5 w-3.5" />
                 </button>
-                <span className="w-5 text-center text-sm font-bold">{modalQty}</span>
+                <span className="w-5 text-center text-sm font-bold text-foreground">{modalQty}</span>
                 <button
                   type="button"
                   onClick={() => setModalQty((q) => q + 1)}
@@ -1517,17 +1509,17 @@ export default function App() {
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
           <button
-            className="absolute inset-0 bg-overlay backdrop-blur-xs transition-opacity cursor-pointer"
+            className="absolute inset-0 bg-black/60 dark:bg-black/75 backdrop-blur-md transition-opacity cursor-pointer"
             onClick={() => setIsCartOpen(false)}
             aria-label="Fechar carrinho"
           />
-          <div className="relative mx-auto max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-3xl border-t border-border bg-card p-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
+          <div className="relative mx-auto max-h-[88vh] w-full max-w-md overflow-y-auto rounded-t-3xl glass-panel p-5 shadow-2xl animate-in slide-in-from-bottom duration-300">
             <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-muted" />
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ShoppingBag className="h-5 w-5 text-primary" />
-                <h2 className="font-display text-lg font-extrabold">Comanda &amp; Pedido</h2>
+                <h2 className="font-display text-lg font-extrabold text-foreground">Comanda &amp; Pedido</h2>
               </div>
               <div className="flex items-center gap-2">
                 {cartItems.length > 0 && (
@@ -1544,7 +1536,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setIsCartOpen(false)}
-                  className="rounded-xl border border-border bg-secondary px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
+                  className="rounded-xl border border-border/80 glass-panel-subtle px-2.5 py-1 text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
                 >
                   Fechar
                 </button>
@@ -1554,7 +1546,7 @@ export default function App() {
             {cartItems.length === 0 ? (
               <div className="py-12 text-center">
                 <p className="text-3xl mb-2">🌭</p>
-                <p className="text-sm font-bold">Sua comanda está vazia</p>
+                <p className="text-sm font-bold text-foreground">Sua comanda está vazia</p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Escolha um hot dog ou pastel delicioso no cardápio!
                 </p>
@@ -1564,7 +1556,7 @@ export default function App() {
                     setIsCartOpen(false);
                     openMenu('all');
                   }}
-                  className="mt-4 rounded-xl bg-flame px-4 py-2 text-xs font-bold text-flame-foreground cursor-pointer hover:brightness-110"
+                  className="mt-4 rounded-xl bg-flame px-4 py-2 text-xs font-bold text-flame-foreground cursor-pointer hover:brightness-110 shadow-sm"
                 >
                   Abrir Cardápio
                 </button>
@@ -1572,7 +1564,7 @@ export default function App() {
             ) : (
               <>
                 {/* ATENDIMENTO: RETIRADA OBRIGATÓRIA (ENTREGA INDISPONÍVEL CONFORME SOLICITADO) */}
-                <div className="mt-4 rounded-2xl border border-border bg-secondary/50 p-3">
+                <div className="mt-4 rounded-2xl glass-panel-subtle border border-border/80 p-3">
                   <div className="flex items-center justify-between mb-2">
                     <p className="text-xs font-bold text-muted-foreground">Forma de recebimento:</p>
                     <span className="text-[10px] text-primary font-bold">Apenas Retirada</span>
@@ -1582,7 +1574,7 @@ export default function App() {
                       <span>🏃 Retirada (Balcão)</span>
                     </div>
                     <div
-                      className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary/80 py-2.5 px-2 text-xs font-semibold text-muted-foreground opacity-50 cursor-not-allowed select-none"
+                      className="flex items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-secondary/80 py-2.5 px-2 text-xs font-semibold text-muted-foreground opacity-50 cursor-not-allowed select-none"
                       title="Entrega indisponível no momento"
                     >
                       <span>🛵 Entrega</span>
@@ -1603,7 +1595,7 @@ export default function App() {
                     {cartItems.map((cartEntry) => (
                       <li
                         key={cartEntry.cartItemId}
-                        className="rounded-xl border border-border bg-secondary/60 p-3 flex flex-col gap-2"
+                        className="rounded-2xl border border-border/80 glass-panel-subtle p-3 flex flex-col gap-2"
                       >
                         <div className="flex items-start justify-between gap-2.5">
                           <img
@@ -1624,12 +1616,12 @@ export default function App() {
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => updateCartQty(cartEntry.cartItemId, -1)}
-                              className="flex h-7 w-7 items-center justify-center rounded-full bg-muted font-bold hover:bg-muted-foreground/20 cursor-pointer active:scale-90"
+                              className="flex h-7 w-7 items-center justify-center rounded-full bg-muted font-bold hover:bg-muted-foreground/20 cursor-pointer active:scale-90 text-foreground"
                               aria-label="Diminuir"
                             >
                               −
                             </button>
-                            <span className="w-4 text-center text-sm font-bold">{cartEntry.qty}</span>
+                            <span className="w-4 text-center text-sm font-bold text-foreground">{cartEntry.qty}</span>
                             <button
                               onClick={() => updateCartQty(cartEntry.cartItemId, 1)}
                               className="flex h-7 w-7 items-center justify-center rounded-full bg-flame font-bold text-flame-foreground hover:brightness-110 cursor-pointer active:scale-90"
@@ -1685,7 +1677,7 @@ export default function App() {
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     placeholder="Digite seu nome (Obrigatório)"
-                    className={`w-full rounded-xl border bg-secondary px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground transition-colors ${
+                    className={`w-full rounded-xl border glass-panel-subtle px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground transition-colors ${
                       !customerName.trim() ? 'border-amber-500/50' : 'border-primary'
                     }`}
                   />
@@ -1693,32 +1685,32 @@ export default function App() {
                     value={orderNotes}
                     onChange={(e) => setOrderNotes(e.target.value)}
                     placeholder="Observações gerais para a cozinha (opcional)"
-                    className="w-full rounded-xl border border-input bg-secondary px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
+                    className="w-full rounded-xl border border-input glass-panel-subtle px-3 py-2.5 text-sm outline-none placeholder:text-muted-foreground focus:border-primary"
                   />
                 </div>
 
                 {/* RESUMO DE VALORES */}
-                <div className="mt-5 space-y-1.5 border-t border-border pt-4 text-sm">
+                <div className="mt-5 space-y-1.5 border-t border-border/80 pt-4 text-sm">
                   <div className="flex justify-between text-muted-foreground text-xs">
                     <span>Taxa de Atendimento (Retirada)</span>
-                    <span className="text-emerald-400 font-bold">Grátis</span>
+                    <span className="text-emerald-500 dark:text-emerald-400 font-bold">Grátis</span>
                   </div>
-                  <div className="flex justify-between font-display text-base font-extrabold">
+                  <div className="flex justify-between font-display text-base font-extrabold text-foreground">
                     <span>Total a Pagar</span>
                     <AnimatedPrice value={totalPrice} className="text-primary font-extrabold text-base" />
                   </div>
                 </div>
 
                 {/* PIX MANDATORY PAYMENT BOX */}
-                <div id="pix-checkbox-container" className="mt-5 rounded-2xl border-2 border-emerald-500/50 bg-emerald-950/20 p-4">
+                <div id="pix-checkbox-container" className="mt-5 rounded-2xl border-2 border-emerald-500/40 glass-panel-subtle p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <ShieldCheck className="h-5 w-5 text-emerald-400" />
-                      <span className="font-display text-xs font-black uppercase text-emerald-400 tracking-wider">
+                      <ShieldCheck className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
+                      <span className="font-display text-xs font-black uppercase text-emerald-600 dark:text-emerald-400 tracking-wider">
                         Pagamento via Pix (Obrigatório)
                       </span>
                     </div>
-                    <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                    <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-300">
                       CNPJ
                     </span>
                   </div>
@@ -1727,20 +1719,20 @@ export default function App() {
                     Transfira o valor exato de <strong className="text-foreground"><AnimatedPrice value={totalPrice} /></strong> para a chave abaixo:
                   </p>
 
-                  <div className="flex items-center justify-between gap-2 rounded-xl bg-card border border-emerald-500/30 p-2.5">
+                  <div className="flex items-center justify-between gap-2 rounded-xl glass-panel border border-emerald-500/30 p-2.5">
                     <div className="min-w-0">
                       <p className="text-[10px] text-muted-foreground">Chave Pix (CNPJ):</p>
-                      <p className="font-mono text-sm font-bold text-emerald-400">{ESTABLISHMENT_INFO.pixKeyDisplay}</p>
+                      <p className="font-mono text-sm font-bold text-emerald-600 dark:text-emerald-400">{ESTABLISHMENT_INFO.pixKeyDisplay}</p>
                       <p className="text-[10px] text-muted-foreground truncate">Favorecido: {ESTABLISHMENT_INFO.pixBeneficiary}</p>
                     </div>
                     <button
                       type="button"
                       onClick={handleCopyPix}
-                      className="shrink-0 flex items-center gap-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 px-3 py-2 text-xs font-bold transition-all active:scale-95 cursor-pointer"
+                      className="shrink-0 flex items-center gap-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-600 dark:text-emerald-300 px-3 py-2 text-xs font-bold transition-all active:scale-95 cursor-pointer"
                     >
                       {copiedPix ? (
                         <>
-                          <Check className="h-3.5 w-3.5" />
+                          <Check className="h-3.5 w-3.5 animate-check-pop stroke-[3]" />
                           <span>Copiado!</span>
                         </>
                       ) : (
@@ -1761,8 +1753,8 @@ export default function App() {
                         onChange={(e) => setPixConfirmed(e.target.checked)}
                         className="mt-0.5 h-4 w-4 rounded border-emerald-500 text-emerald-500 focus:ring-emerald-500 cursor-pointer accent-emerald-500"
                       />
-                      <span className="text-xs font-medium text-foreground leading-snug group-hover:text-emerald-300 transition-colors">
-                        Já realizei o Pix de <strong className="text-emerald-400"><AnimatedPrice value={totalPrice} /></strong> e anexarei o comprovante no WhatsApp.
+                      <span className="text-xs font-medium text-foreground leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors">
+                        Já realizei o Pix de <strong className="text-emerald-600 dark:text-emerald-400"><AnimatedPrice value={totalPrice} /></strong> e anexarei o comprovante no WhatsApp.
                       </span>
                     </label>
 
@@ -1771,7 +1763,7 @@ export default function App() {
                         value={pixPayerName}
                         onChange={(e) => setPixPayerName(e.target.value)}
                         placeholder="Nome no comprovante Pix (opcional)"
-                        className="w-full rounded-xl border border-emerald-500/30 bg-card px-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-emerald-400"
+                        className="w-full rounded-xl border border-emerald-500/30 glass-panel px-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-emerald-400"
                       />
                     )}
                   </div>
@@ -1792,7 +1784,7 @@ export default function App() {
                           pixEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         }
                       }}
-                      className="group relative flex w-full items-center justify-between gap-3 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/30 to-secondary/80 p-3.5 text-left transition-all duration-300 hover:border-amber-400/50 hover:bg-secondary active:scale-[0.99] cursor-pointer shadow-sm"
+                      className="group relative flex w-full items-center justify-between gap-3 rounded-2xl border border-amber-500/35 glass-panel-subtle p-3.5 text-left transition-all duration-300 hover:border-amber-400/50 hover:scale-[1.01] active:scale-[0.99] cursor-pointer shadow-sm"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-400 group-hover:scale-105 group-hover:bg-amber-500/25 transition-all">
@@ -1849,17 +1841,17 @@ export default function App() {
       {/* MODAL INFORMATIVO: ENDEREÇO & HORÁRIOS DE ATENDIMENTO */}
       {isInfoModalOpen && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
           onClick={() => setIsInfoModalOpen(false)}
         >
           <div
-            className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/20 bg-neutral-950/95 p-5 text-foreground shadow-2xl backdrop-blur-2xl max-h-[92vh] flex flex-col"
+            className="relative w-full max-w-md overflow-hidden rounded-3xl glass-panel p-5 text-foreground shadow-2xl max-h-[92vh] flex flex-col animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header com Glassmorphism */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center justify-between border-b border-border/80 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-500 dark:text-amber-400 border border-amber-500/30 shadow-xs">
                   {infoModalTab === 'hours' ? (
                     <Clock3 className="h-6 w-6" />
                   ) : (
@@ -1867,7 +1859,7 @@ export default function App() {
                   )}
                 </div>
                 <div>
-                  <h3 className="font-display text-base font-extrabold text-white">
+                  <h3 className="font-display text-base font-extrabold text-foreground">
                     {infoModalTab === 'hours' ? 'Horários de Atendimento' : 'Endereço & Localização'}
                   </h3>
                   <p className="text-xs text-muted-foreground">
@@ -1878,7 +1870,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setIsInfoModalOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/80 hover:bg-secondary text-foreground transition-all cursor-pointer border border-border/80"
                 title="Fechar"
               >
                 <X className="h-5 w-5" />
@@ -1886,14 +1878,14 @@ export default function App() {
             </div>
 
             {/* Abas Alternáveis */}
-            <div className="mt-4 flex rounded-xl bg-white/5 p-1 border border-white/10">
+            <div className="mt-4 flex rounded-xl glass-panel-subtle p-1 border border-border/80">
               <button
                 type="button"
                 onClick={() => setInfoModalTab('address')}
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   infoModalTab === 'address'
                     ? 'bg-amber-500 text-black shadow-md'
-                    : 'text-muted-foreground hover:text-white'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <MapPin className="h-3.5 w-3.5" />
@@ -1905,7 +1897,7 @@ export default function App() {
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   infoModalTab === 'hours'
                     ? 'bg-amber-500 text-black shadow-md'
-                    : 'text-muted-foreground hover:text-white'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Clock3 className="h-3.5 w-3.5" />
@@ -1917,7 +1909,7 @@ export default function App() {
                 className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                   infoModalTab === 'all'
                     ? 'bg-amber-500 text-black shadow-md'
-                    : 'text-muted-foreground hover:text-white'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Sparkles className="h-3.5 w-3.5" />
@@ -1929,13 +1921,13 @@ export default function App() {
             <div className="mt-4 overflow-y-auto space-y-4 pr-1">
               {/* SEÇÃO ENDEREÇO */}
               {(infoModalTab === 'address' || infoModalTab === 'all') && (
-                <div className="rounded-2xl border border-rose-500/30 bg-gradient-to-br from-rose-950/40 via-neutral-900/60 to-black/60 p-4 backdrop-blur-xl">
-                  <div className="flex items-center gap-2 text-rose-400 font-display font-bold text-xs uppercase tracking-wider mb-2">
+                <div className="rounded-2xl border border-rose-500/35 glass-panel-subtle p-4">
+                  <div className="flex items-center gap-2 text-rose-500 dark:text-rose-400 font-display font-bold text-xs uppercase tracking-wider mb-2">
                     <MapPin className="h-4 w-4" />
                     <span>Local para Retirada dos Lanches</span>
                   </div>
 
-                  <p className="text-sm font-semibold text-white leading-relaxed">
+                  <p className="text-sm font-semibold text-foreground leading-relaxed">
                     {ESTABLISHMENT_INFO.address}
                   </p>
 
@@ -1966,16 +1958,16 @@ export default function App() {
                   <button
                     type="button"
                     onClick={handleCopyAddress}
-                    className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2.5 text-xs font-bold text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+                    className="mt-2.5 flex w-full items-center justify-center gap-2 rounded-xl border border-border/80 bg-secondary/80 px-3 py-2.5 text-xs font-bold text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer"
                   >
                     {copiedAddress ? (
                       <>
-                        <Check className="h-4 w-4 text-emerald-400" />
-                        <span className="text-emerald-400 font-bold">Endereço Copiado com Sucesso!</span>
+                        <Check className="h-4 w-4 text-emerald-500" />
+                        <span className="text-emerald-500 font-bold">Endereço Copiado com Sucesso!</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="h-4 w-4 text-amber-400" />
+                        <Copy className="h-4 w-4 text-amber-500" />
                         <span>Copiar Endereço Completo</span>
                       </>
                     )}
@@ -1985,14 +1977,14 @@ export default function App() {
 
               {/* SEÇÃO HORÁRIOS */}
               {(infoModalTab === 'hours' || infoModalTab === 'all') && (
-                <div className="rounded-2xl border border-sky-500/30 bg-gradient-to-br from-sky-950/40 via-neutral-900/60 to-black/60 p-4 backdrop-blur-xl">
+                <div className="rounded-2xl border border-sky-500/35 glass-panel-subtle p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-2 text-sky-400 font-display font-bold text-xs uppercase tracking-wider">
+                    <div className="flex items-center gap-2 text-sky-500 dark:text-sky-400 font-display font-bold text-xs uppercase tracking-wider">
                       <Clock3 className="h-4 w-4" />
                       <span>Horários de Funcionamento</span>
                     </div>
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400 border border-emerald-500/30">
-                      <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                       Terça a Domingo
                     </span>
                   </div>
@@ -2003,31 +1995,31 @@ export default function App() {
                         key={i}
                         className={`flex items-center justify-between rounded-xl p-2.5 text-xs ${
                           h.open
-                            ? 'bg-emerald-950/30 border border-emerald-500/20 text-white'
-                            : 'bg-white/5 border border-white/5 text-muted-foreground'
+                            ? 'bg-emerald-500/10 border border-emerald-500/20 text-foreground'
+                            : 'bg-muted/40 border border-border/60 text-muted-foreground'
                         }`}
                       >
                         <span className="font-bold">{h.day}</span>
-                        <span className={`font-semibold ${h.open ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        <span className={`font-semibold ${h.open ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`}>
                           {h.time}
                         </span>
                       </div>
                     ))}
                   </div>
 
-                  <p className="mt-3 text-[11px] text-sky-200/80 leading-snug">
+                  <p className="mt-3 text-[11px] text-sky-600 dark:text-sky-200/90 leading-snug">
                     🌭 Dica: Você pode montar sua comanda e enviar no WhatsApp com antecedência para agilizar seu lanche!
                   </p>
                 </div>
               )}
 
               {/* SEÇÃO SALVAR NA AGENDA */}
-              <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-950/40 via-neutral-900/60 to-black/60 p-4 backdrop-blur-xl">
-                <div className="flex items-center gap-2 text-violet-400 font-display font-bold text-xs uppercase tracking-wider mb-2">
+              <div className="rounded-2xl border border-violet-500/35 glass-panel-subtle p-4">
+                <div className="flex items-center gap-2 text-violet-500 dark:text-violet-400 font-display font-bold text-xs uppercase tracking-wider mb-2">
                   <UserPlus className="h-4 w-4" />
                   <span>Salvar Contato no Celular</span>
                 </div>
-                <p className="text-xs text-violet-200/80 leading-relaxed mb-3">
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3">
                   Adicione o 67 Dog na sua agenda com 1 toque!
                 </p>
                 <button
@@ -2041,7 +2033,7 @@ export default function App() {
                 >
                   {contactSaved ? (
                     <>
-                      <Check className="h-4.5 w-4.5 text-white" />
+                      <Check className="h-4.5 w-4.5 text-white animate-check-pop stroke-[3]" />
                       <span>✓ Contato Salvo na Agenda!</span>
                     </>
                   ) : (
@@ -2055,38 +2047,38 @@ export default function App() {
 
               {/* FORMAS DE PAGAMENTO */}
               {infoModalTab === 'all' && (
-                <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-950/40 via-neutral-900/60 to-black/60 p-4 backdrop-blur-xl">
-                  <div className="flex items-center gap-2 text-amber-400 font-display font-bold text-xs uppercase tracking-wider mb-2.5">
+                <div className="rounded-2xl border border-amber-500/35 glass-panel-subtle p-4">
+                  <div className="flex items-center gap-2 text-amber-500 dark:text-amber-400 font-display font-bold text-xs uppercase tracking-wider mb-2.5">
                     <CreditCard className="h-4 w-4" />
                     <span>Formas de Pagamento Aceitas</span>
                   </div>
                   <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                    <div className="rounded-xl bg-white/5 p-2.5 border border-white/10">
+                    <div className="rounded-xl glass-panel p-2.5 border border-border/80">
                       <span className="text-lg block">⚡</span>
-                      <span className="font-bold text-white block mt-0.5">Pix</span>
-                      <span className="text-[10px] text-emerald-400">Sem taxa</span>
+                      <span className="font-bold text-foreground block mt-0.5">Pix</span>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Sem taxa</span>
                     </div>
-                    <div className="rounded-xl bg-white/5 p-2.5 border border-white/10">
+                    <div className="rounded-xl glass-panel p-2.5 border border-border/80">
                       <span className="text-lg block">💳</span>
-                      <span className="font-bold text-white block mt-0.5">Cartão</span>
+                      <span className="font-bold text-foreground block mt-0.5">Cartão</span>
                       <span className="text-[10px] text-muted-foreground">Débito/Crédito</span>
                     </div>
-                    <div className="rounded-xl bg-white/5 p-2.5 border border-white/10">
+                    <div className="rounded-xl glass-panel p-2.5 border border-border/80">
                       <span className="text-lg block">💵</span>
-                      <span className="font-bold text-white block mt-0.5">Dinheiro</span>
+                      <span className="font-bold text-foreground block mt-0.5">Dinheiro</span>
                       <span className="text-[10px] text-muted-foreground">No Balcão</span>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* Ações Finais ao Fim da Leitura (Aparecem após a rolagem completa de Endereço, Horários ou Tudo) */}
-              <div className="pt-3 border-t border-white/10 flex flex-col gap-2 pb-1">
+              {/* Ações Finais ao Fim da Leitura */}
+              <div className="pt-3 border-t border-border/80 flex flex-col gap-2 pb-1">
                 <a
                   href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#1EBE5D] py-3.5 px-4 text-xs sm:text-sm font-black uppercase text-white shadow-lg shadow-emerald-950/50 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#25D366] to-[#1EBE5D] py-3.5 px-4 text-xs sm:text-sm font-black uppercase text-white shadow-lg shadow-emerald-950/40 hover:brightness-110 active:scale-95 transition-all cursor-pointer"
                 >
                   <OfficialWhatsAppIcon className="h-5 w-5 text-white shrink-0" />
                   <span>Chamar no WhatsApp</span>
@@ -2097,7 +2089,7 @@ export default function App() {
                     setIsInfoModalOpen(false);
                     openMenu('all');
                   }}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/15 py-2.5 px-4 text-xs font-bold text-amber-300 hover:bg-amber-500/25 active:scale-95 transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl border border-amber-500/40 bg-amber-500/15 py-2.5 px-4 text-xs font-bold text-amber-600 dark:text-amber-300 hover:bg-amber-500/25 active:scale-95 transition-all cursor-pointer"
                 >
                   <Utensils className="h-4 w-4 shrink-0" />
                   <span>Ver Cardápio Completo</span>
@@ -2111,21 +2103,21 @@ export default function App() {
       {/* MODAL DE SESSÃO PARA SALVAR CONTATO DIRETAMENTE NO CELULAR (ANDROID / IPHONE) */}
       {isContactModalOpen && (
         <div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 dark:bg-black/75 backdrop-blur-md animate-in fade-in duration-200"
           onClick={() => setIsContactModalOpen(false)}
         >
           <div
-            className="relative w-full max-w-md overflow-hidden rounded-3xl border border-amber-500/30 bg-neutral-950/95 p-5 text-foreground shadow-2xl backdrop-blur-2xl animate-in fade-in zoom-in-95 duration-200"
+            className="relative w-full max-w-md overflow-hidden rounded-3xl glass-panel p-5 text-foreground shadow-2xl animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center justify-between border-b border-border/80 pb-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500 to-flame text-white shadow-md">
                   <UserPlus className="h-6 w-6 stroke-[2.4]" />
                 </div>
                 <div>
-                  <h3 className="font-display text-base font-extrabold text-white">
+                  <h3 className="font-display text-base font-extrabold text-foreground">
                     Salvar 67 Dog na Agenda
                   </h3>
                   <p className="text-xs text-muted-foreground">
@@ -2136,7 +2128,7 @@ export default function App() {
               <button
                 type="button"
                 onClick={() => setIsContactModalOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white transition-all cursor-pointer"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/80 hover:bg-secondary text-foreground transition-all cursor-pointer border border-border/80"
                 title="Fechar"
               >
                 <X className="h-5 w-5" />
@@ -2144,12 +2136,12 @@ export default function App() {
             </div>
 
             {/* Número e Botão de Copiar */}
-            <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-3.5 flex items-center justify-between">
+            <div className="mt-4 rounded-2xl glass-panel-subtle p-3.5 flex items-center justify-between border border-border/80">
               <div>
-                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                <span className="text-[10px] font-bold text-amber-500 dark:text-amber-400 uppercase tracking-wider block">
                   Telefone Oficial
                 </span>
-                <span className="text-base font-black text-white block mt-0.5">
+                <span className="text-base font-black text-foreground block mt-0.5">
                   {ESTABLISHMENT_INFO.phoneDisplay}
                 </span>
               </div>
@@ -2160,16 +2152,16 @@ export default function App() {
                   setCopiedPhone(true);
                   setTimeout(() => setCopiedPhone(false), 2500);
                 }}
-                className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs font-bold text-white hover:bg-white/20 active:scale-95 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl border border-border/80 bg-secondary/80 px-3 py-2 text-xs font-bold text-foreground hover:bg-secondary active:scale-95 transition-all cursor-pointer"
               >
                 {copiedPhone ? (
                   <>
-                    <Check className="h-3.5 w-3.5 text-emerald-400" />
-                    <span className="text-emerald-400">Copiado!</span>
+                    <Check className="h-3.5 w-3.5 text-emerald-500 stroke-[3] animate-check-pop" />
+                    <span className="text-emerald-500">Copiado!</span>
                   </>
                 ) : (
                   <>
-                    <Copy className="h-3.5 w-3.5 text-amber-400" />
+                    <Copy className="h-3.5 w-3.5 text-amber-500" />
                     <span>Copiar</span>
                   </>
                 )}
@@ -2178,19 +2170,19 @@ export default function App() {
 
             {/* Opções de Ação Direta */}
             <div className="mt-3.5 space-y-2.5">
-              {/* Opção 1: Abrir no Discador do Celular (Abre diretamente o app Telefone com '+ Criar Contato' - Sem baixar arquivo!) */}
+              {/* Opção 1: Abrir no Discador do Celular */}
               <a
                 href={`tel:${ESTABLISHMENT_INFO.phone}`}
-                className="group flex items-center gap-3.5 rounded-2xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/70 via-black/60 to-emerald-950/40 p-3.5 hover:border-emerald-400 hover:bg-emerald-950/90 active:scale-95 transition-all cursor-pointer"
+                className="group flex items-center gap-3.5 rounded-2xl border border-emerald-500/35 glass-panel-subtle p-3.5 hover:border-emerald-400 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer shadow-xs"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md group-hover:scale-105 transition-transform">
                   <PhoneCall className="h-5 w-5" />
                 </div>
                 <div className="min-w-0 flex-1 text-left">
-                  <span className="font-display text-sm font-black text-white group-hover:text-emerald-300 block">
+                  <span className="font-display text-sm font-black text-foreground group-hover:text-emerald-500 transition-colors block">
                     Adicionar pelo Discador do Celular
                   </span>
-                  <span className="text-[11px] text-emerald-200/80 block leading-tight mt-0.5">
+                  <span className="text-[11px] text-muted-foreground block leading-tight mt-0.5">
                     Abre o app Telefone no Android ou iPhone para tocar em &quot;+ Criar novo contato&quot;
                   </span>
                 </div>
@@ -2200,18 +2192,22 @@ export default function App() {
               <button
                 type="button"
                 onClick={handleDownloadVCard}
-                className="w-full group flex items-center gap-3.5 rounded-2xl border border-violet-500/40 bg-gradient-to-r from-violet-950/70 via-black/60 to-violet-950/40 p-3.5 hover:border-violet-400 hover:bg-violet-900/90 active:scale-95 transition-all cursor-pointer"
+                className="w-full group flex items-center gap-3.5 rounded-2xl border border-violet-500/35 glass-panel-subtle p-3.5 hover:border-violet-400 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer shadow-xs"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 text-white shadow-md group-hover:scale-105 transition-transform">
-                  <UserPlus className="h-5 w-5" />
+                  {contactSaved ? (
+                    <Check className="h-5 w-5 text-emerald-300 stroke-[3] animate-check-pop" />
+                  ) : (
+                    <UserPlus className="h-5 w-5" />
+                  )}
                 </div>
                 <div className="min-w-0 flex-1 text-left">
                   <div className="flex items-center gap-2">
-                    <span className="font-display text-sm font-black text-white group-hover:text-violet-300">
+                    <span className="font-display text-sm font-black text-foreground group-hover:text-violet-500 transition-colors">
                       {contactSaved ? '✓ Arquivo Gerado!' : 'Baixar Cartão de Contato (.vcf)'}
                     </span>
                   </div>
-                  <span className="text-[11px] text-violet-200/80 block leading-tight mt-0.5">
+                  <span className="text-[11px] text-muted-foreground block leading-tight mt-0.5">
                     Importa automaticamente na sua agenda nome, endereço e link do cardápio
                   </span>
                 </div>
@@ -2222,16 +2218,16 @@ export default function App() {
                 href={`https://wa.me/${ESTABLISHMENT_INFO.phone}`}
                 target="_blank"
                 rel="noreferrer"
-                className="group flex items-center gap-3.5 rounded-2xl border border-[#25D366]/40 bg-gradient-to-r from-emerald-950/50 via-black/60 to-[#25D366]/20 p-3.5 hover:border-[#25D366] hover:bg-emerald-950/80 active:scale-95 transition-all cursor-pointer"
+                className="group flex items-center gap-3.5 rounded-2xl border border-[#25D366]/35 glass-panel-subtle p-3.5 hover:border-[#25D366] hover:scale-[1.01] active:scale-95 transition-all cursor-pointer shadow-xs"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#25D366] text-white shadow-[0_4px_12px_rgba(37,211,102,0.35)] group-hover:scale-105 transition-transform">
                   <OfficialWhatsAppIcon className="h-6 w-6 text-white" />
                 </div>
                 <div className="min-w-0 flex-1 text-left">
-                  <span className="font-display text-sm font-black text-white group-hover:text-[#25D366] block">
+                  <span className="font-display text-sm font-black text-foreground group-hover:text-[#25D366] transition-colors block">
                     Salvar e Chamar no WhatsApp
                   </span>
-                  <span className="text-[11px] text-emerald-200/80 block leading-tight mt-0.5">
+                  <span className="text-[11px] text-muted-foreground block leading-tight mt-0.5">
                     Inicia conversa no WhatsApp para salvar o contato na hora
                   </span>
                 </div>

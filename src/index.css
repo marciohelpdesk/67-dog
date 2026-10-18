@@ -1,33 +1,53 @@
 @import "tailwindcss";
 
 :root, html.dark {
-  --bg-app: oklch(14% 0.01 60);
-  --fg-app: oklch(96% 0.01 80);
-  --card-app: oklch(18% 0.012 60);
-  --card-fg-app: oklch(96% 0.01 80);
-  --sec-app: oklch(22% 0.015 60);
-  --sec-fg-app: oklch(96% 0.01 80);
-  --muted-app: oklch(22% 0.015 60);
-  --muted-fg-app: oklch(68% 0.02 70);
-  --border-app: oklch(100% 0 0 / 0.1);
-  --input-app: oklch(100% 0 0 / 0.14);
+  --bg-app: #121110;
+  --fg-app: #f5f3ef;
+  --card-app: rgba(24, 21, 18, 0.72);
+  --card-fg-app: #f5f3ef;
+  --sec-app: rgba(34, 30, 26, 0.65);
+  --sec-fg-app: #f5f3ef;
+  --muted-app: rgba(34, 30, 26, 0.6);
+  --muted-fg-app: #a8a29e;
+  --border-app: rgba(255, 255, 255, 0.12);
+  --input-app: rgba(255, 255, 255, 0.14);
   --primary-app: oklch(78% 0.16 75);
-  --primary-fg-app: oklch(16% 0.02 60);
+  --primary-fg-app: #1c1917;
+
+  /* Glass tokens - Dark Mode */
+  --glass-bg: rgba(22, 19, 17, 0.72);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-highlight: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.65), 0 2px 8px rgba(0, 0, 0, 0.35);
+
+  --glass-subtle-bg: rgba(30, 26, 22, 0.64);
+  --glass-subtle-border: rgba(255, 255, 255, 0.09);
+  --glass-subtle-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
 }
 
 html.light {
-  --bg-app: #f7f5f0;
+  --bg-app: #f7f4ee;
   --fg-app: #1c1917;
-  --card-app: #ffffff;
+  --card-app: rgba(255, 255, 255, 0.78);
   --card-fg-app: #1c1917;
-  --sec-app: #efebe4;
+  --sec-app: rgba(255, 255, 255, 0.64);
   --sec-fg-app: #1c1917;
-  --muted-app: #e8e3d9;
+  --muted-app: rgba(240, 235, 227, 0.75);
   --muted-fg-app: #575047;
-  --border-app: rgba(0, 0, 0, 0.09);
-  --input-app: rgba(0, 0, 0, 0.12);
+  --border-app: rgba(0, 0, 0, 0.08);
+  --input-app: rgba(0, 0, 0, 0.1);
   --primary-app: #d97706;
   --primary-fg-app: #ffffff;
+
+  /* Glass tokens - Light Mode (Vidro translúcido suave com desfoque e bordas sutis) */
+  --glass-bg: rgba(255, 255, 255, 0.74);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-highlight: rgba(255, 255, 255, 0.95);
+  --glass-shadow: 0 14px 34px -8px rgba(180, 140, 100, 0.14), 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  --glass-subtle-bg: rgba(255, 255, 255, 0.62);
+  --glass-subtle-border: rgba(255, 255, 255, 0.75);
+  --glass-subtle-shadow: 0 6px 18px -4px rgba(180, 140, 100, 0.08);
 }
 
 @theme {
@@ -88,6 +108,29 @@ html.light {
   animation: cardEntry 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+@keyframes checkPop {
+  0% {
+    transform: scale(0.35) rotate(-24deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.22) rotate(4deg);
+    opacity: 1;
+  }
+  75% {
+    transform: scale(0.92) rotate(-1deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-check-pop {
+  animation: checkPop 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-card-entry {
     animation: none;
@@ -111,32 +154,43 @@ html {
 }
 
 @layer utilities {
-  .glass-card {
-    background: rgba(18, 18, 24, 0.78);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7),
-                0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+  .glass-card, .glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow), inset 0 1px 0 0 var(--glass-highlight);
+  }
+
+  .glass-panel-subtle {
+    background: var(--glass-subtle-bg);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid var(--glass-subtle-border);
+    box-shadow: var(--glass-subtle-shadow), inset 0 1px 0 0 var(--glass-highlight);
   }
 
   .glass-button {
-    background: rgba(255, 255, 255, 0.07);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+    background: var(--glass-subtle-bg);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-subtle-shadow), inset 0 1px 0 0 var(--glass-highlight);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .glass-button:hover, .glass-button:focus-visible {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 159, 28, 0.5);
+    background: var(--glass-bg);
+    border-color: rgba(245, 158, 11, 0.5);
+    box-shadow: 0 8px 24px -4px rgba(245, 158, 11, 0.25), inset 0 1px 0 0 var(--glass-highlight);
   }
 
   .glass-pill {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: var(--glass-subtle-bg);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 1px 0 0 var(--glass-highlight);
   }
 
   /* PRIMARY LOGO ANIMATION (THE ONLY CONTINUOUS BRAND MOTION) */
