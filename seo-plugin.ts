@@ -127,11 +127,13 @@ export function seoPlugin(): Plugin {
         transformed = transformed.replace('</head>', `${scriptTag}\n  </head>`);
       }
 
-      // Inject prerendered semantic HTML inside <div id="root">
+      // Inject prerendered semantic HTML inside <noscript> within <div id="root">
+      // This prevents the visual flash of plain unstyled text on mobile devices
+      // while preserving full SEO crawlability for search engines and bots.
       if (transformed.includes('<div id="root"></div>')) {
         transformed = transformed.replace(
           '<div id="root"></div>',
-          `<div id="root">\n${prerenderHtml}\n    </div>`
+          `<div id="root">\n      <noscript>\n${prerenderHtml}\n      </noscript>\n    </div>`
         );
       }
 
