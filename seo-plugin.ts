@@ -1,5 +1,5 @@
 import type { Plugin } from 'vite';
-import { MENU_CATEGORIES, ESTABLISHMENT_INFO } from './src/data/menuData';
+import { MENU_CATEGORIES, ESTABLISHMENT_INFO } from './src/data/menuData.ts';
 
 function formatBRL(price: number): string {
   return `R$ ${price.toFixed(2).replace('.', ',')}`;
