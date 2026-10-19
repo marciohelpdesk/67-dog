@@ -91,26 +91,6 @@ export const DeliveryModal: React.FC<DeliveryModalProps> = ({
             </div>
           </button>
 
-          {/* Option 3: iFood */}
-          <a
-            href={ESTABLISHMENT_INFO.ifoodUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="p-3.5 rounded-2xl bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 block transition-all hover:scale-[1.02] active:scale-[0.98] group"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white text-lg font-black">
-                  <i className="fa-solid fa-bag-shopping"></i>
-                </div>
-                <div>
-                  <span className="font-bold text-sm text-white">iFood Delivery</span>
-                  <p className="text-[11px] text-neutral-300">Cupom de entrega e rastreamento em mapa</p>
-                </div>
-              </div>
-              <i className="fa-solid fa-arrow-right text-xs text-red-400 group-hover:translate-x-1 transition-transform"></i>
-            </div>
-          </a>
         </div>
 
         {/* Security badge */}

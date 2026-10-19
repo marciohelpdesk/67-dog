@@ -75,19 +75,6 @@ function getItemImage(item: MenuItem): string {
     case 'combo-galera':
       return ASSETS.combo;
 
-    // Burgers
-    case 'burger-x-salada':
-    case 'burger-x-frango':
-    case 'burger-x-bacon':
-    case 'burger-x-calabresa':
-    case 'burger-x-costela':
-    case 'burger-x-tudo':
-    case 'burger-classic-67':
-    case 'burger-bacon-supreme':
-    case 'burger-costelaco-bbq':
-    case 'burger-smash-duplo':
-      return ASSETS.burger;
-
     // Pastéis
     case 'pastel-carne':
     case 'pastel-carne-especial':
@@ -114,7 +101,6 @@ function getItemImage(item: MenuItem): string {
 
     default:
       if (item.category === 'hotdogs') return ASSETS.hotdog;
-      if (item.category === 'hamburgueres') return ASSETS.burger;
       if (item.category === 'pasteis') return ASSETS.pastel;
       if (item.category === 'combos') return ASSETS.combo;
       if (item.category === 'bebidas') return ASSETS.bebidas;
@@ -369,7 +355,6 @@ export default function App() {
     const allItems = MENU_CATEGORIES.flatMap((c) => c.items);
     const dogSixSeven = allItems.find((i) => i.id === 'dog-six-seven');
     const dogRaiz = allItems.find((i) => i.id === 'dog-raiz');
-    const burgerBacon = allItems.find((i) => i.id === 'burger-x-bacon');
     const pastelCarne = allItems.find((i) => i.id === 'pastel-carne');
 
     const list = [];
@@ -387,14 +372,6 @@ export default function App() {
         badge: '🌭 O Tradicional',
         subtitle: 'Vina, tomate fresco, milho verde, cebola, maionese e batata palha',
         img: ASSETS.hotdogAppetizing,
-      });
-    }
-    if (burgerBacon) {
-      list.push({
-        item: burgerBacon,
-        badge: '🍔 Burger Artesanal',
-        subtitle: 'Brioche, blend suculento, queijo derretido e fatias generosas de bacon',
-        img: ASSETS.burger,
       });
     }
     if (pastelCarne) {
@@ -429,14 +406,14 @@ export default function App() {
     const vcard = [
       'BEGIN:VCARD',
       'VERSION:3.0',
-      'FN:67 Dog • Six Seven Hot Dog',
+      'FN:67 Dog • Hot Dog & Pastel',
       'N:Dog;67;;;',
-      'ORG:67 Dog - Hot Dog, Burger e Pastel',
+      'ORG:67 Dog - Hot Dog e Pastel',
       'TITLE:Cardápio Digital & Pedidos',
       `TEL;TYPE=CELL,VOICE,WHATSAPP:+${ESTABLISHMENT_INFO.phone}`,
       `URL:${currentUrl}`,
       `ADR;TYPE=WORK:;;${ESTABLISHMENT_INFO.address};Fazenda Rio Grande;PR;83823-114;Brasil`,
-      'NOTE:O autêntico Hot Dog com Vina, Hambúrgueres artesanais e Pastéis crocantes! Acesse nosso cardápio no link deste contato para fazer seu pedido.',
+      'NOTE:Hot dog com vina e pastel frito na hora! Acesse o cardápio no link deste contato para fazer seu pedido.',
       'END:VCARD',
     ].join('\r\n');
 
@@ -572,7 +549,7 @@ export default function App() {
     });
 
     const lines = [
-      `🌭 *NOVO PEDIDO — SIX SEVEN HOT DOG*`,
+      `🌭 *NOVO PEDIDO — 67 DOG*`,
       ``,
       `📋 *ITENS DO PEDIDO:*`,
       ...formattedItems,
@@ -584,11 +561,10 @@ export default function App() {
       `👤 *NOME DO CLIENTE:* ${customerName.trim()}`,
       orderNotes ? `📝 *OBSERVAÇÕES GERAIS:* ${orderNotes.trim()}` : null,
       ``,
-      `💳 *STATUS DO PAGAMENTO VIA PIX:*`,
-      `✅ *PAGAMENTO REALIZADO VIA PIX*`,
+      `💳 *PAGAMENTO:* Pix (aguardando conferência do comprovante)`,
       `🔑 *Chave Pix (CNPJ):* ${ESTABLISHMENT_INFO.pixKeyDisplay} (${ESTABLISHMENT_INFO.pixBeneficiary})`,
       pixPayerName ? `👤 *Titular do Pix:* ${pixPayerName.trim()}` : null,
-      `📎 *Comprovante do Pix anexado nesta conversa!*`,
+      `📎 *Vou enviar o comprovante do Pix nesta conversa.*`,
     ].filter(Boolean);
 
     const message = lines.join('\n');
@@ -627,6 +603,18 @@ export default function App() {
     ? customizingItem.price + modalExtras.reduce((sum, e) => sum + e.price, 0)
     : 0;
   const modalCurrentTotal = modalCurrentUnitPrice * modalQty;
+
+  const isCustomizingHotDogOrCombo = Boolean(
+    customizingItem?.category === 'hotdogs' ||
+    customizingItem?.category === 'combos' ||
+    customizingItem?.id.startsWith('dog-') ||
+    customizingItem?.id.startsWith('combo-')
+  );
+
+  const isCustomizingPastel = Boolean(
+    customizingItem?.category === 'pasteis' ||
+    customizingItem?.id.startsWith('pastel-')
+  );
 
   return (
     <div className="min-h-screen bg-background pb-28 text-foreground selection:bg-primary selection:text-primary-foreground font-sans relative overflow-x-hidden">
@@ -682,11 +670,10 @@ export default function App() {
           <img
             src={ASSETS.heroBg}
             onLoad={() => setHeroBgLoaded(true)}
-            onError={(e) => {
-              e.currentTarget.src = ASSETS.heroDogRemote;
+            onError={() => {
               setHeroBgLoaded(true);
             }}
-            alt="67 Dog - hot dog, hambúrguer e pastel"
+            alt="67 Dog - hot dog e pastel"
             width={1024}
             height={1024}
             fetchPriority="high"
@@ -861,8 +848,8 @@ export default function App() {
             </span>
           </div>
 
-          {/* Grade uniforme com todas as 5 categorias em formato padronizado */}
-          <div className="relative grid grid-cols-5 gap-1.5 sm:gap-2">
+          {/* Grade uniforme com todas as 4 categorias em formato padronizado */}
+          <div className="relative grid grid-cols-4 gap-1.5 sm:gap-2">
             {MENU_CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
@@ -1030,7 +1017,7 @@ export default function App() {
               <input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar hot dog, hambúrguer, pastel, bebida..."
+                placeholder="Buscar hot dog, pastel, bebida..."
                 className="w-full rounded-xl border border-input glass-panel-subtle pl-9 pr-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary transition-all"
               />
             </div>
@@ -1382,81 +1369,86 @@ export default function App() {
               </p>
             </div>
 
-            {/* ADICIONAIS ESPECIAIS (BACON, CHEDDAR, CATUPIRY, ETC.) */}
-            <div className="mt-5">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-display text-xs font-black uppercase tracking-wider text-primary">
-                  ➕ Adicionais Especiais (Opcional)
-                </h3>
-                <span className="text-[10px] text-muted-foreground">Turbine seu lanche</span>
-              </div>
-              <div className="space-y-2">
-                {AVAILABLE_EXTRAS.map((extra) => {
-                  const isSelected = modalExtras.some((e) => e.id === extra.id);
-                  return (
-                    <label
-                      key={extra.id}
-                      onClick={() => toggleExtra(extra)}
-                      className={`flex items-center justify-between rounded-xl border p-3 cursor-pointer transition-all ${
-                        isSelected
-                          ? 'border-primary bg-primary/15 text-foreground shadow-xs'
-                          : 'border-border/80 glass-panel-subtle hover:border-amber-400/40 text-foreground'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
-                            isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/50'
+            {/* ADICIONAIS ESPECIAIS E REMOÇÕES: EXCLUSIVO PARA HOT DOGS E COMBOS */}
+            {isCustomizingHotDogOrCombo && (
+              <>
+                {/* ADICIONAIS ESPECIAIS (BACON, CHEDDAR, CATUPIRY, ETC.) */}
+                <div className="mt-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-display text-xs font-black uppercase tracking-wider text-primary">
+                      ➕ Adicionais Especiais (Opcional)
+                    </h3>
+                    <span className="text-[10px] text-muted-foreground">Turbine seu lanche</span>
+                  </div>
+                  <div className="space-y-2">
+                    {AVAILABLE_EXTRAS.map((extra) => {
+                      const isSelected = modalExtras.some((e) => e.id === extra.id);
+                      return (
+                        <label
+                          key={extra.id}
+                          onClick={() => toggleExtra(extra)}
+                          className={`flex items-center justify-between rounded-xl border p-3 cursor-pointer transition-all ${
+                            isSelected
+                              ? 'border-primary bg-primary/15 text-foreground shadow-xs'
+                              : 'border-border/80 glass-panel-subtle hover:border-amber-400/40 text-foreground'
                           }`}
                         >
-                          {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
-                        </div>
-                        <span className="text-xs font-semibold">{extra.name}</span>
-                      </div>
-                      <span className="font-display text-xs font-bold text-primary">
-                        +{formatCurrency(extra.price)}
-                      </span>
-                    </label>
-                  );
-                })}
-              </div>
-            </div>
+                          <div className="flex items-center gap-2.5">
+                            <div
+                              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+                                isSelected ? 'border-primary bg-primary text-primary-foreground' : 'border-muted-foreground/50'
+                              }`}
+                            >
+                              {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
+                            </div>
+                            <span className="text-xs font-semibold">{extra.name}</span>
+                          </div>
+                          <span className="font-display text-xs font-bold text-primary">
+                            +{formatCurrency(extra.price)}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
 
-            {/* REMOÇÕES DE INGREDIENTES (O QUE RETIRAR DO LANCHE) */}
-            <div className="mt-5">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-display text-xs font-black uppercase tracking-wider text-destructive">
-                  🚫 Deseja retirar algum item?
-                </h3>
-                <span className="text-[10px] text-muted-foreground">Sem custo</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {AVAILABLE_REMOVALS.map((rem) => {
-                  const isSelected = modalRemovals.some((r) => r.id === rem.id);
-                  return (
-                    <button
-                      type="button"
-                      key={rem.id}
-                      onClick={() => toggleRemoval(rem)}
-                      className={`flex items-center gap-2 rounded-xl border p-2.5 text-left text-xs font-medium transition-all cursor-pointer ${
-                        isSelected
-                          ? 'border-destructive bg-destructive/15 text-destructive font-bold'
-                          : 'border-border/80 glass-panel-subtle hover:border-destructive/40 text-muted-foreground'
-                      }`}
-                    >
-                      <div
-                        className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border transition-colors ${
-                          isSelected ? 'border-destructive bg-destructive text-white' : 'border-muted-foreground/40'
-                        }`}
-                      >
-                        {isSelected && <Check className="h-2.5 w-2.5 stroke-[3]" />}
-                      </div>
-                      <span className="truncate">{rem.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+                {/* REMOÇÕES DE INGREDIENTES (O QUE RETIRAR DO LANCHE) */}
+                <div className="mt-5">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-display text-xs font-black uppercase tracking-wider text-destructive">
+                      🚫 Deseja retirar algum item?
+                    </h3>
+                    <span className="text-[10px] text-muted-foreground">Sem custo</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {AVAILABLE_REMOVALS.map((rem) => {
+                      const isSelected = modalRemovals.some((r) => r.id === rem.id);
+                      return (
+                        <button
+                          type="button"
+                          key={rem.id}
+                          onClick={() => toggleRemoval(rem)}
+                          className={`flex items-center gap-2 rounded-xl border p-2.5 text-left text-xs font-medium transition-all cursor-pointer ${
+                            isSelected
+                              ? 'border-destructive bg-destructive/15 text-destructive font-bold'
+                              : 'border-border/80 glass-panel-subtle hover:border-destructive/40 text-muted-foreground'
+                          }`}
+                        >
+                          <div
+                            className={`flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border transition-colors ${
+                              isSelected ? 'border-destructive bg-destructive text-white' : 'border-muted-foreground/40'
+                            }`}
+                          >
+                            {isSelected && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                          </div>
+                          <span className="truncate">{rem.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* OBSERVAÇÃO INDIVIDUAL DO ITEM */}
             <div className="mt-5">
@@ -1466,7 +1458,11 @@ export default function App() {
               <input
                 value={modalItemNotes}
                 onChange={(e) => setModalItemNotes(e.target.value)}
-                placeholder="Ex.: Pão bem prensado, milho à parte, etc."
+                placeholder={
+                  isCustomizingPastel
+                    ? "Ex.: bem sequinho, sem azeitona, etc."
+                    : "Ex.: Pão bem prensado, milho à parte, etc."
+                }
                 className="w-full rounded-xl border border-input glass-panel-subtle px-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
               />
             </div>

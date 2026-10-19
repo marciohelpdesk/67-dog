@@ -1,7 +1,7 @@
 export interface MenuItem {
   id: string;
   name: string;
-  category?: 'hotdogs' | 'combos' | 'hamburgueres' | 'pasteis' | 'bebidas' | string;
+  category?: 'hotdogs' | 'combos' | 'pasteis' | 'bebidas' | string;
   description: string;
   price: number;
   originalPrice?: number;
@@ -27,7 +27,6 @@ export interface RemovalOption {
 
 export const AVAILABLE_EXTRAS: ExtraOption[] = [
   { id: 'extra-vina', name: 'Vina Adicional', price: 3.0 },
-  { id: 'extra-hamburguer', name: 'Blend Burger 150g Extra', price: 9.0 },
   { id: 'extra-costela', name: 'Costela Desfiada Extra', price: 5.0 },
   { id: 'extra-bacon', name: 'Bacon Crocante Extra', price: 4.0 },
   { id: 'extra-frango', name: 'Frango Desfiado Extra', price: 4.0 },
@@ -41,8 +40,6 @@ export const AVAILABLE_EXTRAS: ExtraOption[] = [
 export const AVAILABLE_REMOVALS: RemovalOption[] = [
   { id: 'no-cebola', name: 'Sem Cebola' },
   { id: 'no-tomate', name: 'Sem Tomate' },
-  { id: 'no-alface', name: 'Sem Alface' },
-  { id: 'no-picles', name: 'Sem Picles' },
   { id: 'no-milho', name: 'Sem Milho' },
   { id: 'no-pure', name: 'Sem Purê de Batata' },
   { id: 'no-batata-palha', name: 'Sem Batata Palha' },
@@ -168,63 +165,6 @@ export const MENU_CATEGORIES: MenuCategory[] = [
     ],
   },
   {
-    id: 'hamburgueres',
-    label: 'Hambúrgueres',
-    emoji: '🍔',
-    badge: 'Artesanais',
-    items: [
-      {
-        id: 'burger-x-salada',
-        name: '1. X-Salada',
-        category: 'hamburgueres',
-        description: 'Pão brioche selado na manteiga, blend bovino artesanal suculento, queijo derretido, maionese da casa, alface e tomate fresco.',
-        price: 18.9,
-        ingredients: ['Pão Brioche', 'Blend Bovino', 'Queijo Derretido', 'Alface Fresca', 'Tomate', 'Maionese da Casa'],
-      },
-      {
-        id: 'burger-x-frango',
-        name: '2. X-Frango',
-        category: 'hamburgueres',
-        description: 'Pão brioche macio, frango desfiado temperado suculento, queijo derretido, maionese artesanal da casa, alface e tomate.',
-        price: 18.06,
-        ingredients: ['Pão Brioche', 'Frango Desfiado', 'Queijo Derretido', 'Alface', 'Tomate', 'Maionese da Casa'],
-      },
-      {
-        id: 'burger-x-bacon',
-        name: '3. X-Bacon',
-        category: 'hamburgueres',
-        description: 'Pão brioche, blend bovino artesanal, fatias generosas de bacon super crocante, queijo derretido e maionese da casa.',
-        price: 23.9,
-        popular: true,
-        ingredients: ['Pão Brioche', 'Blend Bovino', 'Bacon Crocante em Tiras', 'Queijo Derretido', 'Maionese da Casa'],
-      },
-      {
-        id: 'burger-x-calabresa',
-        name: '4. X-Calabresa',
-        category: 'hamburgueres',
-        description: 'Pão brioche selado, blend bovino, calabresa fatiada dourada na chapa, queijo derretido e maionese especial.',
-        price: 23.9,
-        ingredients: ['Pão Brioche', 'Blend Bovino', 'Calabresa Fatiada na Chapa', 'Queijo Derretido', 'Maionese Especial'],
-      },
-      {
-        id: 'burger-x-costela',
-        name: '5. X-Costela',
-        category: 'hamburgueres',
-        description: 'A especialidade da casa! Pão brioche, costela bovina desfiada no molho especial da casa e queijo muçarela derretido.',
-        price: 25.9,
-        ingredients: ['Pão Brioche', 'Costela Bovina Desfiada', 'Queijo Derretido', 'Molho Especial'],
-      },
-      {
-        id: 'burger-x-tudo',
-        name: '6. X-Tudo',
-        category: 'hamburgueres',
-        description: 'O lanche supremo! Blend bovino, frango desfiado, bacon crocante, calabresa na chapa, queijo derretido, alface, tomate e maionese especial.',
-        price: 31.9,
-        ingredients: ['Pão Brioche', 'Blend Bovino', 'Frango Desfiado', 'Bacon Crocante', 'Calabresa', 'Queijo Derretido', 'Alface', 'Tomate', 'Maionese'],
-      },
-    ],
-  },
-  {
     id: 'pasteis',
     label: 'Pastéis',
     emoji: '🥟',
@@ -306,19 +246,16 @@ export const MENU_ITEMS: MenuItem[] = MENU_CATEGORIES.flatMap((c) => c.items);
 
 export const ESTABLISHMENT_INFO = {
   name: '67 Dog',
-  subname: 'Six Seven Hot Dog',
-  tagline: 'O Autêntico Hot Dog com Vina & Combos Especiais',
-  bio: 'O melhor Hot Dog com vina da região! Pão fresquinho, costela suculenta, bacon estalando e molhos especiais.',
+  subname: 'Hot Dog & Pastel',
+  tagline: 'Hot Dog com Vina & Pastel Frito na Hora',
+  bio: 'Hot dog caprichado com vina e pastel frito na hora, no bairro Nações, em Fazenda Rio Grande. Bateu a fome? Vem de 67!',
   phone: '5541997774498',
   phoneDisplay: '(41) 99777-4498',
   address: 'Av. Estados Unidos, 389 - Nações, Fazenda Rio Grande - PR, 83823-114',
   mapsUrl: 'https://maps.google.com/?q=Av.+Estados+Unidos,+389+-+Nações,+Fazenda+Rio+Grande+-+PR,+83823-114',
   wazeUrl: 'https://waze.com/ul?q=Av.+Estados+Unidos,+389+-+Nações,+Fazenda+Rio+Grande+-+PR,+83823-114',
-  ifoodUrl: 'https://www.ifood.com.br/delivery/sao-paulo-sp/six-seven-dog',
   instagram: 'https://instagram.com/67lanches',
   instagramDisplay: '@67lanches',
-  tiktok: 'https://tiktok.com',
-  facebook: 'https://facebook.com',
   pixKey: '69172430000197',
   pixKeyDisplay: '69172430000197',
   pixType: 'CNPJ',

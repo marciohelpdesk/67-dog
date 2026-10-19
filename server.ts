@@ -74,10 +74,10 @@ function loadOrders(): Order[] {
           notes: 'Caprichar na batata palha por favor',
         },
         {
-          id: 'burger-classic-67',
-          name: '01. CLASSIC 67 BURGER',
+          id: 'dog-raiz',
+          name: '02. RAIZ',
           qty: 1,
-          unitPrice: 23.9,
+          unitPrice: 15.9,
           extras: [],
           removals: [],
         },
