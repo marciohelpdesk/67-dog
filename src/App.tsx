@@ -725,12 +725,12 @@ export default function App() {
                 </div>
                 <div className="min-w-0 text-left">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-display text-xs sm:text-sm font-black text-foreground dark:text-white group-hover:text-emerald-500 transition-colors">
+                    <span className="font-display text-xs sm:text-sm font-black text-foreground group-hover:text-emerald-500 transition-colors">
                       WhatsApp
                     </span>
                     <span className="h-2 w-2 rounded-full bg-[#25D366] animate-pulse shrink-0" />
                   </div>
-                  <p className="text-[11px] font-medium text-emerald-700 dark:text-emerald-200/80 truncate">
+                  <p className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 truncate">
                     Falar conosco
                   </p>
                 </div>
@@ -762,12 +762,12 @@ export default function App() {
                 </div>
                 <div className="min-w-0 text-left">
                   <div className="flex items-center gap-1.5">
-                    <span className="font-display text-xs sm:text-sm font-black text-foreground dark:text-white group-hover:text-amber-500 transition-colors truncate">
+                    <span className="font-display text-xs sm:text-sm font-black text-foreground group-hover:text-amber-500 transition-colors truncate">
                       {contactSaved ? 'Salvo!' : 'Contato'}
                     </span>
                     <span className={`h-2 w-2 rounded-full ${contactSaved ? 'bg-emerald-400' : 'bg-amber-400'} shrink-0`} />
                   </div>
-                  <p className="text-[11px] font-medium text-amber-700 dark:text-amber-200/80 truncate">
+                  <p className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 truncate">
                     {contactSaved ? 'Adicionado ✓' : 'Salvar na agenda'}
                   </p>
                 </div>

@@ -154,7 +154,7 @@ async function startServer() {
   app.use(express.json());
 
   const server = createServer(app);
-  const wss = new WebSocketServer({ server });
+  const wss = new WebSocketServer({ server, path: '/api/ws' });
 
   function broadcast(data: object) {
     const payload = JSON.stringify(data);
@@ -300,7 +300,10 @@ async function startServer() {
   if (!isProd) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: process.env.DISABLE_HMR === 'true' ? false : { server },
+      },
       appType: 'spa',
     });
     app.use(vite.middlewares);
