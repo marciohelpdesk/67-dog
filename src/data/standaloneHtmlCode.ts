@@ -462,7 +462,7 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
     <section class="quick-grid">
       <!-- Botão 1: WhatsApp -->
       <a 
-        href="https://wa.me/5511998765432?text=Ol%C3%A1!%20Gostaria%20de%20fazer%20um%20pedido%20no%20Six%20Seven%20Dog." 
+        href="https://wa.me/5541998802280?text=Ol%C3%A1!%20Gostaria%20de%20fazer%20um%20pedido%20no%20Six%20Seven%20Dog." 
         target="_blank" 
         class="grid-btn whatsapp-btn"
       >
@@ -503,7 +503,7 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
 
     <!-- Main Highlight Button -->
     <a 
-      href="https://wa.me/5511998765432?text=Ol%C3%A1!%20Quero%20fazer%20um%20pedido%20para%20entrega%20delivery!" 
+      href="https://wa.me/5541998802280?text=Ol%C3%A1!%20Quero%20fazer%20um%20pedido%20para%20entrega%20delivery!" 
       target="_blank" 
       class="main-cta-btn"
     >
@@ -529,7 +529,7 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
           <div class="dish-body">
             <h3 class="dish-name">Hot Dog Monster Cheddar</h3>
             <a 
-              href="https://wa.me/5511998765432?text=Ol%C3%A1!%20Gostaria%20de%20pedir%20o%20Hot%20Dog%20Monster%20Cheddar%20Bacon!" 
+              href="https://wa.me/5541998802280?text=Ol%C3%A1!%20Gostaria%20de%20pedir%20o%20Hot%20Dog%20Monster%20Cheddar%20Bacon!" 
               target="_blank" 
               class="dish-order-btn"
             >
@@ -548,7 +548,7 @@ export const STANDALONE_HTML_CODE = `<!DOCTYPE html>
           <div class="dish-body">
             <h3 class="dish-name">Pastel Frango & Catupiry</h3>
             <a 
-              href="https://wa.me/5511998765432?text=Ol%C3%A1!%20Gostaria%20de%20pedir%20o%20Pastel%20Especial%20de%20Frango%20com%20Catupiry!" 
+              href="https://wa.me/5541998802280?text=Ol%C3%A1!%20Gostaria%20de%20pedir%20o%20Pastel%20Especial%20de%20Frango%20com%20Catupiry!" 
               target="_blank" 
               class="dish-order-btn"
             >
