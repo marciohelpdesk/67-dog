@@ -133,11 +133,48 @@ html.light {
   animation: checkPop 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .animate-card-entry {
-    animation: none;
+@keyframes slideInSequential {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  60% {
+    opacity: 0.9;
+  }
+  100% {
     opacity: 1;
-    transform: none;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-slide-in-sequential {
+  animation: slideInSequential 0.44s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+@keyframes slideInHorizontal {
+  0% {
+    opacity: 0;
+    transform: translateX(18px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+.animate-slide-in-horizontal {
+  animation: slideInHorizontal 0.36s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-card-entry,
+  .animate-slide-in-sequential,
+  .animate-slide-in-horizontal {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 

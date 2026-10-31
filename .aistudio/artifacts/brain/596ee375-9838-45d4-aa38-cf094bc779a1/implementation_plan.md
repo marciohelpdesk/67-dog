@@ -1,56 +1,72 @@
-# Plano de Implementação: Modernização Visual com Glassmorphism Consistente
+# Plano de Implementação — Novo Cardápio do 67 Dog
 
-Modernização da interface visual do 67 Dog aplicando estética de **vidro translúcido suave (glassmorphism)**, com desfoque de fundo (*backdrop-blur*), bordas reflexivas sutis (*subtle specular borders*), e esferas de luz ambiente difusa (*ambient glows*) em tons quentes para valorizar a profundidade e a sensação de leveza tanto no **Modo Dia** quanto no **Modo Noite**.
-
----
-
-### 🎨 1. Efeito de Vidro e Estilos Globais (`src/index.css`)
-
-- **Classes de Glassmorphism Consistentes (`.glass-panel`, `.glass-panel-subtle`, `.glass-pill`)**:
-  - **Fundo Translúcido Refinado**:
-    - *Modo Dia*: Camada de branco quente acetinado com transparência balanceada (`rgba(255, 255, 255, 0.72)`) combinada com `backdrop-filter: blur(16px)`.
-    - *Modo Noite*: Camada grafite/preto acetinado translúcido (`rgba(22, 20, 18, 0.68)`) com `backdrop-filter: blur(20px)`.
-  - **Bordas de Especularidade (Borda de Luz)**:
-    - Borda sutil de 1px com reflexo superior mais nítido e laterais suaves (`border: 1px solid rgba(255, 255, 255, 0.18)` no escuro e `rgba(0, 0, 0, 0.06)` no claro).
-    - Sombreamento interno micro (*inset highlight*) para sensação tátil de borda de vidro lapidado.
-  - **Sombras Difusas de Elevação**:
-    - Sombras suaves com dispersão ampla (`box-shadow: 0 12px 36px -8px rgba(0, 0, 0, 0.08)` no claro e `rgba(0, 0, 0, 0.5)` no escuro) para os cartões parecerem flutuar suavemente acima do plano de fundo.
+Reestruturação completa dos itens, preços, combos e categorias do cardápio do 67 Dog, garantindo navegação intuitiva, clareza nos ingredientes dos lanches e melhor experiência de pedido para o cliente.
 
 ---
 
-### 🌟 2. Esferas de Luz Ambiente Difusas em Tons Quentes (`src/App.tsx`)
+## 1. Atualização dos Dados do Cardápio (`src/data/menuData.ts`)
 
-- **Ambient Glows Flutuantes no Background**:
-  - Inserção de esferas de gradiente radial difuso com desfoque profundo (`blur-3xl`, `opacity-40` a `opacity-20` no escuro e `opacity-30` no claro):
-    - Esfera 1 (Topo/Hero): Âmbar dourado suave (`bg-amber-400/25`).
-    - Esfera 2 (Meio/Categorias e Destaques): Chama/Laranja quente (`bg-orange-400/20`).
-    - Esfera 3 (Rodapé/Cardápio): Dourado sutil (`bg-amber-300/15`).
-  - Posicionamento em camada de fundo não-bloqueante (`pointer-events-none fixed inset-0 overflow-hidden`), garantindo que o efeito de vidro fosco refracte essas luzes naturalmente enquanto o usuário rola a página.
+### 🌭 Hot Dogs (Ingredientes mantidos intactos, preços e ordenação atualizados)
+1. **Democrático** — **R$ 8,00**
+2. **Raiz** — **R$ 10,00**
+3. **Duplo Raiz** — **R$ 12,00**
+4. **Frangolino** — **R$ 15,00**
+5. **Calabresaço** — **R$ 15,00**
+6. **Baconzeira** — **R$ 17,00**
+7. **Six Seven** — **R$ 19,00** (Destaque Mais Pedido)
+8. **Costelaço** — **R$ 20,00**
+
+### 🥟 Pastéis
+* **Pastel de Carne** — **R$ 10,00**
+* **Pastel de Frango** — **R$ 10,00**
+* **Pastel de Pizza** — **R$ 10,00**
+* **Pastel de Queijo** — **R$ 10,00** *(mantido conforme sua escolha)*
+* **Pastel de Costela** — **R$ 18,00** *(novo item especial recheado com costela desfiada)*
+
+### 🔥 Combos 67 (Categoria única com divisão clara entre Hot Dogs e Pastéis)
+* **Combos de Hot Dogs:**
+  1. **Combo Na Medida** — **R$ 27,00** (1 Six Seven + 1 mini Coca-Cola 220 ml)
+  2. **Combo Duplinha** — **R$ 49,00** (1 Costelaço + 1 Six Seven + 2 mini Coca-Cola 220 ml)
+  3. **Combo Six Seven Galera** — **R$ 79,00** (1 Six Seven + 1 Costelaço + 2 Raiz + 4 mini Coca-Cola 220 ml)
+* **Combos de Pastéis:**
+  4. **Combo Individual** — **R$ 19,00** (1 pastel tradicional + 1 mini Coca-Cola 220 ml)
+  5. **Combo Individual Costela** — **R$ 20,00** (1 pastel de costela + 1 mini Coca-Cola 220 ml)
+  6. **Combo Duplo de Pastéis** — **R$ 34,00** (2 pastéis à sua escolha + 2 mini Coca-Cola 220 ml)
+  7. **Combo Família de Pastéis** — **R$ 55,00** (4 pastéis à sua escolha + 4 mini Coca-Cola 220 ml)
+
+### 🥤 Bebidas
+* **Coca-Cola 350 ml (Lata)** — **R$ 6,00**
+* **Fanta 350 ml (Lata)** — **R$ 5,50**
+* **Guaraná Antarctica 350 ml (Lata)** — **R$ 5,50**
+* **Suco Kapo 200 ml** — **R$ 4,00**
+* **Água Mineral 500 ml** — **R$ 4,00** *(mantida conforme sua escolha)*
+* Nota explicativa sobre a **Coca-Cola mini 220 ml** exclusiva dos combos.
 
 ---
 
-### 📦 3. Aplicação Consistente nos Componentes da Aplicação
+## 2. Ajustes na Interface e Layout (`src/App.tsx`)
 
-1. **Cartão do Hero Banner**:
-   - Manter a foto vívida e nítida com cantos arredondados contínuos e borda de vidro sutil.
-2. **Cartões de Ação Rápida (WhatsApp, Contato, Endereço, Horários, Instagram)**:
-   - Aplicar o novo container de vidro translúcido unificado, com micro-interações de *hover* e elevação suave.
-3. **Quadro de Categorias do Cardápio**:
-   - Container translúcido com brilho orgânico no topo e botões internos com efeito de pastilhas de vidro suave.
-4. **Seção de Destaques Mais Pedidos & Teaser de Combos**:
-   - Cartões individuais de destaque com fundo de vidro translúcido, deixando transparecer a textura e os tons quentes do fundo.
-5. **Seção e Itens do Cardápio 67 Dog**:
-   - Cada card de produto passa a usar o efeito de vidro uniforme, garantindo legibilidade do texto e destaque para os preços e fotos.
-6. **Modais (Personalização, Info de Localização e Carrinho)**:
-   - Superfícies de modal com desfoque aprofundado e bordas acetinadas, mantendo coesão visual impecável em toda a experiência.
+* **Mapeamento de Imagens (`getItemImage`)**: Adicionar o novo item `pastel-costela` e os novos combos para associar as fotos correspondentes (`ASSETS.pastelCrocante`, `ASSETS.combo`, etc.).
+* **Destaques da Página Inicial (`highlights`)**:
+  * Atualizar o card do **Six Seven** com o novo valor de **R$ 19,00**.
+  * Atualizar o card do **Raiz** com o novo valor de **R$ 10,00**.
+  * Atualizar o card do **Pastel de Carne** com o novo valor de **R$ 10,00**.
+* **Layout dos Combos**:
+  * Na seção de Combos, adicionar divisor ou badges visuais claros separando **Combos de Hot Dogs 🌭🥤** e **Combos de Pastéis 🥟🥤**.
+  * No modal de personalização dos combos de pastéis múltiplos (Duplo e Família), ajustar o placeholder das observações para: `"Ex.: 1 de carne e 1 de queijo, bem sequinho"`, facilitando a escolha dos sabores pelo cliente.
+* **Adicionais e Remoções**:
+  * Garantir que as regras já existentes continuem válidas (adicionais e remoções aparecem para hot dogs e combos de hot dog, enquanto pastéis e combos de pastéis mostram apenas o campo de observações para os sabores/detalhes).
 
 ---
 
-### 🚀 Plano de Verificação
+## 3. Sincronização de SEO e Schema.org (`seo-plugin.ts`)
 
-1. **Verificação de Compilação & Linter**:
-   - Executar `compile_applet` e `lint_applet` para assegurar integridade sintática e de tipagem.
-2. **Testes de Contraste e Legibilidade**:
-   - Testar alternância entre Modo Dia e Modo Noite, garantindo que o vidro mantenha excelente legibilidade de texto (mínimo WCAG AA), preços nítidos e apetite visual elevado.
-3. **Fluidez e Desempenho**:
-   - Garantir que `backdrop-filter` e as esferas difusas mantenham 60 FPS estáveis sem travamentos de scroll.
+* Sincronizar o plugin de pré-renderização para que os novos preços e novos combos sejam refletidos tanto no Schema.org JSON-LD (Rich Snippets de Restaurante no Google) quanto no HTML de acessibilidade estática.
+
+---
+
+## 4. Verificação e Testes
+
+* Executar compilação com `compile_applet`.
+* Executar lint com `lint_applet`.
+* Testar o fluxo completo de montagem de pedido no carrinho e envio da mensagem para o WhatsApp.

@@ -2,6 +2,7 @@ import type { Plugin } from 'vite';
 import { MENU_CATEGORIES, ESTABLISHMENT_INFO } from './src/data/menuData.ts';
 
 function formatBRL(price: number): string {
+  if (price === 0) return 'Exclusiva dos Combos';
   return `R$ ${price.toFixed(2).replace('.', ',')}`;
 }
 
@@ -58,11 +59,15 @@ function generateSchemaOrgJsonLd(): string {
       '@type': 'MenuItem',
       name: item.name,
       description: item.description,
-      offers: {
-        '@type': 'Offer',
-        price: item.price.toFixed(2),
-        priceCurrency: 'BRL',
-      },
+      ...(item.price > 0
+        ? {
+            offers: {
+              '@type': 'Offer',
+              price: item.price.toFixed(2),
+              priceCurrency: 'BRL',
+            },
+          }
+        : {}),
     })),
   }));
 

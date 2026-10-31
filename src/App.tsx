@@ -73,6 +73,10 @@ function getItemImage(item: MenuItem): string {
     case 'combo-six-seven-na-medida':
     case 'combo-duplinha':
     case 'combo-galera':
+    case 'combo-pastel-individual':
+    case 'combo-pastel-individual-costela':
+    case 'combo-pastel-duplo':
+    case 'combo-pastel-familia':
       return ASSETS.combo;
 
     // Pastéis
@@ -82,21 +86,24 @@ function getItemImage(item: MenuItem): string {
     case 'pastel-frango':
     case 'pastel-frango-catupiry':
       return ASSETS.pastelCrocante;
-    case 'pastel-queijo':
-    case 'pastel-queijo-duplo':
-      return ASSETS.pastel;
     case 'pastel-pizza':
     case 'pastel-pizza-especial':
       return ASSETS.pastelCrocante;
+    case 'pastel-queijo':
+    case 'pastel-queijo-duplo':
+      return ASSETS.pastel;
+    case 'pastel-costela':
     case 'pastel-costela-queijo':
-    case 'pastel-chocolate-banana':
       return ASSETS.pastelCrocante;
 
     // Bebidas
+    case 'coca-350':
     case 'refri-lata':
-    case 'coca-600':
-    case 'refri-2l':
+    case 'fanta-350':
+    case 'guarana-350':
+    case 'kapo-200':
     case 'agua-500':
+    case 'coca-mini-info':
       return ASSETS.bebidas;
 
     default:
@@ -118,6 +125,7 @@ function MenuItemCard({
   index?: number;
 }) {
   const isBebida = item.category === 'bebidas';
+  const isInfoOnly = item.price === 0;
   const match = item.name.match(/^(\d+)[\.\-\s]+(.*)$/);
   const itemNumber = match ? match[1] : null;
   const displayName = match ? match[2] : item.name;
@@ -125,9 +133,13 @@ function MenuItemCard({
 
   return (
     <article
-      onClick={() => onSelect(item)}
+      onClick={() => {
+        if (!isInfoOnly) onSelect(item);
+      }}
       style={{ animationDelay: staggerDelay }}
-      className="animate-card-entry group relative flex items-center gap-3 sm:gap-3.5 rounded-2xl glass-panel-subtle p-3 transition-all hover:border-amber-400/50 hover:-translate-y-0.5 cursor-pointer active:scale-[0.99] shadow-xs hover:shadow-md will-change-[transform,opacity]"
+      className={`animate-card-entry group relative flex items-center gap-3 sm:gap-3.5 rounded-2xl glass-panel-subtle p-3 transition-all hover:border-amber-400/50 hover:-translate-y-0.5 ${
+        isInfoOnly ? 'cursor-default opacity-90' : 'cursor-pointer active:scale-[0.99]'
+      } shadow-xs hover:shadow-md will-change-[transform,opacity]`}
     >
       {/* MINIATURA DA IMAGEM DO LANCHE (LADO ESQUERDO) */}
       <div className="relative h-20 w-20 sm:h-22 sm:w-22 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 shadow-sm">
@@ -140,6 +152,11 @@ function MenuItemCard({
             e.currentTarget.src = ASSETS.hotdog;
           }}
         />
+        {item.tag && (
+          <span className="absolute left-1.5 bottom-1.5 rounded-md bg-black/75 px-1.5 py-0.5 text-[9px] font-black text-amber-400 backdrop-blur-xs">
+            {item.tag}
+          </span>
+        )}
       </div>
 
       {/* INFORMAÇÕES DO LANCHE */}
@@ -160,18 +177,30 @@ function MenuItemCard({
 
         <div className="mt-2.5 flex items-center justify-between gap-2">
           {/* PREÇO EM DESTAQUE */}
-          <span className="font-display text-sm font-black text-primary">
-            {formatCurrency(item.price)}
-          </span>
+          {item.price > 0 ? (
+            <span className="font-display text-sm font-black text-primary">
+              {formatCurrency(item.price)}
+            </span>
+          ) : (
+            <span className="rounded-md bg-amber-500/20 px-2 py-0.5 font-display text-[10px] font-black text-amber-500 dark:text-amber-400">
+              {item.tag || 'Exclusiva dos Combos'}
+            </span>
+          )}
 
           {/* BOTÃO UNIFICADO COM ALTA LEGIBILIDADE */}
-          <button
-            type="button"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-flame/90 group-hover:bg-flame text-white px-2.5 py-1 text-[11px] font-bold shadow-xs transition-all active:scale-95 shrink-0 cursor-pointer"
-          >
-            <SlidersHorizontal className="h-2.5 w-2.5" />
-            <span>{isBebida ? 'Pedir' : 'Personalizar'}</span>
-          </button>
+          {!isInfoOnly ? (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-flame/90 group-hover:bg-flame text-white px-2.5 py-1 text-[11px] font-bold shadow-xs transition-all active:scale-95 shrink-0 cursor-pointer"
+            >
+              <SlidersHorizontal className="h-2.5 w-2.5" />
+              <span>{isBebida ? 'Pedir' : 'Personalizar'}</span>
+            </button>
+          ) : (
+            <span className="text-[10px] text-muted-foreground italic">
+              Nos combos
+            </span>
+          )}
         </div>
       </div>
     </article>
@@ -355,6 +384,7 @@ export default function App() {
     const allItems = MENU_CATEGORIES.flatMap((c) => c.items);
     const dogSixSeven = allItems.find((i) => i.id === 'dog-six-seven');
     const dogRaiz = allItems.find((i) => i.id === 'dog-raiz');
+    const pastelCostela = allItems.find((i) => i.id === 'pastel-costela');
     const pastelCarne = allItems.find((i) => i.id === 'pastel-carne');
 
     const list = [];
@@ -362,7 +392,7 @@ export default function App() {
       list.push({
         item: dogSixSeven,
         badge: '🔥 Top 1 • O Mais Pedido',
-        subtitle: '2 vinas, frango desfiado, calabresa, bacon crocante e purê',
+        subtitle: '2 vinas, frango desfiado, calabresa, bacon crocante e purê especial',
         img: ASSETS.heroHotdog,
       });
     }
@@ -374,11 +404,19 @@ export default function App() {
         img: ASSETS.hotdogAppetizing,
       });
     }
+    if (pastelCostela) {
+      list.push({
+        item: pastelCostela,
+        badge: '🥟 Especial Costela',
+        subtitle: 'Massa crocante e sequinha recheada com costela desfiada suculenta',
+        img: ASSETS.pastelCrocante,
+      });
+    }
     if (pastelCarne) {
       list.push({
         item: pastelCarne,
-        badge: '🥟 Pastel Crocante',
-        subtitle: 'Massa crocante e sequinha recheada com carne moída especial',
+        badge: '🥟 Mais Vendido',
+        subtitle: 'Massa crocante recheada com carne moída especial artesanal',
         img: ASSETS.pastel,
       });
     }
@@ -606,14 +644,20 @@ export default function App() {
 
   const isCustomizingHotDogOrCombo = Boolean(
     customizingItem?.category === 'hotdogs' ||
-    customizingItem?.category === 'combos' ||
     customizingItem?.id.startsWith('dog-') ||
-    customizingItem?.id.startsWith('combo-')
+    (customizingItem?.category === 'combos' && customizingItem?.subgroup === 'hotdogs') ||
+    (customizingItem?.id.startsWith('combo-') && !customizingItem?.id.includes('pastel'))
+  );
+
+  const isCustomizingPastelCombo = Boolean(
+    customizingItem?.subgroup === 'pasteis' ||
+    customizingItem?.id.includes('combo-pastel')
   );
 
   const isCustomizingPastel = Boolean(
     customizingItem?.category === 'pasteis' ||
-    customizingItem?.id.startsWith('pastel-')
+    customizingItem?.id.startsWith('pastel-') ||
+    isCustomizingPastelCombo
   );
 
   return (
@@ -1071,16 +1115,64 @@ export default function App() {
                     </span>
                   </div>
 
-                  <div className="space-y-2.5">
-                    {cat.items.map((item, idx) => (
-                      <MenuItemCard
-                        key={item.id}
-                        item={item}
-                        onSelect={openCustomization}
-                        index={idx}
-                      />
-                    ))}
-                  </div>
+                  {cat.id === 'combos' ? (
+                    <div className="space-y-4">
+                      {cat.items.some((i) => i.subgroup === 'hotdogs') && (
+                        <div className="space-y-2.5">
+                          <div className="flex items-center gap-2 pt-1 pb-0.5">
+                            <span className="h-px flex-1 bg-border/60" />
+                            <span className="text-[11px] font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+                              🌭 Combos de Hot Dogs <span className="text-[9px] font-normal text-muted-foreground lowercase">(com mini coca)</span>
+                            </span>
+                            <span className="h-px flex-1 bg-border/60" />
+                          </div>
+                          {cat.items
+                            .filter((i) => i.subgroup === 'hotdogs')
+                            .map((item, idx) => (
+                              <MenuItemCard
+                                key={item.id}
+                                item={item}
+                                onSelect={openCustomization}
+                                index={idx}
+                              />
+                            ))}
+                        </div>
+                      )}
+
+                      {cat.items.some((i) => i.subgroup === 'pasteis') && (
+                        <div className="space-y-2.5">
+                          <div className="flex items-center gap-2 pt-1 pb-0.5">
+                            <span className="h-px flex-1 bg-border/60" />
+                            <span className="text-[11px] font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+                              🥟 Combos de Pastéis <span className="text-[9px] font-normal text-muted-foreground lowercase">(com mini coca)</span>
+                            </span>
+                            <span className="h-px flex-1 bg-border/60" />
+                          </div>
+                          {cat.items
+                            .filter((i) => i.subgroup === 'pasteis')
+                            .map((item, idx) => (
+                              <MenuItemCard
+                                key={item.id}
+                                item={item}
+                                onSelect={openCustomization}
+                                index={idx}
+                              />
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="space-y-2.5">
+                      {cat.items.map((item, idx) => (
+                        <MenuItemCard
+                          key={item.id}
+                          item={item}
+                          onSelect={openCustomization}
+                          index={idx}
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
               ))
             )}
@@ -1223,60 +1315,151 @@ export default function App() {
                 />
               </div>
 
-              <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-                <button
-                  type="button"
-                  onClick={() => setActiveCategory('all')}
-                  className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
-                    activeCategory === 'all'
-                      ? 'bg-primary text-primary-foreground shadow-xs'
-                      : 'border border-border/80 glass-panel text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  Todos
-                </button>
-                {MENU_CATEGORIES.map((cat) => (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    onClick={() => setActiveCategory(cat.id)}
-                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold transition-all cursor-pointer ${
-                      activeCategory === cat.id
-                        ? 'bg-primary text-primary-foreground shadow-xs'
-                        : 'border border-border/80 glass-panel text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {cat.emoji} {cat.label}
-                  </button>
-                ))}
+              {/* CARDS DE CATEGORIA COM SLIDE-IN SEQUENCIAL */}
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-0.5">
+                {MENU_CATEGORIES.map((cat, idx) => {
+                  const isSelected = activeCategory === cat.id;
+                  return (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setActiveCategory(isSelected ? 'all' : cat.id)}
+                      style={{
+                        animationDelay: `${idx * 65}ms`,
+                      }}
+                      className={`animate-slide-in-sequential group relative flex flex-col items-center justify-center gap-1.5 rounded-2xl p-2 transition-all duration-200 cursor-pointer text-center h-[72px] sm:h-[76px] ${
+                        isSelected
+                          ? 'bg-amber-500/25 border-2 border-amber-400 text-foreground shadow-[0_6px_20px_rgba(245,158,11,0.25)] -translate-y-0.5 scale-[1.02]'
+                          : 'glass-panel-subtle border border-border/80 text-muted-foreground hover:text-foreground hover:border-amber-400/50 hover:-translate-y-0.5 active:scale-95'
+                      }`}
+                    >
+                      <div
+                        className={`flex h-9 w-9 items-center justify-center rounded-xl transition-all duration-200 ${
+                          isSelected
+                            ? 'bg-amber-500/35 text-amber-300 scale-105 border border-amber-400/60 shadow-inner'
+                            : 'bg-white/10 dark:bg-black/25 group-hover:scale-105 group-hover:border-amber-400/40 border border-transparent'
+                        }`}
+                      >
+                        <span className="text-xl sm:text-2xl drop-shadow-xs">{cat.emoji}</span>
+                      </div>
+                      <span
+                        className={`block w-full font-display text-[10px] sm:text-xs font-extrabold truncate text-center tracking-tight transition-colors ${
+                          isSelected ? 'text-amber-500 dark:text-amber-300' : 'text-foreground group-hover:text-amber-400'
+                        }`}
+                      >
+                        {cat.label}
+                      </span>
+                      {isSelected && (
+                        <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[9px] font-black text-black shadow-xs">
+                          ✓
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
+
+              {activeCategory !== 'all' && (
+                <div className="flex items-center justify-between text-xs px-1 pt-0.5 animate-slide-in-sequential">
+                  <span className="text-muted-foreground text-[11px]">
+                    Mostrando: <strong className="text-foreground">{MENU_CATEGORIES.find(c => c.id === activeCategory)?.label}</strong>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setActiveCategory('all')}
+                    className="text-[11px] font-bold text-amber-500 hover:text-amber-400 transition-colors cursor-pointer"
+                  >
+                    Exibir todas ({MENU_ITEMS.length})
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* SCROLLABLE LIST OF MENU ITEMS */}
             <div className="flex-1 overflow-y-auto px-3 py-4 space-y-6">
               {filteredCategories.length === 0 ? (
-                <div className="py-12 text-center">
+                <div className="py-12 text-center animate-slide-in-sequential">
                   <p className="text-3xl mb-2">🔍</p>
                   <p className="text-sm font-bold">Nenhum item encontrado</p>
                   <p className="mt-1 text-xs text-muted-foreground">Tente pesquisar com outro termo.</p>
                 </div>
               ) : (
-                filteredCategories.map((cat) => (
-                  <section key={cat.id} className="space-y-3">
-                    <h3 className="font-display text-sm font-extrabold flex items-center gap-2 text-primary">
-                      <span>{cat.emoji}</span> {cat.label}
-                    </h3>
-
-                    <div className="space-y-2.5">
-                      {cat.items.map((item, idx) => (
-                        <MenuItemCard
-                          key={item.id}
-                          item={item}
-                          onSelect={openCustomization}
-                          index={idx}
-                        />
-                      ))}
+                filteredCategories.map((cat, catIdx) => (
+                  <section
+                    key={cat.id}
+                    style={{ animationDelay: `${catIdx * 80}ms` }}
+                    className="animate-slide-in-sequential space-y-3 rounded-3xl glass-panel-subtle p-3.5 sm:p-4 border border-border/80 shadow-xs transition-all duration-300"
+                  >
+                    <div className="flex items-center justify-between pb-1 border-b border-border/40">
+                      <h3 className="font-display text-sm font-extrabold flex items-center gap-2 text-primary">
+                        <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-amber-500/15 border border-amber-500/30 text-sm shadow-xs">
+                          {cat.emoji}
+                        </span>
+                        <span>{cat.label}</span>
+                      </h3>
+                      <span className="text-[10px] text-muted-foreground font-medium">
+                        {cat.items.length} {cat.items.length === 1 ? 'item' : 'itens'}
+                      </span>
                     </div>
+
+                    {cat.id === 'combos' ? (
+                      <div className="space-y-4">
+                        {cat.items.some((i) => i.subgroup === 'hotdogs') && (
+                          <div className="space-y-2.5">
+                            <div className="flex items-center gap-2 pt-1 pb-0.5">
+                              <span className="h-px flex-1 bg-border/60" />
+                              <span className="text-[11px] font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+                                🌭 Combos de Hot Dogs <span className="text-[9px] font-normal text-muted-foreground lowercase">(com mini coca)</span>
+                              </span>
+                              <span className="h-px flex-1 bg-border/60" />
+                            </div>
+                            {cat.items
+                              .filter((i) => i.subgroup === 'hotdogs')
+                              .map((item, idx) => (
+                                <MenuItemCard
+                                  key={item.id}
+                                  item={item}
+                                  onSelect={openCustomization}
+                                  index={idx}
+                                />
+                              ))}
+                          </div>
+                        )}
+
+                        {cat.items.some((i) => i.subgroup === 'pasteis') && (
+                          <div className="space-y-2.5">
+                            <div className="flex items-center gap-2 pt-1 pb-0.5">
+                              <span className="h-px flex-1 bg-border/60" />
+                              <span className="text-[11px] font-bold text-amber-500 uppercase tracking-wider flex items-center gap-1.5">
+                                🥟 Combos de Pastéis <span className="text-[9px] font-normal text-muted-foreground lowercase">(com mini coca)</span>
+                              </span>
+                              <span className="h-px flex-1 bg-border/60" />
+                            </div>
+                            {cat.items
+                              .filter((i) => i.subgroup === 'pasteis')
+                              .map((item, idx) => (
+                                <MenuItemCard
+                                  key={item.id}
+                                  item={item}
+                                  onSelect={openCustomization}
+                                  index={idx}
+                                />
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5">
+                        {cat.items.map((item, idx) => (
+                          <MenuItemCard
+                            key={item.id}
+                            item={item}
+                            onSelect={openCustomization}
+                            index={idx}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </section>
                 ))
               )}
@@ -1453,18 +1636,27 @@ export default function App() {
             {/* OBSERVAÇÃO INDIVIDUAL DO ITEM */}
             <div className="mt-5">
               <label className="text-xs font-bold text-muted-foreground block mb-1.5">
-                Observações deste item (opcional):
+                {isCustomizingPastelCombo
+                  ? "Sabores dos pastéis e observações:"
+                  : "Observações deste item (opcional):"}
               </label>
               <input
                 value={modalItemNotes}
                 onChange={(e) => setModalItemNotes(e.target.value)}
                 placeholder={
-                  isCustomizingPastel
+                  isCustomizingPastelCombo
+                    ? "Ex.: 1 de carne e 1 de queijo, bem sequinho..."
+                    : isCustomizingPastel
                     ? "Ex.: bem sequinho, sem azeitona, etc."
                     : "Ex.: Pão bem prensado, milho à parte, etc."
                 }
                 className="w-full rounded-xl border border-input glass-panel-subtle px-3 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
               />
+              {isCustomizingPastelCombo && (
+                <p className="mt-1 text-[10px] text-muted-foreground">
+                  💡 Indique acima os sabores escolhidos para o combo (Carne, Frango, Pizza, Queijo).
+                </p>
+              )}
             </div>
 
             {/* QUANTIDADE E BOTÃO ADICIONAR */}
