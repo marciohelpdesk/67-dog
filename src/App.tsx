@@ -73,6 +73,9 @@ function getItemImage(item: MenuItem): string {
     case 'combo-six-seven-na-medida':
     case 'combo-duplinha':
     case 'combo-galera':
+    case 'combo-pastel':
+    case 'combo-pastel-par-perfeito':
+    case 'combo-pastel-pastelada':
     case 'combo-pastel-individual':
     case 'combo-pastel-individual-costela':
     case 'combo-pastel-duplo':
