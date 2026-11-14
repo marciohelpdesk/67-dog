@@ -31,7 +31,6 @@ import {
   SlidersHorizontal,
   Sun,
   Moon,
-  LocateFixed,
   Loader2,
 } from 'lucide-react';
 import { ASSETS } from './assets/images';
@@ -47,11 +46,11 @@ import {
 } from './data/menuData';
 import {
   DeliveryMode,
+  DeliveryPrecision,
   DeliveryAddress,
   calculateDeliveryFee,
   lookupCep,
-  calculateRouteDistanceFromStore,
-  geocodeAndCalculateDistance,
+  calculateDeliveryDistanceAuto,
 } from './utils/delivery';
 
 function formatCurrency(val: number) {
@@ -343,9 +342,15 @@ export default function App() {
     complement: '',
   });
   const [deliveryDistanceKm, setDeliveryDistanceKm] = useState<number | null>(null);
-  const [distanceSource, setDistanceSource] = useState<'auto' | 'gps' | 'manual' | null>(null);
+  const [deliveryPrecision, setDeliveryPrecision] = useState<DeliveryPrecision | null>(null);
   const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
-  const [distanceError, setDistanceError] = useState<string | null>(null);
+  const [isLookingUpCep, setIsLookingUpCep] = useState(false);
+  const [deliveryCityInfo, setDeliveryCityInfo] = useState<{ city: string; state: string }>({
+    city: 'Fazenda Rio Grande',
+    state: 'PR',
+  });
+  const cepLookupSeqRef = React.useRef(0);
+  const distanceCalcSeqRef = React.useRef(0);
 
   const [customerName, setCustomerName] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
@@ -398,14 +403,90 @@ export default function App() {
       : 0;
   const totalPrice = itemsSubtotal + deliveryFee;
 
+  const cleanDeliveryCep = deliveryAddress.cep.replace(/\D/g, '');
   const isDeliveryAddressComplete =
     deliveryMode === 'pickup' ||
     Boolean(
-      deliveryAddress.street.trim() &&
+      cleanDeliveryCep.length === 8 &&
+        deliveryAddress.street.trim() &&
         deliveryAddress.number.trim() &&
         deliveryAddress.neighborhood.trim() &&
-        deliveryDistanceKm !== null
+        deliveryDistanceKm !== null &&
+        !isCalculatingDistance &&
+        !isLookingUpCep
     );
+
+  React.useEffect(() => {
+    if (deliveryMode !== 'delivery') {
+      distanceCalcSeqRef.current += 1;
+      setIsCalculatingDistance(false);
+      return;
+    }
+
+    const cepDigits = deliveryAddress.cep.replace(/\D/g, '');
+    const street = deliveryAddress.street.trim();
+    const number = deliveryAddress.number.trim();
+    const neighborhood = deliveryAddress.neighborhood.trim();
+
+    const hasEnoughForCalc =
+      cepDigits.length === 8 || (street.length >= 3 && neighborhood.length >= 2);
+
+    if (!hasEnoughForCalc) {
+      distanceCalcSeqRef.current += 1;
+      setDeliveryDistanceKm(null);
+      setDeliveryPrecision(null);
+      setIsCalculatingDistance(false);
+      return;
+    }
+
+    if (isLookingUpCep) {
+      setIsCalculatingDistance(true);
+      return;
+    }
+
+    const seq = ++distanceCalcSeqRef.current;
+    const controller = new AbortController();
+    setIsCalculatingDistance(true);
+
+    const timer = setTimeout(async () => {
+      try {
+        const result = await calculateDeliveryDistanceAuto(
+          {
+            cep: cepDigits,
+            street,
+            number,
+            neighborhood,
+            city: deliveryCityInfo.city,
+            state: deliveryCityInfo.state,
+          },
+          controller.signal
+        );
+        if (controller.signal.aborted || seq !== distanceCalcSeqRef.current) return;
+        setDeliveryDistanceKm(result.distanceKm);
+        setDeliveryPrecision(result.precision);
+      } catch {
+        // Ignore aborted stale calculation requests
+      } finally {
+        if (!controller.signal.aborted && seq === distanceCalcSeqRef.current) {
+          setIsCalculatingDistance(false);
+        }
+      }
+    }, 550);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [
+    deliveryMode,
+    deliveryAddress.cep,
+    deliveryAddress.street,
+    deliveryAddress.number,
+    deliveryAddress.neighborhood,
+    deliveryCityInfo.city,
+    deliveryCityInfo.state,
+    isLookingUpCep,
+  ]);
 
   const highlights = useMemo(() => {
     const allItems = MENU_CATEGORIES.flatMap((c) => c.items);
@@ -600,86 +681,37 @@ export default function App() {
     const digits = rawValue.replace(/\D/g, '').slice(0, 8);
     const formatted = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
     setDeliveryAddress((prev) => ({ ...prev, cep: formatted }));
-    setDistanceError(null);
 
-    if (digits.length === 8) {
+    if (digits.length < 8) {
+      cepLookupSeqRef.current += 1;
+      setIsLookingUpCep(false);
+      setDeliveryCityInfo({ city: 'Fazenda Rio Grande', state: 'PR' });
+      return;
+    }
+
+    const seq = ++cepLookupSeqRef.current;
+    setIsLookingUpCep(true);
+    try {
       const result = await lookupCep(digits);
+      if (seq !== cepLookupSeqRef.current) return;
       if (result) {
         setDeliveryAddress((prev) => ({
           ...prev,
           street: result.street || prev.street,
           neighborhood: result.neighborhood || prev.neighborhood,
         }));
+        if (result.city || result.state) {
+          setDeliveryCityInfo({
+            city: result.city || 'Fazenda Rio Grande',
+            state: result.state || 'PR',
+          });
+        }
+      }
+    } finally {
+      if (seq === cepLookupSeqRef.current) {
+        setIsLookingUpCep(false);
       }
     }
-  }
-
-  async function handleCalculateDistanceByAddress() {
-    if (!deliveryAddress.street.trim() && deliveryAddress.cep.replace(/\D/g, '').length < 8) {
-      setDistanceError('Informe a rua/avenida ou o CEP para calcular a distância.');
-      return;
-    }
-
-    setIsCalculatingDistance(true);
-    setDistanceError(null);
-
-    try {
-      const { distanceKm } = await geocodeAndCalculateDistance({
-        cep: deliveryAddress.cep,
-        street: deliveryAddress.street,
-        number: deliveryAddress.number,
-        neighborhood: deliveryAddress.neighborhood,
-      });
-      setDeliveryDistanceKm(distanceKm);
-      setDistanceSource('auto');
-    } catch (err) {
-      setDistanceError(
-        err instanceof Error
-          ? err.message
-          : 'Não foi possível localizar o endereço. Use o GPS ou informe a distância manualmente.'
-      );
-    } finally {
-      setIsCalculatingDistance(false);
-    }
-  }
-
-  function handleUseGpsDistance() {
-    if (typeof navigator === 'undefined' || !navigator.geolocation) {
-      setDistanceError('Geolocalização não suportada neste navegador. Ajuste a distância manualmente.');
-      return;
-    }
-
-    setIsCalculatingDistance(true);
-    setDistanceError(null);
-
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const distanceKm = await calculateRouteDistanceFromStore(
-            pos.coords.latitude,
-            pos.coords.longitude
-          );
-          setDeliveryDistanceKm(distanceKm);
-          setDistanceSource('gps');
-        } catch {
-          setDistanceError('Não foi possível calcular a rota pelo GPS. Ajuste a distância manualmente.');
-        } finally {
-          setIsCalculatingDistance(false);
-        }
-      },
-      () => {
-        setIsCalculatingDistance(false);
-        setDistanceError('Permissão de localização negada. Calcule pelo endereço ou ajuste a distância manualmente.');
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  }
-
-  function handleManualDistanceChange(nextKm: number) {
-    const clamped = Math.max(0, Math.min(30, Math.round(nextKm * 10) / 10));
-    setDeliveryDistanceKm(clamped);
-    setDistanceSource('manual');
-    setDistanceError(null);
   }
 
   const whatsAppOrderUrl = useMemo(() => {
@@ -1972,21 +2004,24 @@ export default function App() {
 
                       <div className="grid grid-cols-3 gap-2">
                         <input
+                          id="delivery-cep-input"
                           value={deliveryAddress.cep}
                           onChange={(e) => handleCepChange(e.target.value)}
-                          placeholder="CEP (opcional)"
+                          placeholder="CEP *"
+                          maxLength={9}
                           inputMode="numeric"
-                          className="col-span-1 rounded-xl border border-input glass-panel px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
+                          className={`col-span-1 rounded-xl border glass-panel px-2.5 py-2.5 text-xs outline-none placeholder:text-muted-foreground transition-colors min-h-[44px] ${
+                            cleanDeliveryCep.length < 8 ? 'border-amber-500/50' : 'border-primary'
+                          }`}
                         />
                         <input
                           id="delivery-neighborhood-input"
                           value={deliveryAddress.neighborhood}
-                          onChange={(e) => {
-                            setDeliveryAddress((prev) => ({ ...prev, neighborhood: e.target.value }));
-                            setDistanceError(null);
-                          }}
+                          onChange={(e) =>
+                            setDeliveryAddress((prev) => ({ ...prev, neighborhood: e.target.value }))
+                          }
                           placeholder="Bairro *"
-                          className={`col-span-2 rounded-xl border glass-panel px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground transition-colors ${
+                          className={`col-span-2 rounded-xl border glass-panel px-2.5 py-2.5 text-xs outline-none placeholder:text-muted-foreground transition-colors min-h-[44px] ${
                             !deliveryAddress.neighborhood.trim() ? 'border-amber-500/50' : 'border-primary'
                           }`}
                         />
@@ -1996,12 +2031,11 @@ export default function App() {
                         <input
                           id="delivery-street-input"
                           value={deliveryAddress.street}
-                          onChange={(e) => {
-                            setDeliveryAddress((prev) => ({ ...prev, street: e.target.value }));
-                            setDistanceError(null);
-                          }}
+                          onChange={(e) =>
+                            setDeliveryAddress((prev) => ({ ...prev, street: e.target.value }))
+                          }
                           placeholder="Rua / Avenida *"
-                          className={`col-span-3 rounded-xl border glass-panel px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground transition-colors ${
+                          className={`col-span-3 rounded-xl border glass-panel px-2.5 py-2.5 text-xs outline-none placeholder:text-muted-foreground transition-colors min-h-[44px] ${
                             !deliveryAddress.street.trim() ? 'border-amber-500/50' : 'border-primary'
                           }`}
                         />
@@ -2012,7 +2046,7 @@ export default function App() {
                             setDeliveryAddress((prev) => ({ ...prev, number: e.target.value }))
                           }
                           placeholder="Nº *"
-                          className={`col-span-1 rounded-xl border glass-panel px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground transition-colors ${
+                          className={`col-span-1 rounded-xl border glass-panel px-2.5 py-2.5 text-xs outline-none placeholder:text-muted-foreground transition-colors min-h-[44px] ${
                             !deliveryAddress.number.trim() ? 'border-amber-500/50' : 'border-primary'
                           }`}
                         />
@@ -2024,99 +2058,47 @@ export default function App() {
                           setDeliveryAddress((prev) => ({ ...prev, complement: e.target.value }))
                         }
                         placeholder="Complemento / Ponto de referência (opcional)"
-                        className="w-full rounded-xl border border-input glass-panel px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
+                        className="w-full rounded-xl border border-input glass-panel px-2.5 py-2.5 text-xs outline-none placeholder:text-muted-foreground focus:border-primary min-h-[44px]"
                       />
 
-                      {/* AÇÕES DE CÁLCULO DE DISTÂNCIA */}
-                      <div className="grid grid-cols-2 gap-2 pt-0.5">
-                        <button
-                          type="button"
-                          onClick={handleCalculateDistanceByAddress}
-                          disabled={isCalculatingDistance}
-                          className="flex items-center justify-center gap-1.5 rounded-xl bg-primary/15 hover:bg-primary/25 border border-primary/40 px-2.5 py-2 text-[11px] font-bold text-primary transition-all active:scale-95 cursor-pointer min-h-[42px] disabled:opacity-60"
-                        >
-                          {isCalculatingDistance ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Search className="h-3.5 w-3.5" />
-                          )}
-                          <span>Calcular Endereço</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={handleUseGpsDistance}
-                          disabled={isCalculatingDistance}
-                          className="flex items-center justify-center gap-1.5 rounded-xl bg-secondary hover:bg-secondary/80 border border-border px-2.5 py-2 text-[11px] font-bold text-foreground transition-all active:scale-95 cursor-pointer min-h-[42px] disabled:opacity-60"
-                        >
-                          <LocateFixed className="h-3.5 w-3.5 text-primary" />
-                          <span>Usar meu GPS</span>
-                        </button>
-                      </div>
-
-                      {distanceError && (
-                        <p className="text-[11px] text-amber-500 dark:text-amber-400 flex items-start gap-1.5 leading-snug">
-                          <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-                          <span>{distanceError}</span>
-                        </p>
-                      )}
-
-                      {/* AJUSTE MANUAL E EXIBIÇÃO DA DISTÂNCIA / TAXA */}
+                      {/* EXIBIÇÃO SOMENTE LEITURA DA TAXA DE ENTREGA CALCULADA AUTOMATICAMENTE */}
                       <div
                         id="delivery-distance-box"
-                        className="rounded-xl border border-border/80 glass-panel p-2.5 space-y-2"
+                        className="rounded-xl border border-border/80 glass-panel p-3 space-y-1.5"
                       >
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-bold text-muted-foreground">
-                            Distância da loja:
-                            {distanceSource === 'auto' && ' (Endereço)'}
-                            {distanceSource === 'gps' && ' (GPS)'}
-                            {distanceSource === 'manual' && ' (Manual)'}
-                          </span>
-                          <span className="font-display font-extrabold text-foreground">
-                            {deliveryDistanceKm !== null
-                              ? `${deliveryDistanceKm.toFixed(1).replace('.', ',')} km`
-                              : 'Não calculada'}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleManualDistanceChange((deliveryDistanceKm ?? 0) - 0.5)}
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted hover:bg-muted-foreground/20 font-bold text-foreground cursor-pointer active:scale-90"
-                            aria-label="Diminuir 0,5 km"
-                          >
-                            −
-                          </button>
-                          <input
-                            type="range"
-                            min="0"
-                            max="20"
-                            step="0.5"
-                            value={deliveryDistanceKm ?? 0}
-                            onChange={(e) => handleManualDistanceChange(parseFloat(e.target.value))}
-                            className="flex-1 accent-amber-500 cursor-pointer"
-                            aria-label="Ajustar distância em quilômetros"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => handleManualDistanceChange((deliveryDistanceKm ?? 0) + 0.5)}
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted hover:bg-muted-foreground/20 font-bold text-foreground cursor-pointer active:scale-90"
-                            aria-label="Aumentar 0,5 km"
-                          >
-                            +
-                          </button>
-                        </div>
-
-                        <div className="flex items-center justify-between text-[11px] pt-0.5">
-                          <span className="text-muted-foreground">
-                            Base R$ 7,00 + R$ 1,50/km
-                          </span>
-                          <span className="font-bold text-primary">
-                            Taxa: {formatCurrency(deliveryFee)}
-                          </span>
-                        </div>
+                        {isLookingUpCep || isCalculatingDistance ? (
+                          <div className="flex items-center gap-2 text-xs text-foreground">
+                            <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
+                            <span className="font-semibold">
+                              Calculando taxa de entrega pelo endereço...
+                            </span>
+                          </div>
+                        ) : deliveryDistanceKm !== null ? (
+                          <>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                                <Truck className="h-3.5 w-3.5 text-primary shrink-0" />
+                                <span>Taxa de Entrega Calculada</span>
+                              </span>
+                              <span className="font-display text-sm font-extrabold text-primary">
+                                {formatCurrency(deliveryFee)}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                              <span>
+                                Rota: <strong className="text-foreground">{deliveryDistanceKm.toFixed(1).replace('.', ',')} km</strong>
+                                {deliveryPrecision === 'neighborhood' && ' (centro do bairro)'}
+                                {deliveryPrecision === 'cep' && ' (região do CEP)'}
+                              </span>
+                              <span>Base R$ 7,00 + R$ 1,50/km</span>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                            <span>Informe o CEP e o endereço acima para calcular a entrega.</span>
+                            <span className="shrink-0 font-semibold text-foreground">Mín. R$ 7,00</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
@@ -2239,15 +2221,17 @@ export default function App() {
                   <div className="flex justify-between text-muted-foreground text-xs">
                     <span>
                       {deliveryMode === 'delivery'
-                        ? `Taxa de Entrega (${
-                            deliveryDistanceKm !== null
-                              ? `${deliveryDistanceKm.toFixed(1).replace('.', ',')} km`
-                              : 'mínimo'
-                          })`
+                        ? isCalculatingDistance || isLookingUpCep
+                          ? 'Taxa de Entrega (calculando...)'
+                          : deliveryDistanceKm !== null
+                          ? `Taxa de Entrega (${deliveryDistanceKm.toFixed(1).replace('.', ',')} km)`
+                          : 'Taxa de Entrega (mínimo)'
                         : 'Taxa de Atendimento (Retirada)'}
                     </span>
                     {deliveryMode === 'delivery' ? (
-                      <span className="font-bold text-foreground">{formatCurrency(deliveryFee)}</span>
+                      <span className="font-bold text-foreground">
+                        {isCalculatingDistance || isLookingUpCep ? 'Calculando...' : formatCurrency(deliveryFee)}
+                      </span>
                     ) : (
                       <span className="text-emerald-500 dark:text-emerald-400 font-bold">Grátis</span>
                     )}
@@ -2332,7 +2316,11 @@ export default function App() {
                     <button
                       type="button"
                       onClick={() => {
-                        if (deliveryMode === 'delivery' && !deliveryAddress.neighborhood.trim()) {
+                        if (deliveryMode === 'delivery' && cleanDeliveryCep.length < 8) {
+                          const el = document.getElementById('delivery-cep-input');
+                          el?.focus();
+                          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else if (deliveryMode === 'delivery' && !deliveryAddress.neighborhood.trim()) {
                           const el = document.getElementById('delivery-neighborhood-input');
                           el?.focus();
                           el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -2344,7 +2332,10 @@ export default function App() {
                           const el = document.getElementById('delivery-number-input');
                           el?.focus();
                           el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        } else if (deliveryMode === 'delivery' && deliveryDistanceKm === null) {
+                        } else if (
+                          deliveryMode === 'delivery' &&
+                          (isCalculatingDistance || isLookingUpCep || deliveryDistanceKm === null)
+                        ) {
                           const el = document.getElementById('delivery-distance-box');
                           el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         } else if (!customerName.trim()) {
@@ -2365,24 +2356,28 @@ export default function App() {
                         <div className="min-w-0">
                           <p className="font-display text-xs font-bold text-foreground truncate">
                             {deliveryMode === 'delivery' &&
-                            (!deliveryAddress.street.trim() ||
+                            (cleanDeliveryCep.length < 8 ||
+                              !deliveryAddress.street.trim() ||
                               !deliveryAddress.number.trim() ||
                               !deliveryAddress.neighborhood.trim())
-                              ? '1. Preencha o endereço de entrega'
-                              : deliveryMode === 'delivery' && deliveryDistanceKm === null
-                              ? '2. Calcule ou ajuste a distância (km)'
+                              ? '1. Preencha CEP e endereço de entrega'
+                              : deliveryMode === 'delivery' &&
+                                (isCalculatingDistance || isLookingUpCep || deliveryDistanceKm === null)
+                              ? '2. Calculando taxa de entrega...'
                               : !customerName.trim()
                               ? `${deliveryMode === 'delivery' ? '3' : '1'}. Digite seu nome`
                               : `${deliveryMode === 'delivery' ? '4' : '2'}. Confirme o pagamento Pix`}
                           </p>
                           <p className="text-[11px] text-amber-500 dark:text-amber-300/80 truncate">
                             {deliveryMode === 'delivery' &&
-                            (!deliveryAddress.street.trim() ||
+                            (cleanDeliveryCep.length < 8 ||
+                              !deliveryAddress.street.trim() ||
                               !deliveryAddress.number.trim() ||
                               !deliveryAddress.neighborhood.trim())
-                              ? 'Informe rua, número e bairro para entrega'
-                              : deliveryMode === 'delivery' && deliveryDistanceKm === null
-                              ? 'Toque para calcular a taxa de entrega'
+                              ? 'Informe CEP, bairro, rua e número para entrega'
+                              : deliveryMode === 'delivery' &&
+                                (isCalculatingDistance || isLookingUpCep || deliveryDistanceKm === null)
+                              ? 'Aguarde o cálculo automático pelo endereço'
                               : !customerName.trim()
                               ? 'Toque aqui para preencher seu nome'
                               : 'Marque a caixinha do Pix pago para liberar'}
