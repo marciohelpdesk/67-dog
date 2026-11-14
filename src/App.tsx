@@ -31,6 +31,8 @@ import {
   SlidersHorizontal,
   Sun,
   Moon,
+  LocateFixed,
+  Loader2,
 } from 'lucide-react';
 import { ASSETS } from './assets/images';
 import {
@@ -43,6 +45,14 @@ import {
   ExtraOption,
   RemovalOption,
 } from './data/menuData';
+import {
+  DeliveryMode,
+  DeliveryAddress,
+  calculateDeliveryFee,
+  lookupCep,
+  calculateRouteDistanceFromStore,
+  geocodeAndCalculateDistance,
+} from './utils/delivery';
 
 function formatCurrency(val: number) {
   return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -64,8 +74,6 @@ function getItemImage(item: MenuItem): string {
       return ASSETS.hotdogAppetizing;
     case 'dog-baconzeira':
       return ASSETS.hotdogCheddar;
-    case 'dog-costelaco':
-      return ASSETS.heroHotdog;
     case 'dog-six-seven':
       return ASSETS.heroHotdog;
 
@@ -76,36 +84,23 @@ function getItemImage(item: MenuItem): string {
     case 'combo-pastel':
     case 'combo-pastel-par-perfeito':
     case 'combo-pastel-pastelada':
-    case 'combo-pastel-individual':
-    case 'combo-pastel-individual-costela':
-    case 'combo-pastel-duplo':
-    case 'combo-pastel-familia':
       return ASSETS.combo;
 
     // Pastéis
     case 'pastel-carne':
-    case 'pastel-carne-especial':
       return ASSETS.pastel;
     case 'pastel-frango':
-    case 'pastel-frango-catupiry':
       return ASSETS.pastelCrocante;
     case 'pastel-pizza':
-    case 'pastel-pizza-especial':
       return ASSETS.pastelCrocante;
     case 'pastel-queijo':
-    case 'pastel-queijo-duplo':
       return ASSETS.pastel;
-    case 'pastel-costela':
-    case 'pastel-costela-queijo':
-      return ASSETS.pastelCrocante;
 
     // Bebidas
     case 'coca-350':
-    case 'refri-lata':
     case 'fanta-350':
     case 'guarana-350':
     case 'kapo-200':
-    case 'agua-500':
     case 'coca-mini-info':
       return ASSETS.bebidas;
 
@@ -339,6 +334,19 @@ export default function App() {
 
   const [cart, setCart] = useState<Record<string, CartItemState>>({});
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>('pickup');
+  const [deliveryAddress, setDeliveryAddress] = useState<DeliveryAddress>({
+    cep: '',
+    street: '',
+    number: '',
+    neighborhood: '',
+    complement: '',
+  });
+  const [deliveryDistanceKm, setDeliveryDistanceKm] = useState<number | null>(null);
+  const [distanceSource, setDistanceSource] = useState<'auto' | 'gps' | 'manual' | null>(null);
+  const [isCalculatingDistance, setIsCalculatingDistance] = useState(false);
+  const [distanceError, setDistanceError] = useState<string | null>(null);
+
   const [customerName, setCustomerName] = useState('');
   const [orderNotes, setOrderNotes] = useState('');
   const [copiedPix, setCopiedPix] = useState(false);
@@ -381,13 +389,29 @@ export default function App() {
 
   const cartItems = useMemo(() => Object.values(cart), [cart]);
   const totalCount = cartItems.reduce((acc, curr) => acc + curr.qty, 0);
-  const totalPrice = cartItems.reduce((acc, curr) => acc + curr.unitPrice * curr.qty, 0);
+  const itemsSubtotal = cartItems.reduce((acc, curr) => acc + curr.unitPrice * curr.qty, 0);
+  const deliveryFee =
+    deliveryMode === 'delivery' && deliveryDistanceKm !== null
+      ? calculateDeliveryFee(deliveryDistanceKm)
+      : deliveryMode === 'delivery'
+      ? ESTABLISHMENT_INFO.deliveryBaseFee
+      : 0;
+  const totalPrice = itemsSubtotal + deliveryFee;
+
+  const isDeliveryAddressComplete =
+    deliveryMode === 'pickup' ||
+    Boolean(
+      deliveryAddress.street.trim() &&
+        deliveryAddress.number.trim() &&
+        deliveryAddress.neighborhood.trim() &&
+        deliveryDistanceKm !== null
+    );
 
   const highlights = useMemo(() => {
     const allItems = MENU_CATEGORIES.flatMap((c) => c.items);
     const dogSixSeven = allItems.find((i) => i.id === 'dog-six-seven');
     const dogRaiz = allItems.find((i) => i.id === 'dog-raiz');
-    const pastelCostela = allItems.find((i) => i.id === 'pastel-costela');
+    const pastelPizza = allItems.find((i) => i.id === 'pastel-pizza');
     const pastelCarne = allItems.find((i) => i.id === 'pastel-carne');
 
     const list = [];
@@ -395,7 +419,7 @@ export default function App() {
       list.push({
         item: dogSixSeven,
         badge: '🔥 Top 1 • O Mais Pedido',
-        subtitle: '2 vinas, frango desfiado, calabresa, bacon crocante e purê especial',
+        subtitle: '2 vinas, frango desfiado, calabresa, bacon crocante e batata palha',
         img: ASSETS.heroHotdog,
       });
     }
@@ -407,11 +431,11 @@ export default function App() {
         img: ASSETS.hotdogAppetizing,
       });
     }
-    if (pastelCostela) {
+    if (pastelPizza) {
       list.push({
-        item: pastelCostela,
-        badge: '🥟 Especial Costela',
-        subtitle: 'Massa crocante e sequinha recheada com costela desfiada suculenta',
+        item: pastelPizza,
+        badge: '🥟 Sabor Clássico',
+        subtitle: 'Muçarela derretida, presunto em cubinhos, tomate fresco e orégano',
         img: ASSETS.pastelCrocante,
       });
     }
@@ -572,8 +596,96 @@ export default function App() {
     setCopiedPix(false);
   }
 
-  function sendWhatsAppOrder() {
-    if (cartItems.length === 0 || !customerName.trim() || !pixConfirmed) return;
+  async function handleCepChange(rawValue: string) {
+    const digits = rawValue.replace(/\D/g, '').slice(0, 8);
+    const formatted = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+    setDeliveryAddress((prev) => ({ ...prev, cep: formatted }));
+    setDistanceError(null);
+
+    if (digits.length === 8) {
+      const result = await lookupCep(digits);
+      if (result) {
+        setDeliveryAddress((prev) => ({
+          ...prev,
+          street: result.street || prev.street,
+          neighborhood: result.neighborhood || prev.neighborhood,
+        }));
+      }
+    }
+  }
+
+  async function handleCalculateDistanceByAddress() {
+    if (!deliveryAddress.street.trim() && deliveryAddress.cep.replace(/\D/g, '').length < 8) {
+      setDistanceError('Informe a rua/avenida ou o CEP para calcular a distância.');
+      return;
+    }
+
+    setIsCalculatingDistance(true);
+    setDistanceError(null);
+
+    try {
+      const { distanceKm } = await geocodeAndCalculateDistance({
+        cep: deliveryAddress.cep,
+        street: deliveryAddress.street,
+        number: deliveryAddress.number,
+        neighborhood: deliveryAddress.neighborhood,
+      });
+      setDeliveryDistanceKm(distanceKm);
+      setDistanceSource('auto');
+    } catch (err) {
+      setDistanceError(
+        err instanceof Error
+          ? err.message
+          : 'Não foi possível localizar o endereço. Use o GPS ou informe a distância manualmente.'
+      );
+    } finally {
+      setIsCalculatingDistance(false);
+    }
+  }
+
+  function handleUseGpsDistance() {
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      setDistanceError('Geolocalização não suportada neste navegador. Ajuste a distância manualmente.');
+      return;
+    }
+
+    setIsCalculatingDistance(true);
+    setDistanceError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const distanceKm = await calculateRouteDistanceFromStore(
+            pos.coords.latitude,
+            pos.coords.longitude
+          );
+          setDeliveryDistanceKm(distanceKm);
+          setDistanceSource('gps');
+        } catch {
+          setDistanceError('Não foi possível calcular a rota pelo GPS. Ajuste a distância manualmente.');
+        } finally {
+          setIsCalculatingDistance(false);
+        }
+      },
+      () => {
+        setIsCalculatingDistance(false);
+        setDistanceError('Permissão de localização negada. Calcule pelo endereço ou ajuste a distância manualmente.');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }
+
+  function handleManualDistanceChange(nextKm: number) {
+    const clamped = Math.max(0, Math.min(30, Math.round(nextKm * 10) / 10));
+    setDeliveryDistanceKm(clamped);
+    setDistanceSource('manual');
+    setDistanceError(null);
+  }
+
+  const whatsAppOrderUrl = useMemo(() => {
+    if (cartItems.length === 0 || !customerName.trim() || !pixConfirmed || !isDeliveryAddressComplete) {
+      return '';
+    }
 
     const formattedItems = cartItems.map((c) => {
       let text = `• *${c.qty}x ${c.item.name}* — ${formatCurrency(c.unitPrice * c.qty)}`;
@@ -589,31 +701,60 @@ export default function App() {
       return text;
     });
 
+    const addressFormatted = `${deliveryAddress.street.trim()}, nº ${deliveryAddress.number.trim()}${
+      deliveryAddress.complement.trim() ? ` (${deliveryAddress.complement.trim()})` : ''
+    } - ${deliveryAddress.neighborhood.trim()}${
+      deliveryAddress.cep.trim() ? ` — CEP: ${deliveryAddress.cep.trim()}` : ''
+    }`;
+
+    const kmText =
+      deliveryDistanceKm !== null
+        ? `${deliveryDistanceKm.toFixed(1).replace('.', ',')} km`
+        : '0,0 km';
+
     const lines = [
       `🌭 *NOVO PEDIDO — 67 DOG*`,
       ``,
       `📋 *ITENS DO PEDIDO:*`,
       ...formattedItems,
       ``,
+      deliveryMode === 'delivery' ? `💵 *SUBTOTAL DOS ITENS:* ${formatCurrency(itemsSubtotal)}` : null,
+      deliveryMode === 'delivery'
+        ? `🛵 *TAXA DE ENTREGA (${kmText}):* ${formatCurrency(deliveryFee)}`
+        : null,
       `💰 *VALOR TOTAL: ${formatCurrency(totalPrice)}*`,
       ``,
-      `🏃 *TIPO DE ATENDIMENTO:* Retirada no balcão`,
-      `📍 *LOCAL DE RETIRADA:* ${ESTABLISHMENT_INFO.address}`,
+      deliveryMode === 'delivery'
+        ? `🛵 *TIPO DE ATENDIMENTO:* Entrega Delivery`
+        : `🏃 *TIPO DE ATENDIMENTO:* Retirada no balcão`,
+      deliveryMode === 'delivery'
+        ? `📍 *ENDEREÇO DE ENTREGA:* ${addressFormatted}`
+        : `📍 *LOCAL DE RETIRADA:* ${ESTABLISHMENT_INFO.address}`,
       `👤 *NOME DO CLIENTE:* ${customerName.trim()}`,
       orderNotes ? `📝 *OBSERVAÇÕES GERAIS:* ${orderNotes.trim()}` : null,
       ``,
-      `💳 *PAGAMENTO:* Pix (aguardando conferência do comprovante)`,
+      `💳 *PAGAMENTO:* Pix antecipado (aguardando conferência do comprovante)`,
       `🔑 *Chave Pix (CNPJ):* ${ESTABLISHMENT_INFO.pixKeyDisplay} (${ESTABLISHMENT_INFO.pixBeneficiary})`,
       pixPayerName ? `👤 *Titular do Pix:* ${pixPayerName.trim()}` : null,
       `📎 *Vou enviar o comprovante do Pix nesta conversa.*`,
     ].filter(Boolean);
 
     const message = lines.join('\n');
-    window.open(
-      `https://wa.me/${ESTABLISHMENT_INFO.phone}?text=${encodeURIComponent(message)}`,
-      '_blank'
-    );
-  }
+    return `https://wa.me/${ESTABLISHMENT_INFO.phone}?text=${encodeURIComponent(message)}`;
+  }, [
+    cartItems,
+    customerName,
+    pixConfirmed,
+    isDeliveryAddressComplete,
+    deliveryMode,
+    deliveryAddress,
+    deliveryDistanceKm,
+    itemsSubtotal,
+    deliveryFee,
+    totalPrice,
+    orderNotes,
+    pixPayerName,
+  ]);
 
   // Filtered menu categories for the Menu Modal
   const filteredCategories = useMemo(() => {
@@ -1053,7 +1194,7 @@ export default function App() {
               </h2>
             </div>
             <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-1 text-[10px] font-bold text-primary shrink-0">
-              Balcão
+              Balcão &amp; Delivery
             </span>
           </div>
 
@@ -1293,7 +1434,7 @@ export default function App() {
                 <h2 className="font-display text-sm font-black tracking-wide text-foreground">
                   Cardápio 67 DOG
                 </h2>
-                <span className="text-[10px] text-primary font-bold">Retirada no Balcão</span>
+                <span className="text-[10px] text-primary font-bold">Balcão ou Entrega Delivery</span>
               </div>
 
               <button
@@ -1532,26 +1673,50 @@ export default function App() {
               </button>
             </div>
 
-            {/* TIPO DE ATENDIMENTO (RETIRADA VS ENTREGA INDISPONÍVEL) */}
+            {/* TIPO DE ATENDIMENTO (RETIRADA OU ENTREGA HABILITADA) */}
             <div className="mt-5 rounded-2xl glass-panel-subtle p-3 border border-border/80">
-              <p className="text-xs font-bold text-muted-foreground mb-2">Tipo de atendimento:</p>
+              <p className="text-xs font-bold text-muted-foreground mb-2">Como deseja receber?</p>
               <div className="grid grid-cols-2 gap-2">
-                <div className="flex items-center justify-center gap-1.5 rounded-xl border border-primary bg-primary/10 py-2.5 px-2 text-xs font-bold text-primary shadow-xs">
-                  <span>🏃 Retirada (Balcão)</span>
-                  <span className="rounded-full bg-primary/20 px-1.5 py-0.2 text-[9px]">Ativo</span>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMode('pickup')}
+                  className={`flex items-center justify-center gap-1.5 rounded-xl border py-2.5 px-2 text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
+                    deliveryMode === 'pickup'
+                      ? 'border-primary bg-primary/15 text-primary shadow-xs'
+                      : 'border-border/80 bg-secondary/60 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <span>🏃 Retirada</span>
+                  <span className="text-[10px] font-semibold opacity-80">Grátis</span>
+                </button>
 
-                <div
-                  className="flex items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-secondary/80 py-2.5 px-2 text-xs font-semibold text-muted-foreground opacity-50 cursor-not-allowed select-none"
-                  title="Entrega delivery indisponível no momento"
+                <button
+                  type="button"
+                  onClick={() => setDeliveryMode('delivery')}
+                  className={`flex items-center justify-center gap-1.5 rounded-xl border py-2.5 px-2 text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
+                    deliveryMode === 'delivery'
+                      ? 'border-primary bg-primary/15 text-primary shadow-xs'
+                      : 'border-border/80 bg-secondary/60 text-muted-foreground hover:text-foreground'
+                  }`}
                 >
                   <span>🛵 Entrega</span>
-                  <span className="rounded-full bg-muted px-1.5 py-0.2 text-[9px] text-muted-foreground">Em breve</span>
-                </div>
+                  <span className="text-[10px] font-semibold opacity-80">A partir R$ 7</span>
+                </button>
               </div>
-              <p className="mt-2 text-[11px] text-amber-500 dark:text-amber-400/90 flex items-center gap-1 font-medium">
-                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-                <span>No momento operamos exclusivamente com retirada no balcão.</span>
+              <p className="mt-2 text-[11px] text-muted-foreground flex items-center gap-1.5">
+                {deliveryMode === 'delivery' ? (
+                  <>
+                    <Truck className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span>
+                      Taxa mínima de <strong className="text-foreground">R$ 7,00</strong> + <strong className="text-foreground">R$ 1,50/km</strong> a partir da loja (calculada no carrinho).
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-primary" />
+                    <span>Retirada no balcão sem taxa em Fazenda Rio Grande - PR.</span>
+                  </>
+                )}
               </p>
             </div>
 
@@ -1754,27 +1919,207 @@ export default function App() {
               </div>
             ) : (
               <>
-                {/* ATENDIMENTO: RETIRADA OBRIGATÓRIA (ENTREGA INDISPONÍVEL CONFORME SOLICITADO) */}
-                <div className="mt-4 rounded-2xl glass-panel-subtle border border-border/80 p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-bold text-muted-foreground">Forma de recebimento:</p>
-                    <span className="text-[10px] text-primary font-bold">Apenas Retirada</span>
+                {/* ATENDIMENTO: RETIRADA OU ENTREGA DELIVERY */}
+                <div id="delivery-mode-container" className="mt-4 rounded-2xl glass-panel-subtle border border-border/80 p-3.5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-bold text-foreground">Forma de recebimento:</p>
+                    <span className="text-[11px] text-primary font-bold">
+                      {deliveryMode === 'delivery' ? 'Entrega Delivery' : 'Retirada no Balcão'}
+                    </span>
                   </div>
+
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="flex items-center justify-center gap-1.5 rounded-xl border border-primary bg-primary/10 py-2.5 px-2 text-xs font-bold text-primary shadow-xs">
-                      <span>🏃 Retirada (Balcão)</span>
-                    </div>
-                    <div
-                      className="flex items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-secondary/80 py-2.5 px-2 text-xs font-semibold text-muted-foreground opacity-50 cursor-not-allowed select-none"
-                      title="Entrega indisponível no momento"
+                    <button
+                      type="button"
+                      onClick={() => setDeliveryMode('pickup')}
+                      className={`flex items-center justify-center gap-1.5 rounded-xl border py-2.5 px-2 text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
+                        deliveryMode === 'pickup'
+                          ? 'border-primary bg-primary/15 text-primary shadow-xs'
+                          : 'border-border/80 bg-secondary/60 text-muted-foreground hover:text-foreground'
+                      }`}
                     >
-                      <span>🛵 Entrega</span>
-                      <span className="rounded-full bg-muted px-1.5 py-0.2 text-[9px] text-muted-foreground">Em breve</span>
-                    </div>
+                      <span>🏃 Retirada (Balcão)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setDeliveryMode('delivery')}
+                      className={`flex items-center justify-center gap-1.5 rounded-xl border py-2.5 px-2 text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
+                        deliveryMode === 'delivery'
+                          ? 'border-primary bg-primary/15 text-primary shadow-xs'
+                          : 'border-border/80 bg-secondary/60 text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <span>🛵 Entrega Delivery</span>
+                    </button>
                   </div>
-                  <p className="mt-2 text-[10px] text-muted-foreground">
-                    📍 Retirar em: <span className="text-foreground">{ESTABLISHMENT_INFO.address}</span>
-                  </p>
+
+                  {deliveryMode === 'pickup' ? (
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      📍 Retirar em: <span className="text-foreground font-medium">{ESTABLISHMENT_INFO.address}</span>
+                    </p>
+                  ) : (
+                    <div id="delivery-address-container" className="space-y-2.5 pt-1 border-t border-border/60">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                          <MapPin className="h-3.5 w-3.5 text-primary" />
+                          <span>Endereço de Entrega</span>
+                        </span>
+                        <span className="text-[10px] text-muted-foreground">
+                          Mín. R$ 7,00 + R$ 1,50/km
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2">
+                        <input
+                          value={deliveryAddress.cep}
+                          onChange={(e) => handleCepChange(e.target.value)}
+                          placeholder="CEP (opcional)"
+                          inputMode="numeric"
+                          className="col-span-1 rounded-xl border border-input glass-panel px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
+                        />
+                        <input
+                          id="delivery-neighborhood-input"
+                          value={deliveryAddress.neighborhood}
+                          onChange={(e) => {
+                            setDeliveryAddress((prev) => ({ ...prev, neighborhood: e.target.value }));
+                            setDistanceError(null);
+                          }}
+                          placeholder="Bairro *"
+                          className={`col-span-2 rounded-xl border glass-panel px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground transition-colors ${
+                            !deliveryAddress.neighborhood.trim() ? 'border-amber-500/50' : 'border-primary'
+                          }`}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-2">
+                        <input
+                          id="delivery-street-input"
+                          value={deliveryAddress.street}
+                          onChange={(e) => {
+                            setDeliveryAddress((prev) => ({ ...prev, street: e.target.value }));
+                            setDistanceError(null);
+                          }}
+                          placeholder="Rua / Avenida *"
+                          className={`col-span-3 rounded-xl border glass-panel px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground transition-colors ${
+                            !deliveryAddress.street.trim() ? 'border-amber-500/50' : 'border-primary'
+                          }`}
+                        />
+                        <input
+                          id="delivery-number-input"
+                          value={deliveryAddress.number}
+                          onChange={(e) =>
+                            setDeliveryAddress((prev) => ({ ...prev, number: e.target.value }))
+                          }
+                          placeholder="Nº *"
+                          className={`col-span-1 rounded-xl border glass-panel px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground transition-colors ${
+                            !deliveryAddress.number.trim() ? 'border-amber-500/50' : 'border-primary'
+                          }`}
+                        />
+                      </div>
+
+                      <input
+                        value={deliveryAddress.complement}
+                        onChange={(e) =>
+                          setDeliveryAddress((prev) => ({ ...prev, complement: e.target.value }))
+                        }
+                        placeholder="Complemento / Ponto de referência (opcional)"
+                        className="w-full rounded-xl border border-input glass-panel px-2.5 py-2 text-xs outline-none placeholder:text-muted-foreground focus:border-primary"
+                      />
+
+                      {/* AÇÕES DE CÁLCULO DE DISTÂNCIA */}
+                      <div className="grid grid-cols-2 gap-2 pt-0.5">
+                        <button
+                          type="button"
+                          onClick={handleCalculateDistanceByAddress}
+                          disabled={isCalculatingDistance}
+                          className="flex items-center justify-center gap-1.5 rounded-xl bg-primary/15 hover:bg-primary/25 border border-primary/40 px-2.5 py-2 text-[11px] font-bold text-primary transition-all active:scale-95 cursor-pointer min-h-[42px] disabled:opacity-60"
+                        >
+                          {isCalculatingDistance ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Search className="h-3.5 w-3.5" />
+                          )}
+                          <span>Calcular Endereço</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleUseGpsDistance}
+                          disabled={isCalculatingDistance}
+                          className="flex items-center justify-center gap-1.5 rounded-xl bg-secondary hover:bg-secondary/80 border border-border px-2.5 py-2 text-[11px] font-bold text-foreground transition-all active:scale-95 cursor-pointer min-h-[42px] disabled:opacity-60"
+                        >
+                          <LocateFixed className="h-3.5 w-3.5 text-primary" />
+                          <span>Usar meu GPS</span>
+                        </button>
+                      </div>
+
+                      {distanceError && (
+                        <p className="text-[11px] text-amber-500 dark:text-amber-400 flex items-start gap-1.5 leading-snug">
+                          <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                          <span>{distanceError}</span>
+                        </p>
+                      )}
+
+                      {/* AJUSTE MANUAL E EXIBIÇÃO DA DISTÂNCIA / TAXA */}
+                      <div
+                        id="delivery-distance-box"
+                        className="rounded-xl border border-border/80 glass-panel p-2.5 space-y-2"
+                      >
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-muted-foreground">
+                            Distância da loja:
+                            {distanceSource === 'auto' && ' (Endereço)'}
+                            {distanceSource === 'gps' && ' (GPS)'}
+                            {distanceSource === 'manual' && ' (Manual)'}
+                          </span>
+                          <span className="font-display font-extrabold text-foreground">
+                            {deliveryDistanceKm !== null
+                              ? `${deliveryDistanceKm.toFixed(1).replace('.', ',')} km`
+                              : 'Não calculada'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleManualDistanceChange((deliveryDistanceKm ?? 0) - 0.5)}
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted hover:bg-muted-foreground/20 font-bold text-foreground cursor-pointer active:scale-90"
+                            aria-label="Diminuir 0,5 km"
+                          >
+                            −
+                          </button>
+                          <input
+                            type="range"
+                            min="0"
+                            max="20"
+                            step="0.5"
+                            value={deliveryDistanceKm ?? 0}
+                            onChange={(e) => handleManualDistanceChange(parseFloat(e.target.value))}
+                            className="flex-1 accent-amber-500 cursor-pointer"
+                            aria-label="Ajustar distância em quilômetros"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleManualDistanceChange((deliveryDistanceKm ?? 0) + 0.5)}
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-muted hover:bg-muted-foreground/20 font-bold text-foreground cursor-pointer active:scale-90"
+                            aria-label="Aumentar 0,5 km"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between text-[11px] pt-0.5">
+                          <span className="text-muted-foreground">
+                            Base R$ 7,00 + R$ 1,50/km
+                          </span>
+                          <span className="font-bold text-primary">
+                            Taxa: {formatCurrency(deliveryFee)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* LIST OF CART ITEMS WITH EXTRAS AND REMOVALS */}
@@ -1861,7 +2206,10 @@ export default function App() {
                 {/* IDENTIFICAÇÃO DO CLIENTE */}
                 <div className="mt-5 space-y-2">
                   <label className="text-xs font-bold text-foreground block">
-                    Nome de quem vai retirar no balcão: <span className="text-destructive">*</span>
+                    {deliveryMode === 'delivery'
+                      ? 'Nome de quem vai receber:'
+                      : 'Nome de quem vai retirar no balcão:'}{' '}
+                    <span className="text-destructive">*</span>
                   </label>
                   <input
                     id="customer-name-input"
@@ -1882,9 +2230,27 @@ export default function App() {
 
                 {/* RESUMO DE VALORES */}
                 <div className="mt-5 space-y-1.5 border-t border-border/80 pt-4 text-sm">
+                  {deliveryMode === 'delivery' && (
+                    <div className="flex justify-between text-muted-foreground text-xs">
+                      <span>Subtotal dos itens</span>
+                      <span className="font-semibold text-foreground">{formatCurrency(itemsSubtotal)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-muted-foreground text-xs">
-                    <span>Taxa de Atendimento (Retirada)</span>
-                    <span className="text-emerald-500 dark:text-emerald-400 font-bold">Grátis</span>
+                    <span>
+                      {deliveryMode === 'delivery'
+                        ? `Taxa de Entrega (${
+                            deliveryDistanceKm !== null
+                              ? `${deliveryDistanceKm.toFixed(1).replace('.', ',')} km`
+                              : 'mínimo'
+                          })`
+                        : 'Taxa de Atendimento (Retirada)'}
+                    </span>
+                    {deliveryMode === 'delivery' ? (
+                      <span className="font-bold text-foreground">{formatCurrency(deliveryFee)}</span>
+                    ) : (
+                      <span className="text-emerald-500 dark:text-emerald-400 font-bold">Grátis</span>
+                    )}
                   </div>
                   <div className="flex justify-between font-display text-base font-extrabold text-foreground">
                     <span>Total a Pagar</span>
@@ -1962,11 +2328,26 @@ export default function App() {
 
                 {/* BOTÃO ENVIAR PEDIDO NO WHATSAPP (DESIGN DESENQUADRADO, FLUIDO E MODERNO) */}
                 <div className="mt-5">
-                  {!pixConfirmed || !customerName.trim() ? (
+                  {!pixConfirmed || !customerName.trim() || !isDeliveryAddressComplete ? (
                     <button
                       type="button"
                       onClick={() => {
-                        if (!customerName.trim()) {
+                        if (deliveryMode === 'delivery' && !deliveryAddress.neighborhood.trim()) {
+                          const el = document.getElementById('delivery-neighborhood-input');
+                          el?.focus();
+                          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else if (deliveryMode === 'delivery' && !deliveryAddress.street.trim()) {
+                          const el = document.getElementById('delivery-street-input');
+                          el?.focus();
+                          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else if (deliveryMode === 'delivery' && !deliveryAddress.number.trim()) {
+                          const el = document.getElementById('delivery-number-input');
+                          el?.focus();
+                          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else if (deliveryMode === 'delivery' && deliveryDistanceKm === null) {
+                          const el = document.getElementById('delivery-distance-box');
+                          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        } else if (!customerName.trim()) {
                           const inputEl = document.getElementById('customer-name-input');
                           inputEl?.focus();
                           inputEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1983,25 +2364,40 @@ export default function App() {
                         </div>
                         <div className="min-w-0">
                           <p className="font-display text-xs font-bold text-foreground truncate">
-                            {!customerName.trim()
-                              ? '1. Digite seu nome para retirar'
-                              : '2. Confirme o pagamento Pix'}
+                            {deliveryMode === 'delivery' &&
+                            (!deliveryAddress.street.trim() ||
+                              !deliveryAddress.number.trim() ||
+                              !deliveryAddress.neighborhood.trim())
+                              ? '1. Preencha o endereço de entrega'
+                              : deliveryMode === 'delivery' && deliveryDistanceKm === null
+                              ? '2. Calcule ou ajuste a distância (km)'
+                              : !customerName.trim()
+                              ? `${deliveryMode === 'delivery' ? '3' : '1'}. Digite seu nome`
+                              : `${deliveryMode === 'delivery' ? '4' : '2'}. Confirme o pagamento Pix`}
                           </p>
-                          <p className="text-[11px] text-amber-300/80 truncate">
-                            {!customerName.trim()
+                          <p className="text-[11px] text-amber-500 dark:text-amber-300/80 truncate">
+                            {deliveryMode === 'delivery' &&
+                            (!deliveryAddress.street.trim() ||
+                              !deliveryAddress.number.trim() ||
+                              !deliveryAddress.neighborhood.trim())
+                              ? 'Informe rua, número e bairro para entrega'
+                              : deliveryMode === 'delivery' && deliveryDistanceKm === null
+                              ? 'Toque para calcular a taxa de entrega'
+                              : !customerName.trim()
                               ? 'Toque aqui para preencher seu nome'
                               : 'Marque a caixinha do Pix pago para liberar'}
                           </p>
                         </div>
                       </div>
-                      <div className="shrink-0 rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold text-amber-300 group-hover:bg-amber-500/30 transition-colors">
+                      <div className="shrink-0 rounded-full bg-amber-500/20 px-2.5 py-1 text-[10px] font-bold text-amber-500 dark:text-amber-300 group-hover:bg-amber-500/30 transition-colors">
                         Pendente
                       </div>
                     </button>
                   ) : (
-                    <button
-                      type="button"
-                      onClick={sendWhatsAppOrder}
+                    <a
+                      href={whatsAppOrderUrl}
+                      target="_blank"
+                      rel="noreferrer"
                       className="group relative flex w-full items-center justify-between gap-3 overflow-hidden rounded-2xl bg-gradient-to-r from-[#25D366] via-[#1EBE5D] to-[#128C7E] p-3.5 text-white shadow-[0_12px_28px_-6px_rgba(37,211,102,0.45)] transition-all duration-300 hover:brightness-110 active:scale-[0.98] cursor-pointer animate-pulse hover:animate-none"
                     >
                       <div className="flex items-center gap-3 min-w-0">
@@ -2020,7 +2416,7 @@ export default function App() {
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/25 text-white group-hover:translate-x-1 transition-transform">
                         <span className="font-bold text-sm">›</span>
                       </div>
-                    </button>
+                    </a>
                   )}
                 </div>
               </>
@@ -2115,7 +2511,7 @@ export default function App() {
                 <div className="rounded-2xl border border-rose-500/35 glass-panel-subtle p-4">
                   <div className="flex items-center gap-2 text-rose-500 dark:text-rose-400 font-display font-bold text-xs uppercase tracking-wider mb-2">
                     <MapPin className="h-4 w-4" />
-                    <span>Local para Retirada dos Lanches</span>
+                    <span>Endereço da Loja (Retirada &amp; Entrega)</span>
                   </div>
 
                   <p className="text-sm font-semibold text-foreground leading-relaxed">
@@ -2243,22 +2639,19 @@ export default function App() {
                     <CreditCard className="h-4 w-4" />
                     <span>Formas de Pagamento Aceitas</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                    <div className="rounded-xl glass-panel p-2.5 border border-border/80">
-                      <span className="text-lg block">⚡</span>
-                      <span className="font-bold text-foreground block mt-0.5">Pix</span>
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Sem taxa</span>
+                  <div className="flex items-center justify-between gap-3 rounded-xl glass-panel p-3 border border-emerald-500/30 text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-xl">⚡</span>
+                      <div>
+                        <span className="font-bold text-foreground block">Pix Antecipado (CNPJ)</span>
+                        <span className="text-[11px] text-muted-foreground">
+                          Obrigatório para pedidos de Retirada no Balcão e Entrega Delivery
+                        </span>
+                      </div>
                     </div>
-                    <div className="rounded-xl glass-panel p-2.5 border border-border/80">
-                      <span className="text-lg block">💳</span>
-                      <span className="font-bold text-foreground block mt-0.5">Cartão</span>
-                      <span className="text-[10px] text-muted-foreground">Débito/Crédito</span>
-                    </div>
-                    <div className="rounded-xl glass-panel p-2.5 border border-border/80">
-                      <span className="text-lg block">💵</span>
-                      <span className="font-bold text-foreground block mt-0.5">Dinheiro</span>
-                      <span className="text-[10px] text-muted-foreground">No Balcão</span>
-                    </div>
+                    <span className="shrink-0 text-[11px] text-emerald-600 dark:text-emerald-400 font-bold">
+                      Sem taxa
+                    </span>
                   </div>
                 </div>
               )}
