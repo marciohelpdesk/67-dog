@@ -508,7 +508,7 @@ export default function App() {
       list.push({
         item: dogRaiz,
         badge: '🌭 O Tradicional',
-        subtitle: 'Vina, tomate fresco, milho verde, cebola, maionese e batata palha',
+        subtitle: 'Vina, tomate fresco, milho verde, maionese e batata palha',
         img: ASSETS.hotdogAppetizing,
       });
     }
